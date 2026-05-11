@@ -20,7 +20,7 @@
 body {
   margin: 0;
   font-family: var(--gd-font-body);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
   /* Page background is never white. --gd-color-bg-surface is reserved
      for elevated components (cards, ledger, filebar, inputs, quote);
      section/body backgrounds use --gd-color-bg-page or --gd-color-bg-warm. */

@@ -56,6 +56,7 @@ const TOKEN_VALUES: Record<string, string> = {
   "--gd-lh-pullquote": "1.35",
   "--gd-lh-body": "1.55",
   "--gd-tr-mono": "0.18em",
+  "--gd-tr-mono-s": "0.16rem",
   "--gd-tr-mono-wide": "0.22em",
   "--gd-color-fg": "#1d242d",
   "--gd-color-fg-strong": "#0c1117",
