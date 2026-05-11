@@ -451,7 +451,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   letter-spacing: var(--gd-tr-mono);
-  color: var(--gd-color-fg-muted);
+  color: var(--read-text-muted);
 }
 
 /* =====================================================================
@@ -734,14 +734,14 @@
 .read-pad-demo__fill {
   display: block;
   background: var(--gd-color-bg-surface);
-  border: var(--read-stroke-hairline) dashed var(--gd-color-fg-muted);
+  border: var(--read-stroke-hairline) dashed var(--read-text-muted);
   padding: var(--read-space-sm);
   text-align: center;
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--read-text-muted);
 }
 
 /* =====================================================================
@@ -770,7 +770,7 @@
 .read-gd-token-lbl {
   background: var(--read-bg);
   border: var(--read-stroke-hairline) solid var(--read-border);
-  color: var(--gd-color-fg-strong);
+  color: var(--read-text);
 }
 
 .read-gd-class-lbl {
