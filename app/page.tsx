@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ReadSection } from "@/app/_components/ReadSection";
 import { GdSlider } from "@/app/_components/GdSlider";
+import { SiteHeader } from "@/app/_components/SiteHeader";
 
 const colorTokens: { key: string; token: string; value: string; classes?: string[]; when: string }[] = [
   { key: "bg-page",     token: "--gd-color-bg-page",     value: "#fafaf6", when: "Background — primary page ground." },
@@ -343,6 +344,42 @@ export default function DesignPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </ReadSection>
+
+      <ReadSection
+        id="header"
+        title="Site header"
+        level={2}
+        intro="[Section intro — the real top-of-page chrome. A thin dark banner over a light topnav. Collapses to a single compact topnav on scroll.]"
+        whenToUse="Exactly one .gd-banner per page, and only at the very top. The banner uses --gd-color-fg-strong (the system's only structural dark) — never invent a second dark. Exactly one .gd-btn (primary CTA) in the header — it is the page's primary action. The scroll transition is transition-based only: max-height + opacity on the banner, padding-block on the topnav, both via --gd-d-base / --gd-ease. Never @keyframes. The weather widget is decorative chrome, never a feature — it carries no interactivity and never grows into a forecast surface. The .gd-phone class powers both renders (banner + topnav-on-scroll); never duplicate the element with bespoke styles."
+      >
+        <div className="gd-section">
+          <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row__labels">
+              <div className="read-gd-tokens">
+                <span className="read-gd-class-lbl">.gd-site-header</span>
+                <span className="read-gd-class-lbl">.gd-banner</span>
+                <span className="read-gd-class-lbl">.gd-topnav</span>
+                <span className="read-gd-class-lbl">.gd-phone</span>
+                <span className="read-gd-class-lbl">.gd-weather</span>
+                <span className="read-gd-token-lbl">--gd-header-pad-y</span>
+                <span className="read-gd-token-lbl">--gd-header-pad-y-compact</span>
+                <span className="read-gd-token-lbl">--gd-banner-pad-y</span>
+                <span className="read-gd-token-lbl">--gd-logo-h</span>
+                <span className="read-gd-token-lbl">--gd-z-header</span>
+              </div>
+            </div>
+            <p className="read-swatch__when">
+              Initial state — banner + topnav. The real header at the top of this page IS this element; the demo below renders it twice in isolation so both states are visible together. The phone-icon link in the banner has no background and no border by spec.
+            </p>
+            <SiteHeader embed />
+
+            <p className="read-swatch__when">
+              Scrolled state — banner collapsed, phone migrated into the topnav next to the CTA, topnav vertical padding halved via --gd-header-pad-y-compact.
+            </p>
+            <SiteHeader embed forceScrolled />
           </div>
         </div>
       </ReadSection>

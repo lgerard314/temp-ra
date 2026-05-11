@@ -9,6 +9,7 @@ import "./styles/base.css";
 import "./styles/tokens.css";
 import "./styles/readability.css";
 import { ReadNav } from "@/app/_components/ReadNav";
+import { SiteHeader } from "@/app/_components/SiteHeader";
 
 // Webfonts for the design system. Each font sets a CSS custom property
 // (--gd-font-*-loaded) on <html>; tokens.css reads those vars in the
@@ -59,6 +60,7 @@ export default function RootLayout({
     <html lang="en" className={fontVariables}>
       <body>
         <ReadNav />
+        <SiteHeader />
         <main>{children}</main>
       </body>
     </html>

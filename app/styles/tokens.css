@@ -156,8 +156,19 @@
      defines the rule even though .gd-section doesn't auto-consume it
      yet (real section classes will).
      ==================================================================== */
-  --gd-header-h:      4.5rem;                  /* 72px — placeholder for the fixed header */
+  --gd-header-h:      4.5rem;                  /* 72px — the topnav's content-reserve height used in --gd-image-max-h. Sized so it covers the compact (scrolled) state: logo height + 2 × --gd-header-pad-y-compact comfortably fits under this ceiling. */
   --gd-section-pad-y: var(--gd-space-12);      /* 3rem — vertical section padding per side */
+
+  /* Site-header role tokens. Each composes from the spacing scale; the
+     compact variant is exactly half the rest value per the spec. */
+  --gd-header-pad-y:         var(--gd-space-4);                       /* 16px — topnav vertical padding at rest (one side) */
+  --gd-header-pad-y-compact: calc(var(--gd-header-pad-y) / 2);        /*  8px — topnav vertical padding when scrolled (50% reduction) */
+  --gd-banner-pad-y:         var(--gd-space-2);                       /*  8px — thin top-banner vertical padding (one side) */
+  --gd-logo-h:               var(--gd-space-10);                      /* 40px — capped logo height in the topnav */
+
+  /* Z-index role — the single sticky header surface. No broader z-index
+     scale exists yet; one token, one role. */
+  --gd-z-header: 50;
 
   /* Derived cap: no image (except a full-bleed section background) may
      exceed this height. Per-ratio max-width on .gd-ratio--* modifiers
@@ -1256,6 +1267,248 @@
 
 .gd-pm__name {
   color: var(--gd-color-fg-strong);
+}
+
+/* ======================================================================
+   Site header — the real chrome at the top of every page. Two stacked
+   strips:
+     .gd-banner   — thin dark strip, --gd-color-fg-strong ground, two
+                    tiers of on-dark text. Slides away when scrolled.
+     .gd-topnav   — main nav: logo + weather widget + tab links + the
+                    page's one primary .gd-btn (Get a free quote).
+                    Vertical padding halves in the scrolled state.
+
+   The header is position: sticky so the topnav remains pinned at the
+   top after the banner collapses; the banner sits inside the same
+   sticky wrapper so the height of the chrome itself is what scrolls
+   off — no separate fixed positioning.
+
+   State: .gd-site-header.is-scrolled is written by the React wrapper
+   when window.scrollY crosses a small threshold. The class swaps which
+   role-padding token the topnav consumes and reveals the topnav phone
+   slot (the banner phone slot fades out with the banner).
+   ====================================================================== */
+
+.gd-site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--gd-z-header);
+  background: var(--gd-color-bg-page);
+}
+
+/* Embed modifier — used ONLY in the design guide demo, where the
+   header is rendered inside a section instead of as real chrome.
+   Drops sticky + the header z-index so the demo instance can't
+   compete with the real chrome at the viewport top. The cardinality
+   rule (one banner per page, at the very top) still applies to real
+   usage — embeds are guide-only and never ship in production pages. */
+.gd-site-header--embed {
+  position: static;
+  z-index: auto;
+}
+
+/* Banner strip — dark ground, on-dark text. Collapses by animating its
+   max-height + opacity to zero in the scrolled state. The transition
+   targets only properties the system already animates (max-height,
+   opacity); duration + ease come from existing motion tokens. */
+.gd-banner {
+  background: var(--gd-color-fg-strong);
+  color: var(--gd-color-fg-on-dark);
+  overflow: hidden;
+  max-height: var(--gd-space-12);              /* generous ceiling — content sets the actual height */
+  transition:
+    max-height var(--gd-d-base) var(--gd-ease),
+    opacity    var(--gd-d-base) var(--gd-ease),
+    border-color var(--gd-d-base) var(--gd-ease);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-dim);
+}
+
+.gd-site-header.is-scrolled > .gd-banner {
+  max-height: 0;
+  opacity: 0;
+  border-bottom-color: transparent;
+}
+
+.gd-banner__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gd-space-6);
+  padding-block: var(--gd-banner-pad-y);
+  padding-inline: var(--gd-pad-x);
+}
+
+.gd-banner__meta {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-on-dark-dim);
+}
+
+/* Topnav — light ground (page color, so it blends with the page beneath
+   when the banner collapses). Padding role tokens swap on the scroll
+   state. */
+.gd-topnav {
+  background: var(--gd-color-bg-page);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+  transition: padding-block var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-topnav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-6);
+  padding-block: var(--gd-header-pad-y);
+  padding-inline: var(--gd-pad-x);
+  transition: padding-block var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-site-header.is-scrolled .gd-topnav__inner {
+  padding-block: var(--gd-header-pad-y-compact);
+}
+
+.gd-topnav__brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.gd-topnav__logo {
+  display: block;
+  height: var(--gd-logo-h);
+  width: auto;
+}
+
+.gd-topnav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  margin-left: auto;            /* pushes links + cta group to the right */
+}
+
+.gd-topnav__link {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+  text-decoration: none;
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-topnav__link:hover {
+  color: var(--gd-color-accent);
+}
+
+.gd-topnav__cta {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-4);
+}
+
+/* The topnav-slot phone is hidden by default and revealed on scroll —
+   it duplicates the banner phone visually but only one is on-screen at
+   a time, so the user never sees both. Same .gd-phone class powers
+   both renders; the wrapper controls visibility. */
+.gd-topnav__phone-slot {
+  display: none;
+}
+
+.gd-site-header.is-scrolled .gd-topnav__phone-slot {
+  display: inline-flex;
+}
+
+/* ======================================================================
+   Phone link — a CTA-style mono link for the phone number with an
+   inline icon to the left. No background, no border (per spec). Two
+   tier modifiers select on-dark vs on-light context so the same class
+   powers both the banner render and the topnav render.
+   ====================================================================== */
+
+.gd-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gd-space-2);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--gd-color-fg-strong);
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-phone:hover {
+  color: var(--gd-color-accent);
+}
+
+/* On-dark variant — used inside .gd-banner. Two-tier on-dark vocab
+   only; primary tier here so the phone reads as a CTA. */
+.gd-phone--on-dark {
+  color: var(--gd-color-fg-on-dark);
+}
+
+.gd-phone--on-dark:hover {
+  color: var(--gd-color-accent);
+}
+
+.gd-phone__icon {
+  width: var(--gd-fs-mono);
+  height: var(--gd-fs-mono);
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+/* ======================================================================
+   Weather widget — small icon + temperature + short label, sitting
+   inside the topnav next to the brand. Decorative chrome, never a
+   feature; uses the existing mono / muted vocabulary and adds no new
+   primitives.
+   ====================================================================== */
+
+.gd-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gd-space-2);
+  padding-inline: var(--gd-space-3);
+  border-left: var(--gd-bw-hair) solid var(--gd-rule-default);
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-weather__icon {
+  width: var(--gd-fs-h4);
+  height: var(--gd-fs-h4);
+  display: inline-block;
+  flex: 0 0 auto;
+  color: var(--gd-color-accent);
+}
+
+.gd-weather__temp {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h4);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-heading);
+  color: var(--gd-color-fg-strong);
+}
+
+.gd-weather__label {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
 }
 
 /* ======================================================================
