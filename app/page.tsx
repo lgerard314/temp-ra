@@ -18,6 +18,54 @@ const colorTokens: { key: string; token: string; value: string; classes?: string
   { key: "fg-on-dark-dim",   token: "--gd-color-fg-on-dark-dim",   value: "rgba(255,255,255,0.7)",  classes: [".gd-frame__meta-bot"], when: "Typography on dark surfaces — dimmed/secondary text. Used on the lower meta row of .gd-frame for the secondary annotation tier." },
 ];
 
+/* Hand-encoded mirror of typography token values from tokens.css.
+   Used only by the design-guide typography section to show what each
+   role class resolves to. If a token value changes in tokens.css, update
+   here too — there's no live read, deliberately, so the guide stays a
+   static document. */
+const TOKEN_VALUES: Record<string, string> = {
+  "--gd-font-display": "Archivo Narrow",
+  "--gd-font-body": "Work Sans",
+  "--gd-font-mono": "JetBrains Mono",
+  "--gd-font-serif": "Newsreader",
+  "--gd-fs-display": "clamp(2.6rem, 5vw, 4.2rem)",
+  "--gd-fs-h1": "clamp(2rem, 3.6vw, 3rem)",
+  "--gd-fs-h2": "clamp(1.6rem, 2.6vw, 2.2rem)",
+  "--gd-fs-h2-display": "= --gd-fs-h1",
+  "--gd-fs-h3": "1.5rem",
+  "--gd-fs-h4": "1.15rem",
+  "--gd-fs-body-l": "1.1rem",
+  "--gd-fs-body": "1rem",
+  "--gd-fs-body-s": "0.92rem",
+  "--gd-fs-mono": "0.78rem",
+  "--gd-fs-mono-s": "0.65rem",
+  "--gd-fs-pullquote": "1.4rem",
+  "--gd-fw-regular": "400",
+  "--gd-fw-medium": "500",
+  "--gd-fw-semibold": "600",
+  "--gd-fw-bold": "700",
+  "--gd-lh-display": "0.95",
+  "--gd-lh-heading": "1.05",
+  "--gd-lh-pullquote": "1.35",
+  "--gd-lh-body": "1.55",
+  "--gd-tr-mono": "0.18em",
+  "--gd-tr-mono-wide": "0.22em",
+  "--gd-color-fg": "#1d242d",
+  "--gd-color-fg-strong": "#0c1117",
+  "--gd-color-fg-muted": "#5a6168",
+  "--gd-color-accent": "#fb6a1d",
+};
+
+const tokenProperty = (t: string): string => {
+  if (t.startsWith("--gd-font-")) return "font-family";
+  if (t.startsWith("--gd-fs-")) return "font-size";
+  if (t.startsWith("--gd-fw-")) return "font-weight";
+  if (t.startsWith("--gd-lh-")) return "line-height";
+  if (t.startsWith("--gd-tr-")) return "letter-spacing";
+  if (t.startsWith("--gd-color-")) return "color";
+  return "—";
+};
+
 const typeRoles: {
   className: string;
   sample: ReactNode;
@@ -30,7 +78,7 @@ const typeRoles: {
   { className: "gd-h2-display", sample: <>The quick <span className="gd-accent">brown fox</span></>, tokens: ["--gd-font-display", "--gd-fs-h2-display", "--gd-fw-bold", "--gd-lh-display", "--gd-color-fg-strong"], note: "Semantic h2 at display size." },
   { className: "gd-h3",        sample: "The quick brown fox jumps over the lazy dog",                tokens: ["--gd-font-display", "--gd-fs-h3", "--gd-fw-semibold", "--gd-lh-heading", "--gd-color-fg-strong"] },
   { className: "gd-h4",        sample: "The quick brown fox jumps over the lazy dog",                tokens: ["--gd-font-display", "--gd-fs-h4", "--gd-fw-semibold", "--gd-lh-heading", "--gd-color-fg-strong"] },
-  { className: "gd-body-l",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-l", "--gd-fw-regular", "--gd-lh-body", "--gd-color-fg"] },
+  { className: "gd-body-l",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-l", "--gd-fw-medium", "--gd-lh-body", "--gd-color-fg"] },
   { className: "gd-body",      sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body", "--gd-fw-regular", "--gd-lh-body", "--gd-color-fg"] },
   { className: "gd-body-s",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-s", "--gd-fw-regular", "--gd-lh-body", "--gd-color-fg"] },
   { className: "gd-mono",      sample: "STATUS · 240924 · OPEN",                                    tokens: ["--gd-font-mono", "--gd-fs-mono", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono", "--gd-color-fg-muted"] },
@@ -139,7 +187,7 @@ export default function DesignPage() {
                   <span className="read-token-value">{value}</span>
                 </div>
                 <div className="read-swatch__chip" data-color={key} />
-                <p className="read-swatch__when">{when}</p>
+                <p className="read-section__when">{when}</p>
               </div>
             ))}
           </div>
@@ -165,6 +213,17 @@ export default function DesignPage() {
                   ))}
                   {note ? <span className="read-token-meta">{note}</span> : null}
                 </div>
+                <dl className="read-type-spec" aria-label={`Computed properties for .${className}`}>
+                  {tokens.map((t) => (
+                    <div className="read-type-spec__row" key={t}>
+                      <dt className="read-type-spec__prop">{tokenProperty(t)}</dt>
+                      <dd className="read-type-spec__val">
+                        <span className="read-type-spec__token">{t}</span>
+                        <span className="read-type-spec__value">{TOKEN_VALUES[t] ?? "—"}</span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             ))}
           </div>
@@ -191,12 +250,14 @@ export default function DesignPage() {
 
           <section id="spacing-padding" aria-labelledby="spacing-padding-title">
             <header className="read-subsection">
-              <h3 className="read-subsection__title" id="spacing-padding-title">
-                Padding
-              </h3>
-              <p className="read-subsection__intro">
-                Orange marks the padding zones the token actually controls. Gray is non-token visual buffer (kept so the inner content has breathing room).
-              </p>
+              <div className="read-section__heading">
+                <h3 className="read-subsection__title" id="spacing-padding-title">
+                  Padding
+                </h3>
+                <p className="read-section__intro">
+                  Orange marks the padding zones the token actually controls. Gray is non-token visual buffer (kept so the inner content has breathing room).
+                </p>
+              </div>
             </header>
             <div className="read-pad-demo">
               {padDemos.map(({ key, token, value, classes, note }) => (
@@ -210,7 +271,7 @@ export default function DesignPage() {
                     </div>
                     <span className="read-token-value">{value}</span>
                   </div>
-                  <p className="read-swatch__when">{note}</p>
+                  <p className="read-section__when">{note}</p>
                   <div className="read-pad-demo__box" data-pad={key}>
                     <span className="read-pad-demo__fill">content</span>
                   </div>
@@ -238,7 +299,7 @@ export default function DesignPage() {
                   </div>
                   <span className="read-token-value">{value}</span>
                 </div>
-                <p className="read-swatch__when">{note}</p>
+                <p className="read-section__when">{note}</p>
                 <span className="read-border-demo__bar" data-bw={key} aria-hidden="true" />
               </div>
             ))}
@@ -246,12 +307,14 @@ export default function DesignPage() {
 
           <section id="borders-rule-colors" aria-labelledby="borders-rule-colors-title">
             <header className="read-subsection">
-              <h3 className="read-subsection__title" id="borders-rule-colors-title">
-                Rule colors
-              </h3>
-              <p className="read-subsection__intro">
-                Border colors paired with the context they sit on. Each role is single-purpose; the dim role is the only one for dark surfaces.
-              </p>
+              <div className="read-section__heading">
+                <h3 className="read-subsection__title" id="borders-rule-colors-title">
+                  Rule colors
+                </h3>
+                <p className="read-section__intro">
+                  Border colors paired with the context they sit on. Each role is single-purpose; the dim role is the only one for dark surfaces.
+                </p>
+              </div>
             </header>
             <div className="read-rule-demo">
               {ruleColors.map(({ key, token, value, note }) => (
@@ -262,7 +325,7 @@ export default function DesignPage() {
                     </div>
                     <span className="read-token-value">{value}</span>
                   </div>
-                  <p className="read-swatch__when">{note}</p>
+                  <p className="read-section__when">{note}</p>
                   <span className="read-rule-demo__bar" data-rule={key} aria-hidden="true" />
                 </div>
               ))}
@@ -288,7 +351,7 @@ export default function DesignPage() {
                   </div>
                   <span className="read-token-value">{value}</span>
                 </div>
-                <p className="read-swatch__when">{note}</p>
+                <p className="read-section__when">{note}</p>
                 <div className="read-radius-demo__box" data-r={key} aria-hidden="true" />
               </div>
             ))}
@@ -313,7 +376,7 @@ export default function DesignPage() {
                   </div>
                   <span className="read-token-value">{value}</span>
                 </div>
-                <p className="read-swatch__when">{note}</p>
+                <p className="read-section__when">{note}</p>
                 <div className="read-shadow-demo__box" data-shadow={key} aria-hidden="true" />
               </div>
             ))}
@@ -338,7 +401,7 @@ export default function DesignPage() {
                   </div>
                   <span className="read-token-value">{value}</span>
                 </div>
-                <p className="read-swatch__when">{note}</p>
+                <p className="read-section__when">{note}</p>
                 <div className="read-mw-demo__track">
                   <div className="read-mw-demo__bar" data-mw={key} aria-hidden="true" />
                 </div>
@@ -371,15 +434,10 @@ export default function DesignPage() {
                 <span className="read-gd-token-lbl">--gd-z-header</span>
               </div>
             </div>
-            <p className="read-swatch__when">
-              Initial state — banner + topnav. The real header at the top of this page IS this element; the demo below renders it twice in isolation so both states are visible together. The phone-icon link in the banner has no background and no border by spec.
+            <p className="read-section__when">
+              Demo is locked to the rest state so the topbar (.gd-banner) stays visible while you read — the live header at the top of this page is the canonical reference for the scroll-collapse behavior. On scroll: the dark .gd-banner strip collapses (max-height + opacity → 0), the phone migrates into the .gd-topnav next to the CTA, and topnav vertical padding halves from --gd-header-pad-y to --gd-header-pad-y-compact. Phone-icon link has no background and no border by spec.
             </p>
             <SiteHeader embed />
-
-            <p className="read-swatch__when">
-              Scrolled state — banner collapsed, phone migrated into the topnav next to the CTA, topnav vertical padding halved via --gd-header-pad-y-compact.
-            </p>
-            <SiteHeader embed forceScrolled />
           </div>
         </div>
       </ReadSection>
@@ -403,7 +461,7 @@ export default function DesignPage() {
                   <span className="read-gd-token-lbl">--gd-lift</span>
                 </div>
               </div>
-              <p className="read-swatch__when">
+              <p className="read-section__when">
                 Standalone images — lift scoped to the image frame only, never the caption. At rest: hairline border, no shadow, no translation. On hover (anywhere in the figure): box-shadow lifts to --gd-shadow-lift and the frame translates upward by --gd-lift. Hover any image in the Images section to see it live.
               </p>
             </div>
@@ -419,7 +477,7 @@ export default function DesignPage() {
                   <span className="read-gd-token-lbl">--gd-lift</span>
                 </div>
               </div>
-              <p className="read-swatch__when">
+              <p className="read-section__when">
                 Sliders and frames — the lift applies to the whole element. The slider's caption role is played by .gd-slider__meta (internal), so the border + lift wraps slider + meta as one. Drag interaction is separate — pointer-driven --gd-slider-pos updates without a transition (drag tracks 1:1 with the pointer).
               </p>
             </div>
@@ -436,12 +494,14 @@ export default function DesignPage() {
       >
         <section id="images-standard" aria-labelledby="images-standard-title">
           <header className="read-subsection">
-            <h3 className="read-subsection__title" id="images-standard-title">
-              Standard
-            </h3>
-            <p className="read-subsection__intro">
-              Every image on the site must adopt one of these five aspect ratios. Images inside <code>.gd-ratio</code> are always <code>object-fit: cover</code> — they can never stretch or distort. Each <code>.gd-ratio--*</code> modifier also enforces a per-ratio <code>max-width</code> derived from <code>--gd-image-max-h</code> so no image grows past the viewport-fit cap; when the cap kicks in the entire box shrinks proportionally. The only exception (for both rules) is a photo used as full-bleed background for an entire section.
-            </p>
+            <div className="read-section__heading">
+              <h3 className="read-subsection__title" id="images-standard-title">
+                Standard
+              </h3>
+              <p className="read-section__intro">
+                Every image on the site must adopt one of these five aspect ratios. Images inside <code>.gd-ratio</code> are always <code>object-fit: cover</code> — they can never stretch or distort. Each <code>.gd-ratio--*</code> modifier also enforces a per-ratio <code>max-width</code> derived from <code>--gd-image-max-h</code> so no image grows past the viewport-fit cap; when the cap kicks in the entire box shrinks proportionally. The only exception (for both rules) is a photo used as full-bleed background for an entire section.
+              </p>
+            </div>
           </header>
           <div className="gd-section">
             <div className="read-demo-row read-demo-row--stack">
@@ -455,7 +515,7 @@ export default function DesignPage() {
                   ))}
                 </div>
               </div>
-              <p className="read-swatch__when">
+              <p className="read-section__when">
                 All images locked to one of the five shapes — no other ratio is sanctioned. Heights vary across the row by design — that's the comparison.
               </p>
               <div className="read-ratio-rail">
@@ -486,12 +546,14 @@ export default function DesignPage() {
       >
         <section id="frames-frame" aria-labelledby="frames-frame-title">
           <header className="read-subsection">
-            <h3 className="read-subsection__title" id="frames-frame-title">
-              Frame
-            </h3>
-            <p className="read-subsection__intro">
-              Photo frame at each sanctioned aspect ratio. Corner brackets are orange; meta rows are mono on the dark surface.
-            </p>
+            <div className="read-section__heading">
+              <h3 className="read-subsection__title" id="frames-frame-title">
+                Frame
+              </h3>
+              <p className="read-section__intro">
+                Photo frame at each sanctioned aspect ratio. Corner brackets are orange; meta rows are mono on the dark surface.
+              </p>
+            </div>
           </header>
           <div className="gd-section">
             <div className="read-demo-row read-demo-row--stack">
@@ -503,7 +565,7 @@ export default function DesignPage() {
                   <span className="read-gd-class-lbl">.gd-frame__meta-bot</span>
                 </div>
               </div>
-              <p className="read-swatch__when">
+              <p className="read-section__when">
                 One frame per aspect ratio — the same treatment scales to every sanctioned shape without modification.
               </p>
               <div className="read-ratio-rail">
@@ -529,12 +591,14 @@ export default function DesignPage() {
 
         <section id="frames-slider" aria-labelledby="frames-slider-title">
           <header className="read-subsection">
-            <h3 className="read-subsection__title" id="frames-slider-title">
-              Slider
-            </h3>
-            <p className="read-subsection__intro">
-              Before/after comparison overlay at each sanctioned aspect ratio. Orange vertical handle at the 50% line; before/after tags top-left and top-right; bottom mono meta bar.
-            </p>
+            <div className="read-section__heading">
+              <h3 className="read-subsection__title" id="frames-slider-title">
+                Slider
+              </h3>
+              <p className="read-section__intro">
+                Before/after comparison overlay at each sanctioned aspect ratio. Orange vertical handle at the 50% line; before/after tags top-left and top-right; bottom mono meta bar.
+              </p>
+            </div>
           </header>
           <div className="gd-section">
             <div className="read-demo-row read-demo-row--stack">
@@ -548,7 +612,7 @@ export default function DesignPage() {
                   <span className="read-gd-class-lbl">.gd-slider__meta</span>
                 </div>
               </div>
-              <p className="read-swatch__when">
+              <p className="read-section__when">
                 One slider per aspect ratio. The handle is fixed at 50% for the static demo — interactivity lives in component code, not the design system.
               </p>
               <div className="read-ratio-rail">
@@ -584,7 +648,7 @@ export default function DesignPage() {
                 <span className="read-gd-token-lbl">--gd-color-accent-soft</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Primary fills with --gd-color-accent and lifts on hover to --gd-color-accent-soft. Ghost variant inverts on hover (slate fill → muted background, accent border).
             </p>
             <div className="read-demo-strip">
@@ -600,7 +664,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-link--mono</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Inline link inherits surrounding type; only color and underline are added. The mono modifier swaps the typography to mono uppercase for CTA-style links.
             </p>
             <div className="gd-body">
@@ -613,7 +677,7 @@ export default function DesignPage() {
 
       <ReadSection
         id="forms"
-        title="Forms"
+        title="Form fields"
         level={2}
         intro="[Section intro — text input, textarea, select, label, and field wrapper. Focus state uses the system orange — no custom focus rings.]"
         whenToUse=".gd-input / .gd-textarea / .gd-select share a single visual treatment (hairline strong border, full-width, focus-orange). .gd-label is always mono uppercase. Wrap label + control + optional error in .gd-field for vertical rhythm. Errors use --gd-color-accent (the system's only chromatic signal); never invent a red."
@@ -630,7 +694,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-field__error</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Each field stacks label → control → error. Click into a control and watch the border turn accent-orange.
             </p>
             <div className="read-demo-stack">
@@ -679,7 +743,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-filebar__value--active</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               5 cells, one active (orange). The active value points at the section currently in focus.
             </p>
             <div className="gd-filebar">
@@ -712,45 +776,100 @@ export default function DesignPage() {
         id="cards"
         title="Cards"
         level={2}
-        intro="[Section intro — bordered content block. Eyebrow → title → body → optional mono CTA link. Lifts on hover, same as images/sliders/frames.]"
-        whenToUse=".gd-card for grid-laid project listings, service cards, recent work. The card slots are optional — drop __eyebrow or __link if you don't need them — but never reshuffle their vertical order. The CTA link sits last because it's the lowest-priority slot."
+        intro="[Section intro — bordered content block. Standard cards stack eyebrow → title → body → optional mono CTA link. Image cards add a top photo above the same stack, locked to a sanctioned aspect ratio. Lifts on hover, same as images / sliders / frames.]"
+        whenToUse=".gd-card for grid-laid project listings, service cards, recent work. Add .gd-card--photo when the card needs an image at the top — composes with .gd-ratio--* to lock the image to one of the sanctioned aspect ratios (cinema / 21:9 is reserved for hero / banner contexts and is never used inside a card). Card slots are optional but their order is fixed: image (if any) → eyebrow → title → body → link."
       >
-        <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
-            <div className="read-demo-row__labels">
-              <div className="read-gd-tokens">
-                <span className="read-gd-class-lbl">.gd-card</span>
-                <span className="read-gd-class-lbl">.gd-card__eyebrow</span>
-                <span className="read-gd-class-lbl">.gd-card__title</span>
-                <span className="read-gd-class-lbl">.gd-card__body</span>
-                <span className="read-gd-class-lbl">.gd-card__link</span>
+        <section id="cards-standard" aria-labelledby="cards-standard-title">
+          <header className="read-subsection">
+            <div className="read-section__heading">
+              <h3 className="read-subsection__title" id="cards-standard-title">
+                Standard cards
+              </h3>
+              <p className="read-section__intro">
+                Base <code>.gd-card</code> — eyebrow → title → body → optional CTA. No image; the entire stack is type and hairline border. Hover to see the system-wide lift treatment shared with images, frames, and sliders.
+              </p>
+            </div>
+          </header>
+          <div className="gd-section">
+            <div className="read-demo-row read-demo-row--stack">
+              <div className="read-demo-row__labels">
+                <div className="read-gd-tokens">
+                  <span className="read-gd-class-lbl">.gd-card</span>
+                  <span className="read-gd-class-lbl">.gd-card__eyebrow</span>
+                  <span className="read-gd-class-lbl">.gd-card__title</span>
+                  <span className="read-gd-class-lbl">.gd-card__body</span>
+                  <span className="read-gd-class-lbl">.gd-card__link</span>
+                </div>
+              </div>
+              <p className="read-section__when">
+                Three cards in a grid — hover any to see the lift treatment shared with images / frames / sliders.
+              </p>
+              <div className="read-demo-grid">
+                <a href="#" className="gd-card">
+                  <span className="gd-card__eyebrow">Project · 042</span>
+                  <h3 className="gd-card__title">Storm Claim · Plano</h3>
+                  <p className="gd-card__body">State Farm supplement filed and closed at $28,400 against the carrier's initial $11,800.</p>
+                  <span className="gd-card__link">View case study →</span>
+                </a>
+                <a href="#" className="gd-card">
+                  <span className="gd-card__eyebrow">Project · 058</span>
+                  <h3 className="gd-card__title">Roof Replacement · DFW</h3>
+                  <p className="gd-card__body">Full tear-off and replacement on a 28-square commercial property. Carrier accepted on first pass.</p>
+                  <span className="gd-card__link">View case study →</span>
+                </a>
+                <a href="#" className="gd-card">
+                  <span className="gd-card__eyebrow">Project · 071</span>
+                  <h3 className="gd-card__title">Emergency HVAC · Frisco</h3>
+                  <p className="gd-card__body">Same-day system failure response. Diagnosed, sourced, replaced — owners had cool air by sunset.</p>
+                  <span className="gd-card__link">View case study →</span>
+                </a>
               </div>
             </div>
-            <p className="read-swatch__when">
-              Three cards in a grid — hover any to see the lift treatment shared with images / frames / sliders.
-            </p>
-            <div className="read-demo-grid">
-              <a href="#" className="gd-card">
-                <span className="gd-card__eyebrow">Project · 042</span>
-                <h3 className="gd-card__title">Storm Claim · Plano</h3>
-                <p className="gd-card__body">State Farm supplement filed and closed at $28,400 against the carrier's initial $11,800.</p>
-                <span className="gd-card__link">View case study →</span>
-              </a>
-              <a href="#" className="gd-card">
-                <span className="gd-card__eyebrow">Project · 058</span>
-                <h3 className="gd-card__title">Roof Replacement · DFW</h3>
-                <p className="gd-card__body">Full tear-off and replacement on a 28-square commercial property. Carrier accepted on first pass.</p>
-                <span className="gd-card__link">View case study →</span>
-              </a>
-              <a href="#" className="gd-card">
-                <span className="gd-card__eyebrow">Project · 071</span>
-                <h3 className="gd-card__title">Emergency HVAC · Frisco</h3>
-                <p className="gd-card__body">Same-day system failure response. Diagnosed, sourced, replaced — owners had cool air by sunset.</p>
-                <span className="gd-card__link">View case study →</span>
-              </a>
+          </div>
+        </section>
+
+        <section id="cards-image" aria-labelledby="cards-image-title">
+          <header className="read-subsection">
+            <div className="read-section__heading">
+              <h3 className="read-subsection__title" id="cards-image-title">
+                Image cards
+              </h3>
+              <p className="read-section__intro">
+                <code>.gd-card--photo</code> with a top image locked to one of the four card-sanctioned aspect ratios. Cinema (21:9) is intentionally excluded — that ratio is reserved for hero / banner contexts, never inside a card.
+              </p>
+            </div>
+          </header>
+          <div className="gd-section">
+            <div className="read-demo-row read-demo-row--stack">
+              <div className="read-demo-row__labels">
+                <div className="read-gd-tokens">
+                  <span className="read-gd-class-lbl">.gd-card</span>
+                  <span className="read-gd-class-lbl">.gd-card--photo</span>
+                  <span className="read-gd-class-lbl">.gd-ratio--wide</span>
+                  <span className="read-gd-class-lbl">.gd-ratio--landscape</span>
+                  <span className="read-gd-class-lbl">.gd-ratio--portrait</span>
+                  <span className="read-gd-class-lbl">.gd-ratio--square</span>
+                </div>
+              </div>
+              <p className="read-section__when">
+                One image card per sanctioned ratio (cinema excluded). Image at top locks to the ratio; the content stack below is identical to the standard card.
+              </p>
+              <div className="read-ratio-rail">
+                {aspectRatios.filter(({ key }) => key !== "cinema").map(({ key, token, value }) => (
+                  <div className="read-ratio-rail__cell" key={key}>
+                    <a href="#" className="gd-card gd-card--photo">
+                      <div className={`gd-ratio ${ratioMap[key]}`} aria-hidden="true" />
+                      <span className="gd-card__eyebrow">{token.replace("--gd-ar-", "").toUpperCase()} · {value}</span>
+                      <h3 className="gd-card__title">Project · 042</h3>
+                      <p className="gd-card__body">Storm claim, full roof replacement. Supplement filed and closed.</p>
+                      <span className="gd-card__link">View case study →</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </ReadSection>
 
       <ReadSection
@@ -770,7 +889,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-status--filed</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Status badge — border picks up the color via currentColor, so the modifier is the only thing that changes.
             </p>
             <div className="read-demo-strip">
@@ -787,7 +906,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-chip</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Chips — flexible inline labels. No state, no hover. Used for exhibit tags, scope items, filter chips.
             </p>
             <div className="gd-chips">
@@ -807,7 +926,7 @@ export default function DesignPage() {
                 <span className="read-gd-token-lbl">--gd-bw-rule</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Rotated stamp — one per page. The -12° tilt is the stamp's signature; not a broader rotation scale.
             </p>
             <div className="read-demo-strip">
@@ -831,7 +950,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-divider</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Used between blocks of content as a hairline break.
             </p>
             <div>
@@ -863,7 +982,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-ledger__meta</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Header + three rows showing the canonical row shape. Columns: number → label → meta → carrier → money.
             </p>
             <div className="gd-ledger">
@@ -917,7 +1036,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-quote__cite</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Bordered quote with orange opening mark, pull-quote body, and mono citation footer.
             </p>
             <blockquote className="gd-quote">
@@ -939,35 +1058,117 @@ export default function DesignPage() {
         intro="[Section intro — bordered horizontal row of stat cells. Used for at-a-glance credibility (years in business, files closed, carriers handled).]"
         whenToUse="Use for compact metric / credential rows. 2–4 cells typical; more than 5 starts to crowd. Label sits above value in each cell. Never mix marketing copy into a trust cell — these are bare metrics."
       >
+        <div className="read-section">
+          <div className="read-gd-tokens">
+            <span className="read-gd-class-lbl">.gd-trust</span>
+            <span className="read-gd-class-lbl">.gd-trust__cell</span>
+            <span className="read-gd-class-lbl">.gd-trust__label</span>
+            <span className="read-gd-class-lbl">.gd-trust__value</span>
+          </div>
+          <p className="read-section__when">
+            Three cells, mono label over display value. Cells divide evenly across the bar width.
+          </p>
+        </div>
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
-            <div className="read-demo-row__labels">
-              <div className="read-gd-tokens">
-                <span className="read-gd-class-lbl">.gd-trust</span>
-                <span className="read-gd-class-lbl">.gd-trust__cell</span>
-                <span className="read-gd-class-lbl">.gd-trust__label</span>
-                <span className="read-gd-class-lbl">.gd-trust__value</span>
-              </div>
+          <div className="gd-trust">
+            <div className="gd-trust__cell">
+              <span className="gd-trust__label">Years in business</span>
+              <span className="gd-trust__value">12</span>
             </div>
-            <p className="read-swatch__when">
-              Three cells, mono label over display value. Cells divide evenly across the bar width.
-            </p>
-            <div className="gd-trust">
-              <div className="gd-trust__cell">
-                <span className="gd-trust__label">Years in business</span>
-                <span className="gd-trust__value">12</span>
-              </div>
-              <div className="gd-trust__cell">
-                <span className="gd-trust__label">Files closed</span>
-                <span className="gd-trust__value">240+</span>
-              </div>
-              <div className="gd-trust__cell">
-                <span className="gd-trust__label">Carriers handled</span>
-                <span className="gd-trust__value">6</span>
-              </div>
+            <div className="gd-trust__cell">
+              <span className="gd-trust__label">Files closed</span>
+              <span className="gd-trust__value">240+</span>
+            </div>
+            <div className="gd-trust__cell">
+              <span className="gd-trust__label">Carriers handled</span>
+              <span className="gd-trust__value">6</span>
             </div>
           </div>
         </div>
+
+        <div className="read-section">
+          <div className="read-gd-tokens">
+            <span className="read-gd-class-lbl">.gd-trust--rich</span>
+            <span className="read-gd-class-lbl">.gd-trust__body</span>
+            <span className="read-gd-class-lbl">.gd-trust__cell</span>
+            <span className="read-gd-class-lbl">.gd-trust__label</span>
+            <span className="read-gd-class-lbl">.gd-bar</span>
+            <span className="read-gd-class-lbl">.gd-bar--dark</span>
+          </div>
+          <p className="read-section__when">
+            Consolidated variant — dark mono meta-bar on top, three rich cells underneath. Each cell stacks a mono label and arbitrary primitives: <code>.gd-pm</code> rows, the <code>.gd-warranty</code> seal, a <code>.gd-chips</code> group. Same <code>.gd-trust</code> shell as the stat strip above; the <code>--rich</code> modifier switches the layout to a vertical stack with the bar on top.
+          </p>
+        </div>
+        <div className="gd-section">
+          <div className="gd-trust gd-trust--rich">
+              <div className="gd-bar gd-bar--dark">
+                <span>Exhibit B · Standing</span>
+                <span>03 Entries</span>
+                <span>On file since 2010</span>
+              </div>
+              <div className="gd-trust__body">
+                <div className="gd-trust__cell">
+                  <span className="gd-trust__label">Who runs your job</span>
+                  <div className="gd-pm">
+                    <div className="gd-pm__photo" aria-hidden="true" />
+                    <span className="gd-pm__meta">
+                      <span className="gd-pm__name">Daniel R.</span>
+                      <span className="gd-pm__title">Roofing · DFW · 12 yr</span>
+                    </span>
+                  </div>
+                  <div className="gd-pm">
+                    <div className="gd-pm__photo" aria-hidden="true" />
+                    <span className="gd-pm__meta">
+                      <span className="gd-pm__name">Jorge M.</span>
+                      <span className="gd-pm__title">Remodel · DFW · 9 yr</span>
+                    </span>
+                  </div>
+                  <div className="gd-pm">
+                    <div className="gd-pm__photo" aria-hidden="true" />
+                    <span className="gd-pm__meta">
+                      <span className="gd-pm__name">Mike T.</span>
+                      <span className="gd-pm__title">Cleveland · 7 yr</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="gd-trust__cell">
+                  <span className="gd-trust__label">Workmanship warranty</span>
+                  <span className="gd-warranty">
+                    <span className="gd-warranty__shape">
+                      25
+                      <span className="gd-warranty__unit">Years</span>
+                    </span>
+                    <span className="gd-warranty__text">
+                      Written.
+                      <br />
+                      Signed.
+                    </span>
+                  </span>
+                  <p className="gd-body-s">
+                    <b>Roof workmanship · 25 yr</b>
+                    <br />
+                    Remodel workmanship · 5 yr
+                    <br />
+                    Same number, year 25.
+                  </p>
+                </div>
+                <div className="gd-trust__cell">
+                  <span className="gd-trust__label">Carriers we file with</span>
+                  <div className="gd-chips">
+                    <span className="gd-chip">State Farm</span>
+                    <span className="gd-chip">Allstate</span>
+                    <span className="gd-chip">Travelers</span>
+                    <span className="gd-chip">USAA</span>
+                    <span className="gd-chip">Progressive</span>
+                    <span className="gd-chip">Nationwide</span>
+                    <span className="gd-chip">Liberty Mutual</span>
+                    <span className="gd-chip">Farmers</span>
+                  </div>
+                  <p className="gd-body-s">Eight carriers, every quirk on file. We write supplements. Carriers see them weekly.</p>
+                </div>
+              </div>
+            </div>
+          </div>
       </ReadSection>
 
       <ReadSection
@@ -984,7 +1185,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-list</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Unordered list — orange em-dash marker for each item.
             </p>
             <ul className="gd-list">
@@ -1002,7 +1203,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-list--ordered</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Ordered list — mono leading-zero numbers (01, 02, 03 …) in accent color.
             </p>
             <ol className="gd-list gd-list--ordered">
@@ -1027,78 +1228,34 @@ export default function DesignPage() {
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-warranty</span>
+                <span className="read-gd-class-lbl">.gd-warranty__shape</span>
+                <span className="read-gd-class-lbl">.gd-warranty__unit</span>
+                <span className="read-gd-class-lbl">.gd-warranty__text</span>
                 <span className="read-gd-token-lbl">--gd-r-full</span>
                 <span className="read-gd-token-lbl">--gd-color-accent</span>
               </div>
             </div>
-            <p className="read-swatch__when">
+            <p className="read-section__when">
               Round outlined display badge. Composes existing tokens — no new primitives.
             </p>
             <div className="read-demo-strip">
               <span className="gd-warranty">
-                Lifetime
-                <br />
-                Warranty
+                <span className="gd-warranty__shape">
+                  25
+                  <span className="gd-warranty__unit">Years</span>
+                </span>
+                <span className="gd-warranty__text">
+                  Written.
+                  <br />
+                  Signed.
+                </span>
               </span>
               <span className="gd-warranty">
-                No leaks
-                <br />
-                10 YR
+                <span className="gd-warranty__shape">
+                  10
+                  <span className="gd-warranty__unit">Year</span>
+                </span>
               </span>
-            </div>
-          </div>
-        </div>
-      </ReadSection>
-
-      <ReadSection
-        id="card-variants"
-        title="Card variants"
-        level={2}
-        intro="[Section intro — three structural modifiers on .gd-card. Same hover-lift treatment as the base card; only the internal slot structure changes.]"
-        whenToUse=".gd-card--photo for project / case-study cards with a top photo. .gd-card--file for cards whose anchor is a filebar (claim summary, work order). .gd-card--profile for people cards with a top portrait. All three share the same content padding rewrite — pick by what the card's anchor element is, not by appearance."
-      >
-        <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
-            <div className="read-demo-row__labels">
-              <div className="read-gd-tokens">
-                <span className="read-gd-class-lbl">.gd-card--photo</span>
-                <span className="read-gd-class-lbl">.gd-card--profile</span>
-                <span className="read-gd-class-lbl">.gd-card--file</span>
-              </div>
-            </div>
-            <p className="read-swatch__when">
-              Three variants side-by-side. Hover any to see the same lift treatment the base card uses.
-            </p>
-            <div className="read-demo-grid">
-              <a href="#" className="gd-card gd-card--photo">
-                <div className="gd-ratio gd-ratio--wide" aria-hidden="true" />
-                <span className="gd-card__eyebrow">Project · 042</span>
-                <h3 className="gd-card__title">Storm Claim · Plano</h3>
-                <p className="gd-card__body">Hail event, full roof replacement. Supplement filed, closed at $28,400.</p>
-                <span className="gd-card__link">View case study →</span>
-              </a>
-              <a href="#" className="gd-card gd-card--profile">
-                <div className="gd-ratio gd-ratio--portrait" aria-hidden="true" />
-                <span className="gd-card__eyebrow">Project Manager</span>
-                <h3 className="gd-card__title">Daniel R.</h3>
-                <p className="gd-card__body">Twelve years on roofs across DFW. State Farm and Allstate's preferred supplement contact.</p>
-                <span className="gd-card__link">Read bio →</span>
-              </a>
-              <a href="#" className="gd-card gd-card--file">
-                <div className="gd-filebar">
-                  <div className="gd-filebar__cell">
-                    <span className="gd-filebar__label">File</span>
-                    <span className="gd-filebar__value">058</span>
-                  </div>
-                  <div className="gd-filebar__cell">
-                    <span className="gd-filebar__label">Status</span>
-                    <span className="gd-filebar__value gd-filebar__value--active">Active</span>
-                  </div>
-                </div>
-                <h3 className="gd-card__title">Roof Replacement · DFW</h3>
-                <p className="gd-card__body">28-square commercial property. Carrier accepted on first pass; tear-off scheduled for next week.</p>
-                <span className="gd-card__link">Open file →</span>
-              </a>
             </div>
           </div>
         </div>
@@ -1119,34 +1276,39 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-pm__photo</span>
                 <span className="read-gd-class-lbl">.gd-pm__meta</span>
                 <span className="read-gd-class-lbl">.gd-pm__name</span>
+                <span className="read-gd-class-lbl">.gd-pm__title</span>
               </div>
             </div>
-            <p className="read-swatch__when">
-              Four people-rows. Each row: 48px square portrait + mono meta (name accented strong, role muted).
+            <p className="read-section__when">
+              Four people-rows. Each row: 48px square portrait + 2-row mono meta — name (strong) on top, title / role (muted) below.
             </p>
             <div>
               <div className="gd-pm">
                 <div className="gd-pm__photo" aria-hidden="true" />
                 <span className="gd-pm__meta">
-                  <span className="gd-pm__name">Daniel R.</span> · Project Manager
+                  <span className="gd-pm__name">Daniel R.</span>
+                  <span className="gd-pm__title">Project Manager</span>
                 </span>
               </div>
               <div className="gd-pm">
                 <div className="gd-pm__photo" aria-hidden="true" />
                 <span className="gd-pm__meta">
-                  <span className="gd-pm__name">Lisa C.</span> · Claims Coordinator
+                  <span className="gd-pm__name">Lisa C.</span>
+                  <span className="gd-pm__title">Claims Coordinator</span>
                 </span>
               </div>
               <div className="gd-pm">
                 <div className="gd-pm__photo" aria-hidden="true" />
                 <span className="gd-pm__meta">
-                  <span className="gd-pm__name">André T.</span> · Roofing Lead
+                  <span className="gd-pm__name">André T.</span>
+                  <span className="gd-pm__title">Roofing Lead</span>
                 </span>
               </div>
               <div className="gd-pm">
                 <div className="gd-pm__photo" aria-hidden="true" />
                 <span className="gd-pm__meta">
-                  <span className="gd-pm__name">Marisol P.</span> · Office &amp; Scheduling
+                  <span className="gd-pm__name">Marisol P.</span>
+                  <span className="gd-pm__title">Office &amp; Scheduling</span>
                 </span>
               </div>
             </div>

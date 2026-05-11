@@ -32,6 +32,7 @@
   --read-space-sm: 0.5rem;
   --read-space-md: 1rem;
   --read-space-lg: 1.5rem;
+  --read-space-xxs: 0.1rem;
 
   /* ---- Radii ---- */
   --read-radius-sm: 4px;
@@ -47,7 +48,9 @@
   --read-font-size-title: 1.5rem;           /* h2-level section titles    */
   --read-line-height: 1.55;
   --read-line-height-tight: 1.1;            /* tight body line-height for compact read-* callouts */
+  --read-line-height-xtight: 1;
   --read-font-size-when: 0.72rem;           /* compact body size for read-* "when to use" callouts */
+  --read-font-size-xxs: 0.6rem;
 
   /* Floating guide-nav type scale. Distinct from --read-font-size-label
      (which serves uppercase eyebrow-style labels) because the guide nav
@@ -89,7 +92,7 @@
      vs. the generic --read-space-* scale so vertical list rows read
      dense without crowding. Kept as role tokens so the link row is
      the single source of truth. ---- */
-  --read-nav-link-pad-y: 0.1rem;
+  --read-nav-link-pad-y: 0.13rem;
   --read-nav-link-pad-x: var(--read-space-sm);
 
   /* ---- Guide-nav flyout geometry & motion. Local read-* duration and
@@ -229,20 +232,20 @@
   white-space: nowrap;
 }
 
-/* Parent rows that anchor a flyout get a right-pinned chevron so the
-   flyout affordance is visible at rest. aria-haspopup is the existing
-   semantic marker for these rows — reuse it as the selector hook. */
-.read-nav__link[aria-haspopup="true"] {
+/* Parent link rows (Images, Frames) anchor a flyout — give them a
+   right-pinned chevron so the affordance is visible at rest. */
+.read-nav__link--parent {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--read-space-xs);
 }
 
-.read-nav__link[aria-haspopup="true"]::after {
-  content: "›";
+.read-nav__chevron {
   color: var(--read-text-muted);
+  font-weight: var(--read-font-weight-strong);
   line-height: 1;
+  flex: 0 0 auto;
 }
 
 .read-nav__sub .read-nav__link {
@@ -294,7 +297,8 @@
    Section containers — the yellow "explanatory" blocks
    ===================================================================== */
 
-.read-section {
+.read-section,
+.read-subsection {
   background: var(--read-bg);
   border: var(--read-stroke-hairline) solid var(--read-border);
   border-radius: var(--read-radius-md);
@@ -305,6 +309,19 @@
   font-size: var(--read-font-size-body);
   line-height: var(--read-line-height-tight);
   color: var(--read-text);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--read-space-md);
+  flex-wrap: wrap;
+}
+
+/* Left column: title + intro. Content-width — the when column owns the
+   slack via flex-grow. */
+.read-section__heading {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 50%;
 }
 
 .read-section__title {
@@ -363,16 +380,13 @@
   content: "+";
 }
 
-.read-section__body {
-  margin-top: var(--read-space-sm);
-}
-
 .read-section__intro {
   margin: 0 0 var(--read-space-sm);
   color: var(--read-text-muted);
   max-width: var(--read-prose-max-w);
   font-size: var(--read-font-size-when);
   line-height: var(--read-line-height-tight);
+  padding-top: var(--read-space-sm);
 }
 
 .read-section__when {
@@ -383,7 +397,8 @@
   margin: 0;
   border-radius: 0 var(--read-radius-sm) var(--read-radius-sm) 0;
   color: var(--read-text);
-  max-width: var(--read-prose-max-w);
+  flex: 1 1 0;          /* right column — grows to fill remaining row width, wider than heading */
+  min-width: 0;
   font-size: var(--read-font-size-when);
   line-height: var(--read-line-height-tight);
 }
@@ -396,28 +411,16 @@
   font-size: var(--read-font-size-label);
 }
 
-/* ---- Subsections (still readability — also yellow, smaller scale) ---- */
-
-.read-subsection {
-  background: var(--read-bg);
-  border: var(--read-stroke-hairline) solid var(--read-border);
-  border-radius: var(--read-radius-md);
-  padding: var(--read-space-md) var(--read-space-lg);
-  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-sm);
-  box-sizing: border-box;
-}
+/* ---- Subsections — chrome shared with .read-section above (joined into
+   the comma-grouped selector). The only thing that differs is the title
+   typography; everything else (background, border, padding, margin,
+   layout) is identical so the visual treatment stays consistent. ---- */
 
 .read-subsection__title {
   font-size: var(--read-font-size-subtitle);
   font-weight: var(--read-font-weight-strong);
-  margin: 0 0 var(--read-space-xs);
-  color: var(--read-text);
-}
-
-.read-subsection__intro {
   margin: 0;
-  color: var(--read-text-muted);
-  max-width: var(--read-prose-max-w);
+  color: var(--read-text);
 }
 
 /* =====================================================================
@@ -477,31 +480,6 @@
   height: 7rem;
   border: var(--read-stroke-hairline) solid var(--read-border-neutral);
   border-radius: 0;
-}
-
-.read-swatch__when {
-  display: block;
-  margin: 0;
-  background: var(--read-bg-strong);
-  border-left: var(--read-stroke-emphasis) solid var(--read-accent);
-  padding: var(--read-space-sm) var(--read-space-md);
-  border-radius: 0 var(--read-radius-sm) var(--read-radius-sm) 0;
-  font-family: var(--gd-font-body);
-  font-size: var(--read-font-size-when);
-  line-height: var(--read-line-height-tight);
-  color: var(--read-text);
-}
-
-.read-swatch__when::before {
-  content: "When to use: ";
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  color: var(--read-text);
-  display: block;
-  margin-bottom: var(--read-space-xs);
 }
 
 .read-swatch__chip[data-color="bg-page"]     { background: var(--gd-color-bg-page); }
@@ -641,12 +619,12 @@
 .read-gd-token-lbl,
 .read-gd-class-lbl {
   display: inline-block;
-  padding: var(--gd-space-1) var(--gd-space-2);
+  padding: var(--read-space-xxs);
   border-radius: var(--read-radius-sm);
   font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--read-line-height-tight);
+  font-size: var(--read-font-size-xxs);
+  font-weight: var(--gd-fw-regular);
+  line-height: var(--read-line-height-xtight);
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
@@ -662,6 +640,7 @@
   background: var(--read-bg-strong);
   border: var(--read-stroke-hairline) solid var(--read-accent);
   color: var(--read-accent);
+  font-weight: var(--gd-fw-bold);
 }
 
 /* Wrapper for a list of gd labels under a demo row. */
@@ -670,6 +649,53 @@
   flex-wrap: wrap;
   gap: var(--read-space-xs);
   align-items: center;
+}
+
+/* Typography spec — shows the resolved CSS property → token → value
+   triplet for each role class in the Typography section. Sits below
+   the .read-gd-tokens chip strip. Commentary about the design; never
+   styled with --gd-* tokens. */
+.read-type-spec {
+  margin: var(--read-space-xs) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--read-space-sm);
+  row-gap: 0;
+}
+
+.read-type-spec__row {
+  display: contents;
+}
+
+.read-type-spec__prop {
+  margin: 0;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--read-text-muted);
+}
+
+.read-type-spec__val {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--read-space-xs);
+  align-items: baseline;
+}
+
+.read-type-spec__token {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  letter-spacing: var(--gd-tr-mono);
+  color: var(--read-accent);
+}
+
+.read-type-spec__value {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  color: var(--gd-color-fg);
 }
 
 /* =====================================================================
@@ -706,14 +732,31 @@
   border-bottom: none;
 }
 
-/* Stacked variant — tokens → when → example flow vertically. Used where
-   the example needs the full row width to read correctly (e.g. the
-   container max-width bars). */
+/* Stacked variant — labels + when form a single row container at the
+   top (labels first, when stretched to the right). The actual demo
+   content underneath spans the full row width. Used where the example
+   needs the full row width to read correctly (e.g. the container
+   max-width bars). */
 .read-demo-row--stack {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: start;
   gap: var(--read-space-sm);
+}
+
+.read-demo-row--stack > .read-demo-row__labels {
+  grid-column: 1;
+  max-width: 50%;          /* labels block never exceeds half the row — chips wrap inside if needed */
+}
+
+.read-demo-row--stack > .read-section__when {
+  grid-column: 2;
+}
+
+/* Anything that isn't labels or when (the actual demo example) spans
+   the full row width on its own row below. */
+.read-demo-row--stack > *:not(.read-demo-row__labels):not(.read-section__when) {
+  grid-column: 1 / -1;
 }
 
 .read-demo-row__labels {
@@ -832,6 +875,8 @@
   display: grid;
   gap: var(--read-space-md);
   grid-template-columns: repeat(auto-fit, minmax(var(--gd-space-16), 1fr));
+  align-items: start;     /* each card uses its natural height; never stretch demo cards to a common row height */
+  justify-items: start;   /* let card max-widths take effect — don't stretch cards to fill the track */
 }
 
 /* =====================================================================

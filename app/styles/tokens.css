@@ -51,6 +51,7 @@
   --gd-fs-body-l:  1.1rem;
   --gd-fs-body:    1rem;
   --gd-fs-body-s:  0.92rem;
+  --gd-fs-body-xs: 0.85rem;  /* smallest body-family step — caption-adjacent body copy. Not yet consumed by any class; reserve for a future role rather than retrofitting an existing one. */
   --gd-fs-mono:    0.78rem;
   --gd-fs-mono-s:  0.65rem;
   --gd-fs-mono-xs: 0.55rem;      /* tight-overlay mono only — frame meta annotations sitting on top of imagery; never used for primary content */
@@ -72,6 +73,7 @@
   /* Letter spacing */
   --gd-tr-mono:      0.18em;
   --gd-tr-mono-wide: 0.22em;  /* eyebrow tracking — purposefully wider than --gd-tr-mono to mark its ceremonial role */
+  --gd-tr-mono-s:    0.16rem; /* tracking for the small-mono-uppercase label role (paired with --gd-fs-mono-s). Uses rem rather than em so absolute tracking stays generous at the smaller font-size — em-based --gd-tr-mono would collapse to <2px on mono-s glyphs. */
 
   /* ====================================================================
      Spacing scale — 4px base, document-grid. Each step is visibly and
@@ -249,7 +251,7 @@
   line-height: var(--gd-lh-body);
   color: var(--gd-color-fg);
 }
-.gd-body-l { font-size: var(--gd-fs-body-l); }
+.gd-body-l { font-size: var(--gd-fs-body-l); font-weight: var(--gd-fw-medium); }
 .gd-body   { font-size: var(--gd-fs-body); }
 .gd-body-s { font-size: var(--gd-fs-body-s); }
 
@@ -264,7 +266,7 @@
   color: var(--gd-color-fg-muted);
 }
 .gd-mono   { font-size: var(--gd-fs-mono); }
-.gd-mono-s { font-size: var(--gd-fs-mono-s); }
+.gd-mono-s { font-size: var(--gd-fs-mono-s); letter-spacing: var(--gd-tr-mono-s); }
 
 /* Eyebrow — mono at mono-s, but wider tracking + accent color. */
 .gd-eyebrow {
@@ -405,13 +407,12 @@
   justify-content: space-between;
   align-items: baseline;
   gap: var(--gd-space-3);
-  padding: var(--gd-space-2) var(--gd-space-3);
-  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  padding: var(--gd-space-2) var(--gd-space-1);
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-body);
-  letter-spacing: var(--gd-tr-mono);
+  line-height: var(--gd-lh-display);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }
@@ -591,7 +592,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-bg-surface);
 }
@@ -649,7 +650,7 @@
 .gd-btn--ghost:hover {
   background: var(--gd-color-bg-mute);
   border-color: var(--gd-rule-active);
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-color-accent);
 }
 
 /* ======================================================================
@@ -693,6 +694,7 @@
 .gd-select {
   display: block;
   width: 100%;
+  max-width: calc(100vw - 1.5 * var(--gd-pad-x));
   font-family: var(--gd-font-body);
   font-size: var(--gd-fs-body);
   font-weight: var(--gd-fw-regular);
@@ -724,7 +726,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-strong);
 }
@@ -739,7 +741,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-accent);
 }
@@ -801,7 +803,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   padding: var(--gd-space-1) var(--gd-space-2);
   border: var(--gd-bw-hair) solid currentColor;
@@ -834,7 +836,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   padding: var(--gd-space-1) var(--gd-space-2);
   border: var(--gd-bw-hair) solid var(--gd-rule-default);
@@ -860,7 +862,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-accent);
 }
@@ -886,7 +888,6 @@
 .gd-card__link {
   margin-top: auto;
   padding-top: var(--gd-space-3);
-  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono);
   font-weight: var(--gd-fw-bold);
@@ -960,7 +961,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }
@@ -1031,7 +1032,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }
@@ -1067,7 +1068,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }
@@ -1082,6 +1083,57 @@
 }
 
 /* ======================================================================
+   Bars — horizontal meta strip with three-or-so slots in mono uppercase.
+   Used as a header / metadata strip on top of compound modules (the
+   consolidated trust grid, ledger, CTA). Cells distribute via
+   space-between. The dark modifier flips it onto the system's structural
+   dark surface; that is the only color variant the bar carries.
+   ====================================================================== */
+
+.gd-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gd-space-4);
+  padding: var(--gd-space-3) var(--gd-space-6);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono-s);
+  text-transform: uppercase;
+}
+
+.gd-bar--dark {
+  background: var(--gd-color-fg-strong);
+  color: var(--gd-color-fg-on-dark);
+}
+
+/* ======================================================================
+   Trust grid — consolidated variant. Vertical stack: dark meta-bar on
+   top, then a single row of rich cells. Each cell stacks a mono label
+   (.gd-trust__label) + arbitrary primitives (.gd-pm rows, .gd-warranty
+   seal, .gd-chips group). Reuses the base .gd-trust shell and the same
+   .gd-trust__cell rules; .gd-trust__value is not used inside --rich.
+   ====================================================================== */
+
+.gd-trust--rich {
+  display: flex;
+  flex-direction: column;
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+}
+
+.gd-trust--rich > .gd-bar {
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-trust__body {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+/* ======================================================================
    Lists — body-typography ordered/unordered lists. Unordered uses an
    orange em-dash marker; ordered uses mono leading-zero numbers in
    accent. Apply to <ul class="gd-list"> or <ol class="gd-list
@@ -1093,7 +1145,7 @@
   padding: 0;
   list-style: none;
   font-family: var(--gd-font-body);
-  font-size: var(--gd-fs-body);
+  font-size: var(--gd-fs-body-s);
   line-height: var(--gd-lh-body);
   color: var(--gd-color-fg);
 }
@@ -1130,7 +1182,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   color: var(--gd-color-accent);
   top: var(--gd-space-1);
 }
@@ -1141,22 +1193,59 @@
    slider grip as the only circular roles in the system.
    ====================================================================== */
 
+/* Wrapper — composes the round orange seal (.gd-warranty__shape) beside
+   the optional display text block (.gd-warranty__text). For a bare seal
+   use just .gd-warranty > .gd-warranty__shape. */
 .gd-warranty {
   display: inline-flex;
   align-items: center;
+  gap: var(--gd-space-4);
+}
+
+/* Round orange seal — the recognition cue. Contains the headline number
+   (display, bold) and an optional .gd-warranty__unit beneath it. */
+.gd-warranty__shape {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   text-align: center;
-  width: calc(var(--gd-space-20) + var(--gd-space-16));
-  height: calc(var(--gd-space-20) + var(--gd-space-16));
+  flex-shrink: 0;
+  width: calc(var(--gd-space-16) + var(--gd-space-4));
+  aspect-ratio: var(--gd-ar-square);
   padding: var(--gd-space-3);
   border: var(--gd-bw-rule) solid var(--gd-color-accent);
   border-radius: var(--gd-r-full);
   font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-body);
+  font-size: var(--gd-fs-h2);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-display);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+}
+
+/* Small unit label beneath the headline number inside the seal
+   (e.g. "YEARS" under "25"). Inherits the accent color from the
+   shape; size + tracking match the small-mono-label role. */
+.gd-warranty__unit {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono-s);
+  line-height: var(--gd-lh-body);
+  color: inherit;
+}
+
+/* Display text block sitting beside the seal (e.g. "Written. / Signed.").
+   Reuses the heading display family at h3 size; never used standalone —
+   always paired with a .gd-warranty__shape inside .gd-warranty. */
+.gd-warranty__text {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h3);
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-fg-strong);
 }
 
 /* ======================================================================
@@ -1189,6 +1278,32 @@
     - var(--gd-space-20)
     - var(--gd-space-16)
   );
+}
+
+/* Image-bearing cards fit to the image's effective width — the card's
+   max-width mirrors the .gd-ratio--* per-ratio max-width formula so
+   the card hugs the image instead of stretching beyond it. The image
+   itself is never altered; only the card's outer max-width is bounded.
+   Uses :has() to read the ratio modifier off the .gd-ratio child. */
+.gd-card--photo:has(.gd-ratio--cinema),
+.gd-card--profile:has(.gd-ratio--cinema) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 21 / 9);
+}
+.gd-card--photo:has(.gd-ratio--wide),
+.gd-card--profile:has(.gd-ratio--wide) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 16 / 9);
+}
+.gd-card--photo:has(.gd-ratio--landscape),
+.gd-card--profile:has(.gd-ratio--landscape) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 4 / 3);
+}
+.gd-card--photo:has(.gd-ratio--portrait),
+.gd-card--profile:has(.gd-ratio--portrait) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 3 / 4);
+}
+.gd-card--photo:has(.gd-ratio--square),
+.gd-card--profile:has(.gd-ratio--square) {
+  max-width: var(--gd-image-fit-h, var(--gd-image-max-h));
 }
 
 .gd-card--photo > :not(.gd-ratio),
@@ -1257,16 +1372,26 @@
 }
 
 .gd-pm__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-1);
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }
 
 .gd-pm__name {
   color: var(--gd-color-fg-strong);
+}
+
+/* Role / title row beneath the name. Inherits type from .gd-pm__meta;
+   the explicit muted color documents the intent so it survives any
+   future change to the parent's default color. */
+.gd-pm__title {
+  color: var(--gd-color-fg-muted);
 }
 
 /* ======================================================================
@@ -1342,7 +1467,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-on-dark-dim);
 }
@@ -1384,12 +1509,13 @@
 
 .gd-topnav__links {
   display: flex;
+  flex: 1 1 auto;               /* take the slack between weather widget and CTA group */
+  justify-content: center;      /* center the page tabs in that slack */
   align-items: center;
   gap: var(--gd-space-6);
   margin: 0;
   padding: 0;
   list-style: none;
-  margin-left: auto;            /* pushes links + cta group to the right */
 }
 
 .gd-topnav__link {
@@ -1506,7 +1632,7 @@
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
   color: var(--gd-color-fg-muted);
 }

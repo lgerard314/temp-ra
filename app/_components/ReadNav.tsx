@@ -13,9 +13,8 @@ const sections = [
   { hash: "#header", label: "Site header" },
   { hash: "#motion", label: "Motion" },
   { hash: "#buttons", label: "Buttons & Links" },
-  { hash: "#forms", label: "Forms" },
+  { hash: "#forms", label: "Form fields" },
   { hash: "#filebar", label: "Filebar" },
-  { hash: "#cards", label: "Cards" },
   { hash: "#tags", label: "Tags" },
   { hash: "#dividers", label: "Dividers" },
   { hash: "#ledger", label: "Ledger" },
@@ -23,17 +22,18 @@ const sections = [
   { hash: "#trust", label: "Trust grid" },
   { hash: "#lists", label: "Lists" },
   { hash: "#warranty", label: "Warranty seal" },
-  { hash: "#card-variants", label: "Card variants" },
   { hash: "#pm-listing", label: "PM listing" },
 ];
 
 const imageSubs = [
   { hash: "#images-standard", label: "Standard" },
-];
-
-const frameSubs = [
   { hash: "#frames-frame", label: "Frame" },
   { hash: "#frames-slider", label: "Slider" },
+];
+
+const cardSubs = [
+  { hash: "#cards-standard", label: "Standard cards" },
+  { hash: "#cards-image", label: "Image cards" },
 ];
 
 export function ReadNav() {
@@ -159,8 +159,9 @@ export function ReadNav() {
           </li>
         ))}
         <li className="read-nav__group">
-          <a className="read-nav__link" href="#images" aria-haspopup="true">
-            Images
+          <a className="read-nav__link read-nav__link--parent" href="#images" aria-haspopup="true">
+            <span>Images</span>
+            <span className="read-nav__chevron" aria-hidden="true">›</span>
           </a>
           <ul className="read-nav__sub" aria-label="Images subsections">
             {imageSubs.map(({ hash, label }) => (
@@ -173,11 +174,12 @@ export function ReadNav() {
           </ul>
         </li>
         <li className="read-nav__group">
-          <a className="read-nav__link" href="#frames" aria-haspopup="true">
-            Frames
+          <a className="read-nav__link read-nav__link--parent" href="#cards" aria-haspopup="true">
+            <span>Cards</span>
+            <span className="read-nav__chevron" aria-hidden="true">›</span>
           </a>
-          <ul className="read-nav__sub" aria-label="Frames subsections">
-            {frameSubs.map(({ hash, label }) => (
+          <ul className="read-nav__sub" aria-label="Cards subsections">
+            {cardSubs.map(({ hash, label }) => (
               <li key={hash}>
                 <a className="read-nav__link" href={hash}>
                   {label}

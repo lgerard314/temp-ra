@@ -22,15 +22,12 @@ export function ReadSection({
 }: ReadSectionProps) {
   const [collapsed, setCollapsed] = useState(false);
   const titleId = `${id}-title`;
-  const headerBodyId = `${id}-header-body`;
+  const introId = intro ? `${id}-intro` : null;
+  const whenId = whenToUse ? `${id}-when` : null;
   const childrenId = `${id}-children`;
   const TitleTag = (level === 1 ? "h1" : "h2") as "h1" | "h2";
-  const hasHeaderBody = Boolean(intro) || Boolean(whenToUse);
   const hasChildren = Boolean(children);
-  const controlledIds = [
-    hasHeaderBody ? headerBodyId : null,
-    hasChildren ? childrenId : null,
-  ]
+  const controlledIds = [introId, whenId, hasChildren ? childrenId : null]
     .filter(Boolean)
     .join(" ");
   const headerClassName = collapsed
@@ -40,27 +37,37 @@ export function ReadSection({
   return (
     <section id={id} aria-labelledby={titleId}>
       <header className={headerClassName}>
-        <TitleTag className="read-section__title" id={titleId}>
-          <button
-            type="button"
-            className="read-section__title-btn"
-            aria-expanded={!collapsed}
-            aria-controls={controlledIds || undefined}
-            onClick={() => setCollapsed((c) => !c)}
-          >
-            <span className="read-section__title-text">{title}</span>
-            <span className="read-section__chevron" aria-hidden="true" />
-          </button>
-        </TitleTag>
-        {hasHeaderBody ? (
-          <div
-            id={headerBodyId}
-            className="read-section__body"
+        <div className="read-section__heading">
+          <TitleTag className="read-section__title" id={titleId}>
+            <button
+              type="button"
+              className="read-section__title-btn"
+              aria-expanded={!collapsed}
+              aria-controls={controlledIds || undefined}
+              onClick={() => setCollapsed((c) => !c)}
+            >
+              <span className="read-section__title-text">{title}</span>
+              <span className="read-section__chevron" aria-hidden="true" />
+            </button>
+          </TitleTag>
+          {intro ? (
+            <p
+              id={introId ?? undefined}
+              className="read-section__intro"
+              hidden={collapsed}
+            >
+              {intro}
+            </p>
+          ) : null}
+        </div>
+        {whenToUse ? (
+          <p
+            id={whenId ?? undefined}
+            className="read-section__when"
             hidden={collapsed}
           >
-            {intro ? <p className="read-section__intro">{intro}</p> : null}
-            {whenToUse ? <p className="read-section__when">{whenToUse}</p> : null}
-          </div>
+            {whenToUse}
+          </p>
         ) : null}
       </header>
       {hasChildren ? (

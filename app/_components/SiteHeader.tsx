@@ -42,14 +42,19 @@ export function SiteHeader({
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    if (forceScrolled !== undefined) return;
+    // Embed renders are static snapshots used inside the design guide —
+    // they must never react to real page scroll, otherwise scrolling
+    // down to read the section collapses the demo's banner and the
+    // topbar is never seen. forceScrolled has the same effect (state
+    // is pinned by the prop), so skip the listener in both cases.
+    if (forceScrolled !== undefined || embed) return;
     const onScroll = () => {
       setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [forceScrolled]);
+  }, [forceScrolled, embed]);
 
   const isScrolled = forceScrolled ?? scrolled;
   const className = [
