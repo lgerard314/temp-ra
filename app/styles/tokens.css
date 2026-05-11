@@ -21,12 +21,25 @@
   --gd-color-bg-warm:      #f0eee6;  /* warm hero ground */
   --gd-color-fg:           #1d242d;  /* body type */
   --gd-color-fg-strong:    #0c1117;  /* structural / emphasis type; also background for banner-style sections */
+  --gd-color-bg-dark:  #161a1f;  /* alt dark surface — reserved second-tier dark for surfaces that need to read as distinctly different from --gd-color-fg-strong while still living in the dark vocabulary. NEVER substituted for --gd-color-fg-strong on banner / structural surfaces; pick one and stay with it. */
   --gd-color-fg-muted:     #5a6168;  /* secondary type */
-  --gd-color-accent:       #fb6a1d;  /* primary accent (status, highlight) */
-  --gd-color-accent-soft:  #ff8442;  /* softer accent variant */
+  --gd-color-brand:       #fb6a1d;  /* primary accent (status, highlight) */
+  --gd-color-brand-soft:  #ff8442;  /* softer accent variant */
   --gd-color-success:      #1a4a1a;  /* success state */
   --gd-color-fg-on-dark:     rgba(255, 255, 255, 0.85);  /* primary text on dark surfaces */
   --gd-color-fg-on-dark-dim: rgba(255, 255, 255, 0.7);   /* dim/secondary text on dark surfaces */
+
+  /* Role tokens — context-aware fg/rule references. At :root they
+     resolve to the light-surface defaults; inside a dark-surface
+     wrapper (.gd-surface--dark, .gd-banner, .gd-bar--dark) the same
+     wrapper rule re-points them to the on-dark equivalents so every
+     descendant typography rule adapts without per-component overrides.
+     Components consume --gd-fg* (not --gd-color-fg*) for text color
+     anywhere the surface beneath them is variable. */
+  --gd-fg:        var(--gd-color-fg);
+  --gd-fg-strong: var(--gd-color-fg-strong);
+  --gd-fg-muted:  var(--gd-color-fg-muted);
+  --gd-rule:      var(--gd-rule-default);  /* context-aware hairline; flips to --gd-rule-dim inside .gd-surface--dark */
 
   /* ====================================================================
      Typography
@@ -123,7 +136,7 @@
   --gd-rule-default: rgba(12, 17, 23, 0.15);   /* hairline on light surfaces */
   --gd-rule-dim:     rgba(255, 255, 255, 0.16); /* hairline on dark surfaces */
   --gd-rule-strong:  var(--gd-color-fg-strong); /* full-strength rule on light surfaces */
-  --gd-rule-active:  var(--gd-color-accent);    /* highlight — active filebar cell, focus indicator */
+  --gd-rule-active:  var(--gd-color-brand);    /* highlight — active filebar cell, focus indicator */
 
   /* ====================================================================
      Shadows — two values; most surfaces use neither.
@@ -214,7 +227,7 @@
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-display);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 .gd-display    { font-size: var(--gd-fs-display); }
 .gd-h1         { font-size: var(--gd-fs-h1); }
@@ -227,7 +240,7 @@
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 /* Subheadings (display family, semibold). */
@@ -237,7 +250,7 @@
   font-weight: var(--gd-fw-semibold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 .gd-h3 { font-size: var(--gd-fs-h3); }
 .gd-h4 { font-size: var(--gd-fs-h4); }
@@ -249,7 +262,7 @@
   font-family: var(--gd-font-body);
   font-weight: var(--gd-fw-regular);
   line-height: var(--gd-lh-body);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
 }
 .gd-body-l { font-size: var(--gd-fs-body-l); font-weight: var(--gd-fw-medium); }
 .gd-body   { font-size: var(--gd-fs-body); }
@@ -263,7 +276,7 @@
   line-height: var(--gd-lh-body);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 .gd-mono   { font-size: var(--gd-fs-mono); }
 .gd-mono-s { font-size: var(--gd-fs-mono-s); letter-spacing: var(--gd-tr-mono-s); }
@@ -276,7 +289,7 @@
   line-height: var(--gd-lh-body);
   letter-spacing: var(--gd-tr-mono-wide);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* Serif italics (serif family, medium, italic). */
@@ -285,7 +298,7 @@
   font-family: var(--gd-font-serif);
   font-weight: var(--gd-fw-medium);
   font-style: italic;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 .gd-pullquote {
   font-size: var(--gd-fs-pullquote);
@@ -300,7 +313,7 @@
    (e.g. last two words of a display heading). Color only; inherits size,
    weight, family, etc. from its parent. */
 .gd-accent {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* ======================================================================
@@ -388,15 +401,15 @@
   transform: translateY(calc(var(--gd-lift) * -1));
 }
 
-/* Dark-surface treatment — shared by .gd-frame and .gd-slider.
-   background-clip: padding-box keeps the semi-transparent border
-   from blending with the dark fill behind it. */
-
+/* .gd-frame and .gd-slider also carry the dark surface treatment;
+   their background + role-token re-pointing comes from the shared
+   .gd-surface--dark rule (selector list joined below). Here we keep
+   only the frame/slider-specific quirk: background-clip: padding-box
+   keeps the semi-transparent border from blending with the dark fill
+   behind it. */
 .gd-frame,
 .gd-slider {
-  background: var(--gd-color-fg-strong);
   background-clip: padding-box;
-  color: var(--gd-color-bg-surface);
 }
 
 /* Media caption — used by .gd-image. The slider's caption role is
@@ -414,11 +427,11 @@
   line-height: var(--gd-lh-display);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-caption-meta {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* ======================================================================
@@ -443,7 +456,7 @@
   position: absolute;
   width: var(--gd-space-4);
   height: var(--gd-space-4);
-  border: var(--gd-bw-hair) solid var(--gd-color-accent);
+  border: var(--gd-bw-hair) solid var(--gd-color-brand);
 }
 
 .gd-frame__brackets::before {
@@ -477,12 +490,14 @@
 
 .gd-frame__meta-top {
   top: calc(var(--gd-space-2) + var(--gd-space-1));
-  color: var(--gd-color-fg-on-dark);
+  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark. */
+  color: var(--gd-fg);
 }
 
 .gd-frame__meta-bot {
   bottom: calc(var(--gd-space-2) + var(--gd-space-1));
-  color: var(--gd-color-fg-on-dark-dim);
+  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark-dim. */
+  color: var(--gd-fg-muted);
 }
 
 /* ======================================================================
@@ -553,7 +568,7 @@
   bottom: 0;
   left: var(--gd-slider-pos);
   width: var(--gd-bw-hair);
-  background: var(--gd-color-accent);
+  background: var(--gd-color-brand);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -566,7 +581,7 @@
   width: var(--gd-space-8);
   height: var(--gd-space-8);
   border-radius: var(--gd-r-full);
-  background: var(--gd-color-accent);
+  background: var(--gd-color-brand);
   color: var(--gd-color-bg-surface);
   display: flex;
   align-items: center;
@@ -598,10 +613,10 @@
 }
 
 .gd-slider__meta-num {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
-/* (Color swatch demo — `.read-swatch*` — is guide scaffolding, not a
+/* (Color table — `.read-color-table*` — is guide scaffolding, not a
    design component, and lives in readability.css.) */
 
 /* ======================================================================
@@ -620,9 +635,9 @@
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
   padding: var(--gd-space-4) var(--gd-space-6);
-  background: var(--gd-color-accent);
+  background: var(--gd-color-brand);
   color: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-color-accent);
+  border: var(--gd-bw-hair) solid var(--gd-color-brand);
   text-decoration: none;
   cursor: pointer;
   box-shadow: var(--gd-shadow-none);
@@ -635,22 +650,22 @@
 }
 
 .gd-btn:hover {
-  background: var(--gd-color-accent-soft);
-  border-color: var(--gd-color-accent-soft);
+  background: var(--gd-color-brand-soft);
+  border-color: var(--gd-color-brand-soft);
   box-shadow: var(--gd-shadow-lift);
   transform: translateY(calc(var(--gd-lift) * -1));
 }
 
 .gd-btn--ghost {
   background: transparent;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
   border-color: var(--gd-rule-strong);
 }
 
 .gd-btn--ghost:hover {
   background: var(--gd-color-bg-mute);
   border-color: var(--gd-rule-active);
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* ======================================================================
@@ -659,7 +674,7 @@
    ====================================================================== */
 
 .gd-link {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
   text-decoration: underline;
   text-underline-offset: var(--gd-space-1);
   text-decoration-thickness: var(--gd-bw-hair);
@@ -667,7 +682,7 @@
 }
 
 .gd-link:hover {
-  color: var(--gd-color-accent-soft);
+  color: var(--gd-color-brand-soft);
 }
 
 .gd-link--mono {
@@ -699,7 +714,7 @@
   font-size: var(--gd-fs-body);
   font-weight: var(--gd-fw-regular);
   line-height: var(--gd-lh-body);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
   background: var(--gd-color-bg-surface);
   border: var(--gd-bw-hair) solid var(--gd-rule-strong);
   padding: var(--gd-space-3) var(--gd-space-4);
@@ -728,7 +743,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 .gd-field {
@@ -743,7 +758,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* ======================================================================
@@ -778,18 +793,18 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-filebar__value {
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono);
   font-weight: var(--gd-fw-semibold);
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 .gd-filebar__value--active {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* ======================================================================
@@ -807,16 +822,16 @@
   text-transform: uppercase;
   padding: var(--gd-space-1) var(--gd-space-2);
   border: var(--gd-bw-hair) solid currentColor;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-status--closed { color: var(--gd-color-success); }
-.gd-status--filed  { color: var(--gd-color-fg-muted); }
+.gd-status--filed  { color: var(--gd-fg-muted); }
 
 .gd-status--active {
-  background: var(--gd-color-accent);
-  color: var(--gd-color-fg-strong);
-  border-color: var(--gd-color-fg-strong);
+  background: var(--gd-color-brand);
+  color: var(--gd-fg-strong);
+  border-color: var(--gd-fg-strong);
 }
 
 /* ======================================================================
@@ -840,7 +855,7 @@
   text-transform: uppercase;
   padding: var(--gd-space-1) var(--gd-space-2);
   border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
 }
 
 /* ======================================================================
@@ -864,7 +879,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 .gd-card__title {
@@ -873,7 +888,7 @@
   font-weight: var(--gd-fw-semibold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
   margin: 0;
 }
 
@@ -881,7 +896,7 @@
   font-family: var(--gd-font-body);
   font-size: var(--gd-fs-body-s);
   line-height: var(--gd-lh-body);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
   margin: 0;
 }
 
@@ -893,7 +908,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
   text-decoration: none;
 }
 
@@ -904,7 +919,10 @@
 
 .gd-divider {
   border: 0;
-  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  /* Pure hairline that sits on whatever surface it's dropped on —
+     consumes --gd-rule (role token) so it flips to --gd-rule-dim
+     inside .gd-surface--dark wrappers. */
+  border-top: var(--gd-bw-hair) solid var(--gd-rule);
   margin: var(--gd-space-6) 0;
 }
 
@@ -921,8 +939,8 @@
   font-weight: var(--gd-fw-bold);
   line-height: 1;
   text-transform: uppercase;
-  color: var(--gd-color-accent);
-  border: var(--gd-bw-rule) solid var(--gd-color-accent);
+  color: var(--gd-color-brand);
+  border: var(--gd-bw-rule) solid var(--gd-color-brand);
   padding: var(--gd-space-2) var(--gd-space-4);
   transform: rotate(-12deg);
 }
@@ -963,7 +981,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-ledger__num {
@@ -971,7 +989,7 @@
   font-size: var(--gd-fs-mono);
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono);
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-ledger__label {
@@ -980,7 +998,7 @@
   font-weight: var(--gd-fw-semibold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 .gd-ledger__money {
@@ -988,13 +1006,13 @@
   font-size: var(--gd-fs-body-l);
   font-weight: var(--gd-fw-bold);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 .gd-ledger__meta {
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
 }
 
 /* ======================================================================
@@ -1019,7 +1037,7 @@
   font-style: italic;
   font-size: var(--gd-fs-display);
   line-height: 0.5;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 .gd-quote__cite {
@@ -1034,7 +1052,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 /* ======================================================================
@@ -1070,7 +1088,7 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-trust__value {
@@ -1079,7 +1097,7 @@
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 /* ======================================================================
@@ -1103,9 +1121,32 @@
   text-transform: uppercase;
 }
 
-.gd-bar--dark {
+/* ======================================================================
+   Dark surface — shared treatment. Any wrapper that needs the
+   structural dark ground (fg-strong bg + on-dark text vocabulary)
+   pulls from this rule. Inside the rule we re-point the --gd-fg* role
+   tokens so every descendant typography rule that consumes them
+   resolves to on-dark variants automatically — no per-component
+   color overrides needed.
+
+   .gd-surface--dark is the generic context modifier for arbitrary
+   wrappers (sections, cards, anything). .gd-banner and .gd-bar--dark
+   are component classes that ALSO carry this treatment by intrinsic
+   role; they appear in the same comma-grouped selector so a single
+   rule defines the dark surface vocabulary and there's no drift
+   between three near-duplicate copies of the same dark-surface block.
+   ====================================================================== */
+.gd-surface--dark,
+.gd-banner,
+.gd-bar--dark,
+.gd-frame,
+.gd-slider {
   background: var(--gd-color-fg-strong);
-  color: var(--gd-color-fg-on-dark);
+  --gd-fg:        var(--gd-color-fg-on-dark);
+  --gd-fg-strong: var(--gd-color-fg-on-dark);
+  --gd-fg-muted:  var(--gd-color-fg-on-dark-dim);
+  --gd-rule:      var(--gd-rule-dim);
+  color: var(--gd-fg);
 }
 
 /* ======================================================================
@@ -1147,7 +1188,7 @@
   font-family: var(--gd-font-body);
   font-size: var(--gd-fs-body-s);
   line-height: var(--gd-lh-body);
-  color: var(--gd-color-fg);
+  color: var(--gd-fg);
 }
 
 .gd-list > li {
@@ -1164,7 +1205,7 @@
   content: "—";
   position: absolute;
   left: 0;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
   font-weight: var(--gd-fw-bold);
 }
 
@@ -1183,7 +1224,7 @@
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
   top: var(--gd-space-1);
 }
 
@@ -1214,14 +1255,14 @@
   width: calc(var(--gd-space-16) + var(--gd-space-4));
   aspect-ratio: var(--gd-ar-square);
   padding: var(--gd-space-3);
-  border: var(--gd-bw-rule) solid var(--gd-color-accent);
+  border: var(--gd-bw-rule) solid var(--gd-color-brand);
   border-radius: var(--gd-r-full);
   font-family: var(--gd-font-display);
   font-size: var(--gd-fs-h2);
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-display);
   text-transform: uppercase;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* Small unit label beneath the headline number inside the seal
@@ -1245,7 +1286,7 @@
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-heading);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 /* ======================================================================
@@ -1380,18 +1421,18 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-pm__name {
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 /* Role / title row beneath the name. Inherits type from .gd-pm__meta;
    the explicit muted color documents the intent so it survives any
    future change to the parent's default color. */
 .gd-pm__title {
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 /* ======================================================================
@@ -1437,8 +1478,9 @@
    targets only properties the system already animates (max-height,
    opacity); duration + ease come from existing motion tokens. */
 .gd-banner {
-  background: var(--gd-color-fg-strong);
-  color: var(--gd-color-fg-on-dark);
+  /* background + text color come from the shared dark-surface rule
+     above (.gd-surface--dark, .gd-banner, .gd-bar--dark). Only banner-
+     specific layout properties live here. */
   overflow: hidden;
   max-height: var(--gd-space-12);              /* generous ceiling — content sets the actual height */
   transition:
@@ -1469,7 +1511,9 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-on-dark-dim);
+  /* Cascades from .gd-banner — --gd-fg-muted is re-pointed to
+     --gd-color-fg-on-dark-dim inside the dark-surface rule. */
+  color: var(--gd-fg-muted);
 }
 
 /* Topnav — light ground (page color, so it blends with the page beneath
@@ -1524,13 +1568,13 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
   text-decoration: none;
   transition: color var(--gd-d-fast) var(--gd-ease);
 }
 
 .gd-topnav__link:hover {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 .gd-topnav__cta {
@@ -1571,12 +1615,12 @@
   background: transparent;
   border: 0;
   padding: 0;
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
   transition: color var(--gd-d-fast) var(--gd-ease);
 }
 
 .gd-phone:hover {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 /* On-dark variant — used inside .gd-banner. Two-tier on-dark vocab
@@ -1586,7 +1630,7 @@
 }
 
 .gd-phone--on-dark:hover {
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 .gd-phone__icon {
@@ -1609,7 +1653,7 @@
   gap: var(--gd-space-2);
   padding-inline: var(--gd-space-3);
   border-left: var(--gd-bw-hair) solid var(--gd-rule-default);
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 .gd-weather__icon {
@@ -1617,7 +1661,7 @@
   height: var(--gd-fs-h4);
   display: inline-block;
   flex: 0 0 auto;
-  color: var(--gd-color-accent);
+  color: var(--gd-color-brand);
 }
 
 .gd-weather__temp {
@@ -1625,7 +1669,7 @@
   font-size: var(--gd-fs-h4);
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-heading);
-  color: var(--gd-color-fg-strong);
+  color: var(--gd-fg-strong);
 }
 
 .gd-weather__label {
@@ -1634,33 +1678,17 @@
   font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono-s);
   text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
+  color: var(--gd-fg-muted);
 }
 
 /* ======================================================================
    Typography sample demo — used in the Typography section of the guide.
    ====================================================================== */
 
-.gd-type-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.gd-type-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gd-space-2);
-  padding-block: var(--gd-space-4);
-  border-bottom: var(--gd-bw-hair) solid var(--gd-color-bg-mute);
-}
-
-.gd-type-row:last-child {
-  border-bottom: none;
-}
-
 .gd-type-row__sample {
   margin: 0;
 }
 
-/* (The metadata caption under each type sample is commentary about the
-   design — it lives in readability.css as .read-token-meta.) */
+/* (The when-to-use copy for each typography role is commentary about
+   the design — it lives in the readability namespace as part of the
+   .read-type-table column structure.) */

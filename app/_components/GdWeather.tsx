@@ -6,7 +6,7 @@ import type { ReactElement } from "react";
  * Static placeholder values (per spec — non-functional). Uses the
  * existing mono / display / muted vocabulary; introduces no new
  * tokens. The sun icon uses currentColor and is themed by tokens.css
- * to read in --gd-color-accent.
+ * to read in --gd-color-brand.
  */
 
 export function GdWeather(): ReactElement {

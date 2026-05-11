@@ -22,7 +22,7 @@
   --read-bg-strong: hsl(46, 90%, 88%);      /* nav, callout emphasis    */
   --read-border: hsl(45, 55%, 78%);         /* dividers, edges          */
   --read-border-neutral: hsl(0, 0%, 88%);   /* neutral gray edge — used where a yellow edge would compete with the design content being demoed (e.g. color-swatch chips) */
-  --read-pad-fill: hsl(22, 22%, 36%);        /* muted dark gray-orange — fills padding visualizations without competing with --gd-color-accent */
+  --read-pad-fill: hsl(22, 22%, 36%);        /* muted dark gray-orange — fills padding visualizations without competing with --gd-color-brand */
   --read-text: hsl(36, 30%, 22%);           /* primary readability text */
   --read-text-muted: hsl(36, 18%, 45%);     /* intros, secondary copy   */
   --read-accent: hsl(28, 70%, 38%);         /* nav links, accents       */
@@ -309,19 +309,13 @@
   font-size: var(--read-font-size-body);
   line-height: var(--read-line-height-tight);
   color: var(--read-text);
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--read-space-md);
-  flex-wrap: wrap;
 }
 
-/* Left column: title + intro. Content-width — the when column owns the
-   slack via flex-grow. */
+/* Inert wrapper kept on existing subsection JSX. Now that the yellow
+   card is single-column, the heading wrapper does not need a flex
+   layout — it just passes its children through as default block flow. */
 .read-section__heading {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 50%;
+  display: contents;
 }
 
 .read-section__title {
@@ -389,26 +383,43 @@
   padding-top: var(--read-space-sm);
 }
 
+/* Two role-distinct "When to use" callouts share the same visual
+   treatment (orange-edge yellow-strong card with a "When to use:"
+   prefix); they are NAMED separately because they live in two
+   different contexts:
+     .read-section__notes  — inside the yellow .read-section card,
+                             stacked under the intro, full width.
+     .read-section__when   — inside a demo-row grid cell, sitting in
+                             the row's right column next to labels.
+   Visual styling is grouped to prevent drift; only the layout-tier
+   geometry differs per class. */
+.read-section__notes,
 .read-section__when {
   display: block;
+  margin: 0;
   background: var(--read-bg-strong);
   border-left: var(--read-stroke-emphasis) solid var(--read-accent);
   padding: var(--read-space-xs) var(--read-space-sm);
-  margin: 0;
   border-radius: 0 var(--read-radius-sm) var(--read-radius-sm) 0;
   color: var(--read-text);
-  flex: 1 1 0;          /* right column — grows to fill remaining row width, wider than heading */
-  min-width: 0;
   font-size: var(--read-font-size-when);
   line-height: var(--read-line-height-tight);
 }
 
+.read-section__notes::before,
 .read-section__when::before {
   content: "When to use: ";
   font-weight: var(--read-font-weight-strong);
   letter-spacing: var(--read-letter-spacing-wide);
   text-transform: uppercase;
   font-size: var(--read-font-size-label);
+}
+
+/* Notes layout — full row inside the yellow card, sitting under the
+   intro paragraph. */
+.read-section__notes {
+  width: 100%;
+  margin-top: var(--read-space-sm);
 }
 
 /* ---- Subsections — chrome shared with .read-section above (joined into
@@ -443,14 +454,6 @@
   color: var(--gd-color-fg-muted);
 }
 
-.read-token-meta {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  color: var(--gd-color-fg-muted);
-}
-
 /* =====================================================================
    Color swatch demo — guide scaffolding for the Colors section. The
    chip backgrounds reference `--gd-color-*` tokens because the entire
@@ -458,49 +461,183 @@
    itself (grid, gaps, chip box) is NOT part of the design system.
    ===================================================================== */
 
-.read-swatches {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--read-space-lg);
+/* White panel that wraps a read-namespace data table. Stands on its
+   own — no outer .read-section needed — and carries the yellow
+   readability-namespace border so the table still reads as guide
+   commentary rather than a design surface. Reusable for any read-*
+   table that wants this elevation. */
+.read-table-card {
+  background: #ffffff;
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-md);
+  padding: var(--read-space-sm) var(--read-space-md);
+  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-xs);
 }
 
-.read-swatch {
+/* Colors section table. First column is the swatch — empty cell whose
+   background is the color itself. Remaining columns describe the token
+   in plain rows. Borders are hairline-neutral so the table chrome never
+   competes with the swatch color. */
+.read-color-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+}
+
+.read-color-table thead th {
+  text-align: left;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--read-text-muted);
+  padding: var(--read-space-xs) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+}
+
+.read-color-table tbody td {
+  padding: var(--read-space-xs) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  vertical-align: middle;
+}
+
+.read-color-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Token cell — the --gd-color-* chip with its resolved value stacked
+   directly beneath it on its own line. Replaces the standalone Value
+   column the table used to have. */
+.read-color-table__token-cell {
   display: flex;
   flex-direction: column;
-  gap: var(--read-space-sm);
+  align-items: flex-start;
+  gap: var(--read-space-xxs);
 }
 
-.read-swatch__label {
+/* Uses column — small role badges showing which surfaces a color is
+   used on. Each variant is visually distinct in a way that mimics the
+   role itself, so the chip looks like the thing it describes. Keep the
+   shared base small; differentiate per-variant only on the axis that
+   carries meaning. */
+.read-uses {
   display: flex;
-  flex-direction: column;
-  gap: var(--read-space-xs);
+  flex-wrap: wrap;
+  gap: var(--read-space-xxs);
+  align-items: center;
 }
 
-.read-swatch__chip {
-  height: 7rem;
-  border: var(--read-stroke-hairline) solid var(--read-border-neutral);
+.read-use-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--read-space-xxs) var(--read-space-xs);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-xs);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  border: var(--read-stroke-hairline) solid transparent;
+  border-radius: var(--read-radius-sm);
+  background: transparent;
+  color: var(--read-text);
+  line-height: 1.2;
+}
+
+/* Type — the role is text itself, so the badge is bare bold uppercase
+   with no chrome. */
+.read-use-badge--typography {
+  padding: 0 var(--read-space-xxs);
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Lines — the role is a rule, so the badge is just the chip text with
+   a dashed bottom underline (a literal line). */
+.read-use-badge--lines {
+  padding: 0 var(--read-space-xxs) var(--read-space-xxs);
+  border: 0;
+  border-bottom: var(--read-stroke-hairline) dashed var(--read-text);
   border-radius: 0;
 }
 
-.read-swatch__chip[data-color="bg-page"]     { background: var(--gd-color-bg-page); }
-.read-swatch__chip[data-color="bg-surface"]  { background: var(--gd-color-bg-surface); }
-.read-swatch__chip[data-color="bg-mute"]     { background: var(--gd-color-bg-mute); }
-.read-swatch__chip[data-color="bg-warm"]     { background: var(--gd-color-bg-warm); }
-.read-swatch__chip[data-color="fg"]          { background: var(--gd-color-fg); }
-.read-swatch__chip[data-color="fg-strong"]   { background: var(--gd-color-fg-strong); }
-.read-swatch__chip[data-color="fg-muted"]    { background: var(--gd-color-fg-muted); }
-.read-swatch__chip[data-color="accent"]      { background: var(--gd-color-accent); }
-.read-swatch__chip[data-color="accent-soft"] { background: var(--gd-color-accent-soft); }
-.read-swatch__chip[data-color="success"]     { background: var(--gd-color-success); }
+/* Shadows — the role is elevation, so the badge sits on a soft drop
+   shadow. */
+.read-use-badge--shadows {
+  background: var(--read-bg-strong);
+  border-color: var(--read-border);
+  box-shadow: 0 2px 6px hsla(36, 60%, 12%, 0.18);
+}
 
-/* fg-on-dark variants are semi-transparent whites — the visible color
-   depends on what they sit on. Layer the alpha-white over --gd-color-fg-strong
-   so each chip renders the actual on-dark appearance. */
-.read-swatch__chip[data-color="fg-on-dark"] {
+/* Accents — the role is brand punctuation, so the badge uses the
+   read-namespace accent (orange) as outline + text color. */
+.read-use-badge--accents {
+  border-color: var(--read-accent);
+  color: var(--read-accent);
+}
+
+/* Statuses — the role is a status pill, so the badge is filled dark
+   with full radius. */
+.read-use-badge--statuses {
+  background: var(--read-text);
+  border-color: var(--read-text);
+  color: var(--read-bg-strong);
+  border-radius: 999px;
+}
+
+/* Backgrounds — the role is a soft ground, so the badge is a quiet
+   filled rectangle with the readability bg. */
+.read-use-badge--backgrounds {
+  background: var(--read-bg);
+  border-color: var(--read-border);
+}
+
+/* Value reads denser than the shared .read-token-value — the table
+   layout gives each cell its own column, so the mono tracking that
+   helps inline pill-style labels isn't needed here. */
+.read-color-table .read-token-value {
+  font-size: var(--read-font-size-xxs);
+  letter-spacing: 0;
+}
+
+.read-color-table__col-swatch {
+  width: 4rem;
+}
+
+/* Selector matches the row-padding rule (tbody td) and adds the
+   __swatch class so the cascade resolves to padding: 0 without
+   needing !important. */
+.read-color-table tbody td.read-color-table__swatch {
+  width: 4rem;
+  height: 2.25rem;
+  padding: 0;
+  border: var(--read-stroke-hairline) solid var(--read-border-neutral);
+}
+
+/* Color application — same data-color attribute pattern as before but
+   now scoped to the table-swatch cell. Two on-dark variants layer
+   alpha-white over fg-strong so the rendered cell reads as it would
+   on a real dark surface. */
+.read-color-table__swatch[data-color="bg-page"]     { background: var(--gd-color-bg-page); }
+.read-color-table__swatch[data-color="bg-surface"]  { background: var(--gd-color-bg-surface); }
+.read-color-table__swatch[data-color="bg-mute"]     { background: var(--gd-color-bg-mute); }
+.read-color-table__swatch[data-color="bg-warm"]     { background: var(--gd-color-bg-warm); }
+.read-color-table__swatch[data-color="fg"]          { background: var(--gd-color-fg); }
+.read-color-table__swatch[data-color="fg-strong"]   { background: var(--gd-color-fg-strong); }
+.read-color-table__swatch[data-color="bg-dark"] { background: var(--gd-color-bg-dark); }
+.read-color-table__swatch[data-color="fg-muted"]    { background: var(--gd-color-fg-muted); }
+.read-color-table__swatch[data-color="accent"]      { background: var(--gd-color-brand); }
+.read-color-table__swatch[data-color="accent-soft"] { background: var(--gd-color-brand-soft); }
+.read-color-table__swatch[data-color="success"]     { background: var(--gd-color-success); }
+
+.read-color-table__swatch[data-color="fg-on-dark"] {
   background-color: var(--gd-color-fg-strong);
   background-image: linear-gradient(var(--gd-color-fg-on-dark), var(--gd-color-fg-on-dark));
 }
-.read-swatch__chip[data-color="fg-on-dark-dim"] {
+.read-color-table__swatch[data-color="fg-on-dark-dim"] {
   background-color: var(--gd-color-fg-strong);
   background-image: linear-gradient(var(--gd-color-fg-on-dark-dim), var(--gd-color-fg-on-dark-dim));
 }
@@ -509,7 +646,7 @@
    Spacing ruler — guide scaffolding for the Spacing section. Each row
    shows token name, pixel value, and a bar drawn at exactly that width
    so the relative scale is visible at a glance. The bar uses
-   --gd-color-accent (orange) because the reference visual in the spec
+   --gd-color-brand (orange) because the reference visual in the spec
    does too, and orange is the system's "punctuation" color.
    ===================================================================== */
 
@@ -532,7 +669,7 @@
 .read-ruler__bar {
   display: block;
   height: var(--read-stroke-emphasis);
-  background: var(--gd-color-accent);
+  background: var(--gd-color-brand);
 }
 
 .read-ruler__bar[data-step="1"]  { width: var(--gd-space-1); }
@@ -643,6 +780,32 @@
   font-weight: var(--gd-fw-bold);
 }
 
+/* Toggle variant — used when a .read-gd-class-lbl is rendered as a
+   real <button> that expands / collapses an adjacent { styles }
+   block (typography table). Resets native button chrome so the chip
+   visual stays identical; adds cursor + focus affordance. */
+.read-gd-class-lbl--toggle {
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+  margin: 0;
+}
+
+.read-gd-class-lbl--toggle:hover {
+  background: var(--read-accent);
+  color: var(--read-bg-strong);
+}
+
+.read-gd-class-lbl--toggle:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: var(--read-stroke-focus);
+}
+
+.read-gd-class-lbl--toggle[aria-expanded="true"] {
+  background: var(--read-accent);
+  color: var(--read-bg-strong);
+}
+
 /* Wrapper for a list of gd labels under a demo row. */
 .read-gd-tokens {
   display: flex;
@@ -651,51 +814,83 @@
   align-items: center;
 }
 
-/* Typography spec — shows the resolved CSS property → token → value
-   triplet for each role class in the Typography section. Sits below
-   the .read-gd-tokens chip strip. Commentary about the design; never
-   styled with --gd-* tokens. */
-.read-type-spec {
-  margin: var(--read-space-xs) 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: var(--read-space-sm);
-  row-gap: 0;
+/* Typography section table. Two columns: rendered sample on the left,
+   formatted CSS rule on the right. The right cell renders as a real
+   <code> block — class name, brace, indented property: --token; lines,
+   closing brace — so the spec reads like the actual CSS it documents. */
+.read-type-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
 }
 
-.read-type-spec__row {
-  display: contents;
-}
-
-.read-type-spec__prop {
-  margin: 0;
+.read-type-table thead th {
+  text-align: left;
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
   color: var(--read-text-muted);
+  padding: var(--read-space-xs) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
 }
 
-.read-type-spec__val {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--read-space-xs);
-  align-items: baseline;
+.read-type-table tbody td {
+  padding: var(--read-space-sm) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  vertical-align: top;
 }
 
-.read-type-spec__token {
+.read-type-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.read-type-table__sample {
+  width: 40%;
+}
+
+/* When-to-use column — compact prose, slightly muted so it reads as
+   annotation alongside the rendered sample + formatted rule. */
+.read-type-table__when {
+  width: 30%;
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+}
+
+.read-type-table__rule {
+  display: block;
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
-  letter-spacing: var(--gd-tr-mono);
-  color: var(--read-accent);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+  white-space: normal;
 }
 
-.read-type-spec__value {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  color: var(--gd-color-fg);
+.read-type-table__decl {
+  display: block;
+  padding-left: var(--read-space-md);
+}
+
+.read-type-table__prop {
+  color: var(--read-text-muted);
+}
+
+.read-type-table__brace,
+.read-type-table__punct {
+  color: var(--read-text-muted);
+}
+
+/* Resolved value rendered as an inline annotation after each token —
+   italic + muted so it reads as a comment-style remark, never as
+   primary content. */
+.read-type-table__value {
+  font-style: italic;
+  color: var(--read-text-muted);
 }
 
 /* =====================================================================
@@ -719,11 +914,20 @@
    white-space: nowrap), so the labels column stays as narrow as
    possible without ever wrapping a token/class name. Each row has a
    hairline divider so the pattern is scannable. */
-.read-demo-row {
+/* Universal demo-row layout — the read elements (labels + when) sit
+   on row 1 as their own section ABOVE the gd example, which spans
+   row 2 full-width. Labels + when form a horizontal pair (labels
+   left, when grows right). The previous --stack modifier is now the
+   default behavior; .read-demo-row--stack is kept as a no-op alias
+   so existing JSX usages don't need to be touched.
+   The only exception is data presented as a real <table> — currently
+   only the colors section — which never uses .read-demo-row at all. */
+.read-demo-row,
+.read-demo-row--stack {
   display: grid;
-  grid-template-columns: max-content minmax(14rem, 1.2fr) minmax(16rem, 2fr);
-  gap: var(--read-space-md);
-  align-items: center;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--read-space-sm);
   padding-block: var(--read-space-sm);
   border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
 }
@@ -732,30 +936,18 @@
   border-bottom: none;
 }
 
-/* Stacked variant — labels + when form a single row container at the
-   top (labels first, when stretched to the right). The actual demo
-   content underneath spans the full row width. Used where the example
-   needs the full row width to read correctly (e.g. the container
-   max-width bars). */
-.read-demo-row--stack {
-  display: grid;
-  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
-  align-items: start;
-  gap: var(--read-space-sm);
-}
-
-.read-demo-row--stack > .read-demo-row__labels {
+.read-demo-row > .read-demo-row__labels {
   grid-column: 1;
-  max-width: 50%;          /* labels block never exceeds half the row — chips wrap inside if needed */
+  max-width: 50%;          /* labels block never exceeds half the row's first track — chips wrap inside if needed */
 }
 
-.read-demo-row--stack > .read-section__when {
+.read-demo-row > .read-section__when {
   grid-column: 2;
 }
 
 /* Anything that isn't labels or when (the actual demo example) spans
    the full row width on its own row below. */
-.read-demo-row--stack > *:not(.read-demo-row__labels):not(.read-section__when) {
+.read-demo-row > *:not(.read-demo-row__labels):not(.read-section__when) {
   grid-column: 1 / -1;
 }
 
@@ -845,7 +1037,7 @@
 
 .read-mw-demo__bar {
   height: var(--gd-space-4);
-  background: var(--gd-color-accent);
+  background: var(--gd-color-brand);
 }
 
 .read-mw-demo__bar[data-mw="prose"] { max-width: var(--gd-mw-prose); }

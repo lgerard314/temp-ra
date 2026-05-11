@@ -51,7 +51,7 @@ When the user says "change X on the page," "fix the spacing on Y in the guide," 
 - The only acceptable JSX/HTML edits in response to "change the look of X" are: swapping which design class is applied (`className="..."`), restructuring markup so the right class can target it, or adding/removing semantic elements. The values themselves change in `tokens.css` or in the design class definitions — never on the element.
 - **No `style={{ ... }}` props in components — ever.** No exceptions.
 - **Runtime UI-state custom properties via `element.style.setProperty()` are permitted** for interactive component state (drag position, animation progress, collapse offset). Each call must:
-  1. Write a single custom property whose name describes UI state, not a design value (e.g. `--read-nav-x`, `--gd-slider-pos` — both legitimate; `--gd-color-accent` would not be).
+  1. Write a single custom property whose name describes UI state, not a design value (e.g. `--read-nav-x`, `--gd-slider-pos` — both legitimate; `--gd-color-brand` would not be).
   2. Be invoked from a ref-based DOM mutation inside the component that owns the state; never sprinkled across callers.
   3. Be documented in a comment on the component explaining what state the variable encodes.
   Currently-approved runtime variables: `--read-nav-x` / `--read-nav-y` (floating nav drag), `--gd-slider-pos` (before/after slider drag). New ones may be introduced when a new interactive component needs them, following the same three rules.
@@ -85,19 +85,22 @@ These rules govern recurring decisions that drift would corrupt fastest. They li
 
 ### Color
 
-- **Orange is the system's only chromatic punctuation.** `--gd-color-accent` (#fb6a1d) for active state, status highlights, focus, eyebrow, accent text, links. No other chromatic color is permitted anywhere on the site.
-- **`--gd-color-accent-soft` is a hover-only color.** It exists exclusively as the hover-state variant of `--gd-color-accent` (e.g. on `.gd-btn:hover`). Never use it at rest. Never substitute it for `--gd-color-accent`.
+- **Orange is the system's only chromatic punctuation.** `--gd-color-brand` (#fb6a1d) for active state, status highlights, focus, eyebrow, accent text, links. No other chromatic color is permitted anywhere on the site.
+- **`--gd-color-brand-soft` is a hover-only color.** It exists exclusively as the hover-state variant of `--gd-color-brand` (e.g. on `.gd-btn:hover`). Never use it at rest. Never substitute it for `--gd-color-brand`.
 - **`--gd-color-success` is reserved for the closed-file / success state.** Never used as a generic green.
 - **`--gd-color-bg-surface` (#fff) is never a page or section background.** It's an elevated component surface (cards, ledger, filebar, inputs, quote). Page/section grounds use `--gd-color-bg-page` or `--gd-color-bg-warm`; banner-style sections use `--gd-color-fg-strong`.
 - **Banner-section backgrounds use `--gd-color-fg-strong`.** Do not invent a "slightly different dark" — the system has one structural dark and one body dark, and that is the entire dark vocabulary.
 - **`--gd-color-fg-on-dark` / `--gd-color-fg-on-dark-dim` are the only text colors on dark surfaces.** Two-tier emphasis (primary + dim); no third tier.
+- **Foreground colors are consumed through context-aware role tokens, not the raw primitives.** Components set their text color via `--gd-fg` (body type), `--gd-fg-strong` (structural type), and `--gd-fg-muted` (secondary type) — never `var(--gd-color-fg)` / `var(--gd-color-fg-strong)` / `var(--gd-color-fg-muted)` directly. At `:root` these role tokens alias to the light-surface primitives; inside the shared `.gd-surface--dark, .gd-banner, .gd-bar--dark, .gd-frame, .gd-slider` rule they are re-pointed to the on-dark equivalents, so every typography rule beneath a dark surface adapts automatically with zero per-component overrides. The raw `--gd-color-fg*` primitives stay legal for `background:` and `border-color:` declarations (i.e., when a color is intrinsic to a surface, not contextual to text on it).
+- **Hairlines that sit on the surface (not on an elevated component) use `--gd-rule`.** The `--gd-rule` role token aliases `--gd-rule-default` at root and flips to `--gd-rule-dim` inside the same dark-surface rule. `.gd-divider` is the canonical consumer. Hairlines that live on a component's own light surface (`.gd-card`, `.gd-filebar`, `.gd-ledger`, `.gd-quote`, `.gd-trust`, `.gd-pm`, `.gd-btn`, etc.) continue to use `--gd-rule-default` directly because their containing surface doesn't vary.
+- **`.gd-surface--dark` is the generic context modifier.** Wrap any block in it to flip the descendant typography to the on-dark vocabulary. `.gd-banner`, `.gd-bar--dark`, `.gd-frame`, and `.gd-slider` are component classes that carry the same treatment by intrinsic role — they share the rule via comma-grouped selector so there's a single source of truth for the dark-surface vocabulary. Never write a sixth standalone dark-surface block; join the existing selector instead.
 
 ### Typography
 
 - **All `<h1>`–`<h4>` use `--gd-font-display`, uppercase.** Never substitute another family on a heading.
 - **`--gd-tr-mono-wide` (0.22em tracking) is reserved exclusively for `.gd-eyebrow`.** No other class may use it.
 - **`.gd-pullquote` is the only Newsreader display-size role.** `.gd-serif` is body-size italic only.
-- **Forms / errors: use `--gd-color-accent`, never invent a red.** Same for any other "warning" / "destructive" indicator.
+- **Forms / errors: use `--gd-color-brand`, never invent a red.** Same for any other "warning" / "destructive" indicator.
 
 ### Borders, radii, shadows
 

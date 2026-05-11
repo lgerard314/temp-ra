@@ -2,90 +2,114 @@ import type { ReactNode } from "react";
 import { ReadSection } from "@/app/_components/ReadSection";
 import { GdSlider } from "@/app/_components/GdSlider";
 import { SiteHeader } from "@/app/_components/SiteHeader";
+import { ReadTypeRow } from "@/app/_components/ReadTypeRow";
 
-const colorTokens: { key: string; token: string; value: string; classes?: string[]; when: string }[] = [
-  { key: "bg-page",     token: "--gd-color-bg-page",     value: "#fafaf6", when: "Background — primary page ground." },
-  { key: "bg-surface",  token: "--gd-color-bg-surface",  value: "#ffffff", when: "Background — elevated component surfaces only (cards, ledger, filebar, inputs, quote). Never a page or section background — page/section grounds use --gd-color-bg-page or --gd-color-bg-warm." },
-  { key: "bg-mute",     token: "--gd-color-bg-mute",     value: "#e6e8e6", when: "Background or border — quiet fills and hairline dividers." },
-  { key: "bg-warm",     token: "--gd-color-bg-warm",     value: "#f0eee6", when: "Background — warm hero / featured sections." },
-  { key: "fg",          token: "--gd-color-fg",          value: "#1d242d", when: "Typography — body text." },
-  { key: "fg-strong",   token: "--gd-color-fg-strong",   value: "#0c1117", when: "Typography — structural headers and emphasis. Also a background — banner-style sections." },
-  { key: "fg-muted",    token: "--gd-color-fg-muted",    value: "#5a6168", when: "Typography or border — secondary text and dividers." },
-  { key: "accent",      token: "--gd-color-accent",      value: "#fb6a1d", classes: [".gd-accent"], when: "Accent — the single chromatic highlight; active states, status, focus emphasis." },
-  { key: "accent-soft", token: "--gd-color-accent-soft", value: "#ff8442", when: "Accent — softer variant for hover or secondary accent contexts." },
-  { key: "success",          token: "--gd-color-success",          value: "#1a4a1a",                when: "Status — success / “closed” state." },
-  { key: "fg-on-dark",       token: "--gd-color-fg-on-dark",       value: "rgba(255,255,255,0.85)", classes: [".gd-frame__meta-top"], when: "Typography on dark surfaces — primary readable text. Used on the upper meta row of .gd-frame." },
-  { key: "fg-on-dark-dim",   token: "--gd-color-fg-on-dark-dim",   value: "rgba(255,255,255,0.7)",  classes: [".gd-frame__meta-bot"], when: "Typography on dark surfaces — dimmed/secondary text. Used on the lower meta row of .gd-frame for the secondary annotation tier." },
+/* Ordered by visual similarity so adjacent rows in the colors table read
+   as a coherent group, not a checklist:
+     1. Light grounds — page / warm / mute (page & section backgrounds)
+     2. Surface       — pure-white elevated component ground (special role)
+     3. Dark fg tones — fg-strong / fg / fg-muted (text + structural dark)
+     4. On-dark tiers — fg-on-dark / fg-on-dark-dim (text on dark surfaces)
+     5. Accent        — accent / accent-soft (the system's single chroma)
+     6. Status        — success (reserved closed/success state) */
+type ColorUse = "typography" | "lines" | "shadows" | "accents" | "statuses" | "backgrounds";
+
+const colorTokens: { key: string; token: string; value: string; classes?: string[]; uses: ColorUse[]; when: string }[] = [
+  { key: "bg-page",     token: "--gd-color-bg-page",     value: "#fafaf6",
+    classes: [".gd-card", ".gd-site-header", ".gd-topnav"],
+    uses: ["backgrounds"],
+    when: "Background — primary page ground." },
+  { key: "bg-warm",     token: "--gd-color-bg-warm",     value: "#f0eee6",
+    uses: ["backgrounds"],
+    when: "Background — warm hero / featured sections. (No production class consumes this yet — reserved for warm-ground sections.)" },
+  { key: "bg-mute",     token: "--gd-color-bg-mute",     value: "#e6e8e6",
+    classes: [".gd-btn--ghost", ".gd-ledger__row--header", ".gd-pm__photo", ".gd-ratio"],
+    uses: ["backgrounds", "lines"],
+    when: "Background or border — quiet fills and hairline dividers." },
+  { key: "bg-surface",  token: "--gd-color-bg-surface",  value: "#ffffff",
+    classes: [".gd-btn", ".gd-filebar", ".gd-ledger", ".gd-quote", ".gd-select", ".gd-slider", ".gd-slider__grip", ".gd-slider__meta", ".gd-slider__tag", ".gd-trust"],
+    uses: ["backgrounds"],
+    when: "Background — elevated component surfaces only (cards, ledger, filebar, inputs, quote). Never a page or section background — page/section grounds use --gd-color-bg-page or --gd-color-bg-warm." },
+  { key: "fg-strong",   token: "--gd-color-fg-strong",   value: "#0c1117",
+    classes: [".gd-banner", ".gd-bar--dark", ".gd-btn--ghost", ".gd-card__title", ".gd-filebar__value", ".gd-frame", ".gd-h2", ".gd-h2-display", ".gd-h4", ".gd-label", ".gd-ledger__label", ".gd-ledger__money", ".gd-phone", ".gd-pm__name", ".gd-serif", ".gd-slider", ".gd-slider__layer--before", ".gd-slider__meta", ".gd-status--active", ".gd-surface--dark", ".gd-topnav__link", ".gd-trust__value", ".gd-warranty__text", ".gd-weather__temp"],
+    uses: ["typography", "backgrounds"],
+    when: "Typography — structural headers and emphasis. Also a background — banner-style sections." },
+  { key: "bg-dark", token: "--gd-color-bg-dark", value: "#161a1f",
+    uses: ["backgrounds"],
+    when: "Reserved alt dark surface — held for cases that need to read as distinctly different from --gd-color-fg-strong while still in the dark vocabulary. NEVER substituted for --gd-color-fg-strong on banner / structural surfaces; pick one and stay with it. No production class consumes this yet." },
+  { key: "fg",          token: "--gd-color-fg",          value: "#1d242d",
+    classes: [".gd-body-s", ".gd-card__body", ".gd-chip", ".gd-ledger__meta", ".gd-list", ".gd-select"],
+    uses: ["typography"],
+    when: "Typography — body text." },
+  { key: "fg-muted",    token: "--gd-color-fg-muted",    value: "#5a6168",
+    classes: [".gd-caption", ".gd-filebar__label", ".gd-ledger__num", ".gd-ledger__row--header", ".gd-mono-s", ".gd-pm__meta", ".gd-pm__title", ".gd-quote__cite", ".gd-slider__layer--after", ".gd-status", ".gd-trust__label", ".gd-weather", ".gd-weather__label"],
+    uses: ["typography", "lines"],
+    when: "Typography or border — secondary text and dividers." },
+  { key: "fg-on-dark",     token: "--gd-color-fg-on-dark",     value: "rgba(255,255,255,0.85)",
+    classes: [".gd-banner", ".gd-bar--dark", ".gd-frame__meta-top", ".gd-phone--on-dark"],
+    uses: ["typography"],
+    when: "Typography on dark surfaces — primary readable text." },
+  { key: "fg-on-dark-dim", token: "--gd-color-fg-on-dark-dim", value: "rgba(255,255,255,0.7)",
+    classes: [".gd-banner__meta", ".gd-frame__meta-bot"],
+    uses: ["typography"],
+    when: "Typography on dark surfaces — dimmed/secondary text." },
+  { key: "accent",      token: "--gd-color-brand",      value: "#fb6a1d",
+    classes: [".gd-accent", ".gd-btn", ".gd-btn--ghost", ".gd-caption-meta", ".gd-card__eyebrow", ".gd-card__link", ".gd-eyebrow", ".gd-field__error", ".gd-filebar__value--active", ".gd-frame__brackets", ".gd-link", ".gd-list", ".gd-list--ordered", ".gd-phone", ".gd-phone--on-dark", ".gd-quote__mark", ".gd-slider__grip", ".gd-slider__handle", ".gd-slider__meta-num", ".gd-stamp", ".gd-status--active", ".gd-topnav__link", ".gd-warranty__shape", ".gd-weather__icon"],
+    uses: ["accents", "typography", "statuses", "lines", "backgrounds"],
+    when: "Accent — the single chromatic highlight; active states, status, focus emphasis." },
+  { key: "accent-soft", token: "--gd-color-brand-soft", value: "#ff8442",
+    classes: [".gd-btn", ".gd-link"],
+    uses: ["accents"],
+    when: "Accent — softer hover variant of --gd-color-brand. Never used at rest." },
+  { key: "success",     token: "--gd-color-success",     value: "#1a4a1a",
+    classes: [".gd-status--closed"],
+    uses: ["statuses"],
+    when: "Status — success / “closed” state. Reserved; never a generic green." },
 ];
 
-/* Hand-encoded mirror of typography token values from tokens.css.
-   Used only by the design-guide typography section to show what each
-   role class resolves to. If a token value changes in tokens.css, update
-   here too — there's no live read, deliberately, so the guide stays a
-   static document. */
-const TOKEN_VALUES: Record<string, string> = {
-  "--gd-font-display": "Archivo Narrow",
-  "--gd-font-body": "Work Sans",
-  "--gd-font-mono": "JetBrains Mono",
-  "--gd-font-serif": "Newsreader",
-  "--gd-fs-display": "clamp(2.6rem, 5vw, 4.2rem)",
-  "--gd-fs-h1": "clamp(2rem, 3.6vw, 3rem)",
-  "--gd-fs-h2": "clamp(1.6rem, 2.6vw, 2.2rem)",
-  "--gd-fs-h2-display": "= --gd-fs-h1",
-  "--gd-fs-h3": "1.5rem",
-  "--gd-fs-h4": "1.15rem",
-  "--gd-fs-body-l": "1.1rem",
-  "--gd-fs-body": "1rem",
-  "--gd-fs-body-s": "0.92rem",
-  "--gd-fs-mono": "0.78rem",
-  "--gd-fs-mono-s": "0.65rem",
-  "--gd-fs-pullquote": "1.4rem",
-  "--gd-fw-regular": "400",
-  "--gd-fw-medium": "500",
-  "--gd-fw-semibold": "600",
-  "--gd-fw-bold": "700",
-  "--gd-lh-display": "0.95",
-  "--gd-lh-heading": "1.05",
-  "--gd-lh-pullquote": "1.35",
-  "--gd-lh-body": "1.55",
-  "--gd-tr-mono": "0.18em",
-  "--gd-tr-mono-wide": "0.22em",
-  "--gd-color-fg": "#1d242d",
-  "--gd-color-fg-strong": "#0c1117",
-  "--gd-color-fg-muted": "#5a6168",
-  "--gd-color-accent": "#fb6a1d",
-};
-
-const tokenProperty = (t: string): string => {
-  if (t.startsWith("--gd-font-")) return "font-family";
-  if (t.startsWith("--gd-fs-")) return "font-size";
-  if (t.startsWith("--gd-fw-")) return "font-weight";
-  if (t.startsWith("--gd-lh-")) return "line-height";
-  if (t.startsWith("--gd-tr-")) return "letter-spacing";
-  if (t.startsWith("--gd-color-")) return "color";
-  return "—";
+const USE_LABELS: Record<ColorUse, string> = {
+  typography: "Type",
+  lines: "Lines",
+  shadows: "Shadows",
+  accents: "Accents",
+  statuses: "Statuses",
+  backgrounds: "Bgs",
 };
 
 const typeRoles: {
   className: string;
   sample: ReactNode;
   tokens: string[];
-  note?: string;
+  when: string;
 }[] = [
-  { className: "gd-display",   sample: <>The quick <span className="gd-accent">brown fox</span></>, tokens: ["--gd-font-display", "--gd-fs-display", "--gd-fw-bold", "--gd-lh-display", "--gd-color-fg-strong"], note: "Archivo Narrow, uppercase." },
-  { className: "gd-h1",        sample: "The quick brown fox",                                       tokens: ["--gd-font-display", "--gd-fs-h1", "--gd-fw-bold", "--gd-lh-display", "--gd-color-fg-strong"] },
-  { className: "gd-h2",        sample: "The quick brown fox jumps",                                 tokens: ["--gd-font-display", "--gd-fs-h2", "--gd-fw-bold", "--gd-lh-heading", "--gd-color-fg-strong"] },
-  { className: "gd-h2-display", sample: <>The quick <span className="gd-accent">brown fox</span></>, tokens: ["--gd-font-display", "--gd-fs-h2-display", "--gd-fw-bold", "--gd-lh-display", "--gd-color-fg-strong"], note: "Semantic h2 at display size." },
-  { className: "gd-h3",        sample: "The quick brown fox jumps over the lazy dog",                tokens: ["--gd-font-display", "--gd-fs-h3", "--gd-fw-semibold", "--gd-lh-heading", "--gd-color-fg-strong"] },
-  { className: "gd-h4",        sample: "The quick brown fox jumps over the lazy dog",                tokens: ["--gd-font-display", "--gd-fs-h4", "--gd-fw-semibold", "--gd-lh-heading", "--gd-color-fg-strong"] },
-  { className: "gd-body-l",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-l", "--gd-fw-medium", "--gd-lh-body", "--gd-color-fg"] },
-  { className: "gd-body",      sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body", "--gd-fw-regular", "--gd-lh-body", "--gd-color-fg"] },
-  { className: "gd-body-s",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-s", "--gd-fw-regular", "--gd-lh-body", "--gd-color-fg"] },
-  { className: "gd-mono",      sample: "STATUS · 240924 · OPEN",                                    tokens: ["--gd-font-mono", "--gd-fs-mono", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono", "--gd-color-fg-muted"] },
-  { className: "gd-mono-s",    sample: "STATUS · 240924 · OPEN",                                    tokens: ["--gd-font-mono", "--gd-fs-mono-s", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono", "--gd-color-fg-muted"] },
-  { className: "gd-eyebrow",   sample: "RE: STORM CLAIM · PLANO",                                   tokens: ["--gd-font-mono", "--gd-fs-mono-s", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono-wide", "--gd-color-accent"] },
-  { className: "gd-pullquote", sample: "“The quick brown fox jumps over the lazy dog.”",            tokens: ["--gd-font-serif", "--gd-fs-pullquote", "--gd-fw-medium", "--gd-lh-pullquote", "--gd-color-fg-strong"], note: "Italic." },
-  { className: "gd-serif",     sample: "“The quick brown fox jumps over the lazy dog.”",            tokens: ["--gd-font-serif", "--gd-fs-body", "--gd-fw-medium", "--gd-lh-body", "--gd-color-fg-strong"], note: "Italic, body-size generic serif." },
+  { className: "gd-display",   sample: <>The quick <span className="gd-accent">brown fox</span></>, tokens: ["--gd-font-display", "--gd-fs-display", "--gd-fw-bold", "--gd-lh-display", "--gd-fg-strong"],
+    when: "Hero display headline — page-opening titles only. At most one per page." },
+  { className: "gd-h1",        sample: "The quick brown fox", tokens: ["--gd-font-display", "--gd-fs-h1", "--gd-fw-bold", "--gd-lh-display", "--gd-fg-strong"],
+    when: "Page-level primary heading. Exactly one per page." },
+  { className: "gd-h2-display", sample: <>The quick <span className="gd-accent">brown fox</span></>, tokens: ["--gd-font-display", "--gd-fs-h2-display", "--gd-fw-bold", "--gd-lh-display", "--gd-fg-strong"],
+    when: "Semantic <h2> promoted to display size — use when an h2 needs hero-level prominence (landing-section openers). Size tracks --gd-fs-h1." },
+  { className: "gd-h2",        sample: "The quick brown fox jumps", tokens: ["--gd-font-display", "--gd-fs-h2", "--gd-fw-bold", "--gd-lh-heading", "--gd-fg-strong"],
+    when: "Section heading — the primary in-section title." },
+  { className: "gd-h3",        sample: "The quick brown fox jumps over the lazy dog", tokens: ["--gd-font-display", "--gd-fs-h3", "--gd-fw-semibold", "--gd-lh-heading", "--gd-fg-strong"],
+    when: "Subsection heading inside a section." },
+  { className: "gd-h4",        sample: "The quick brown fox jumps over the lazy dog", tokens: ["--gd-font-display", "--gd-fs-h4", "--gd-fw-semibold", "--gd-lh-heading", "--gd-fg-strong"],
+    when: "Smallest heading — labels content within a subsection. Never substituted for body copy despite the close pixel size to --gd-fs-body-l; the display family + uppercase + semibold make the role distinct." },
+  { className: "gd-body-l",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-l", "--gd-fw-medium", "--gd-lh-body", "--gd-fg"],
+    when: "Large body — intro paragraphs and lead sentences. Body family; never substituted for .gd-h4." },
+  { className: "gd-body",      sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body", "--gd-fw-regular", "--gd-lh-body", "--gd-fg"],
+    when: "Default body copy — the workhorse for prose paragraphs." },
+  { className: "gd-body-s",    sample: "The quick brown fox jumps over the lazy dog and lopes back home before sunset.", tokens: ["--gd-font-body", "--gd-fs-body-s", "--gd-fw-regular", "--gd-lh-body", "--gd-fg"],
+    when: "Small body — captions, meta text, or fine print within a body context." },
+  { className: "gd-mono",      sample: "STATUS · 240924 · OPEN", tokens: ["--gd-font-mono", "--gd-fs-mono", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono", "--gd-fg-muted"],
+    when: "Mono labels — file numbers, status text, tabular meta. Casing is set by the consuming component class." },
+  { className: "gd-mono-s",    sample: "STATUS · 240924 · OPEN", tokens: ["--gd-font-mono", "--gd-fs-mono-s", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono", "--gd-fg-muted"],
+    when: "Smaller mono — secondary meta annotations (filebar values, ledger meta, caption-meta)." },
+  { className: "gd-eyebrow",   sample: "RE: STORM CLAIM · PLANO", tokens: ["--gd-font-mono", "--gd-fs-mono-s", "--gd-fw-bold", "--gd-lh-body", "--gd-tr-mono-wide", "--gd-color-brand"],
+    when: "Section eyebrow — mono uppercase label sitting above a heading. The ONLY role that uses --gd-tr-mono-wide (0.22em); never substitute for .gd-mono-s." },
+  { className: "gd-pullquote", sample: "“The quick brown fox jumps over the lazy dog.”", tokens: ["--gd-font-serif", "--gd-fs-pullquote", "--gd-fw-medium", "--gd-lh-pullquote", "--gd-fg-strong"],
+    when: "Pull-quote — large italic serif for emphasized quotations. The ONLY Newsreader role at display size; never substituted for body italic." },
+  { className: "gd-serif",     sample: "“The quick brown fox jumps over the lazy dog.”", tokens: ["--gd-font-serif", "--gd-fs-body", "--gd-fw-medium", "--gd-lh-body", "--gd-fg-strong"],
+    when: "Generic body-size italic serif — inline citations, attribution, italic emphasis where the serif tone is intentional. Never display-size." },
 ];
 
 const spacingTokens: { step: string; token: string; px: number }[] = [
@@ -110,7 +134,7 @@ const borderWidths: { key: string; token: string; value: string; note: string }[
 const ruleColors: { key: string; token: string; value: string; note: string }[] = [
   { key: "default", token: "--gd-rule-default", value: "rgba(12,17,23,0.15)", note: "Hairline on light surfaces — divider default." },
   { key: "strong",  token: "--gd-rule-strong",  value: "var(--gd-color-fg-strong)", note: "Full-strength rule on light surfaces — structural emphasis." },
-  { key: "active",  token: "--gd-rule-active",  value: "var(--gd-color-accent)", note: "Highlight — the one active filebar cell, focus indicators." },
+  { key: "active",  token: "--gd-rule-active",  value: "var(--gd-color-brand)", note: "Highlight — the one active filebar cell, focus indicators." },
   { key: "dim",     token: "--gd-rule-dim",     value: "rgba(255,255,255,0.16)", note: "Hairline on dark surfaces (banner sections, dark hero)." },
 ];
 
@@ -171,26 +195,50 @@ export default function DesignPage() {
         title="Colors"
         level={2}
         intro="[Section intro — what colors are tokenized and how the system uses them.]"
-        whenToUse="Orange (--gd-color-accent) is the system's only chromatic punctuation — used for active state, status, focus, eyebrow color. Never as fill or decoration. --gd-color-success is reserved for the closed-file / success state. Page and section backgrounds are NEVER white — use --gd-color-bg-page (default ground) or --gd-color-bg-warm (warm hero); --gd-color-bg-surface (#fff) is reserved for elevated component surfaces only. Banner-style sections use --gd-color-fg-strong — that is the only structural dark in the system. Text on dark surfaces comes in exactly two tiers: --gd-color-fg-on-dark (primary) and --gd-color-fg-on-dark-dim (secondary); no third tier. Every other color is grayscale or cream; no other chromatic value is permitted anywhere on the site."
+        whenToUse="Orange (--gd-color-brand) is the system's only chromatic punctuation — used for active state, status, focus, eyebrow color. Never as fill or decoration. --gd-color-success is reserved for the closed-file / success state. Page and section backgrounds are NEVER white — use --gd-color-bg-page (default ground) or --gd-color-bg-warm (warm hero); --gd-color-bg-surface (#fff) is reserved for elevated component surfaces only. Banner-style sections use --gd-color-fg-strong — that is the only structural dark in the system. Text on dark surfaces comes in exactly two tiers: --gd-color-fg-on-dark (primary) and --gd-color-fg-on-dark-dim (secondary); no third tier. Every other color is grayscale or cream; no other chromatic value is permitted anywhere on the site. Components consume foreground colors through context-aware role tokens (--gd-fg, --gd-fg-strong, --gd-fg-muted), never the raw --gd-color-fg* primitives — the shared .gd-surface--dark/.gd-banner/.gd-bar--dark rule re-points those role tokens to the on-dark equivalents so any descendant typography adapts automatically. To flip a section to the dark vocabulary, wrap it in .gd-surface--dark; no per-component overrides required."
       >
-        <div className="gd-section">
-          <div className="read-swatches">
-            {colorTokens.map(({ key, token, value, classes, when }) => (
-              <div className="read-swatch" key={key}>
-                <div className="read-swatch__label">
-                  <div className="read-gd-tokens">
-                    <span className="read-gd-token-lbl">{token}</span>
-                    {classes?.map((c) => (
-                      <span className="read-gd-class-lbl" key={c}>{c}</span>
-                    ))}
-                  </div>
-                  <span className="read-token-value">{value}</span>
-                </div>
-                <div className="read-swatch__chip" data-color={key} />
-                <p className="read-section__when">{when}</p>
-              </div>
-            ))}
-          </div>
+        <div className="read-table-card">
+          <table className="read-color-table">
+              <thead>
+                <tr>
+                  <th scope="col" className="read-color-table__col-swatch" aria-label="Color swatch" />
+                  <th scope="col">Token</th>
+                  <th scope="col">Classes</th>
+                  <th scope="col">Uses</th>
+                  <th scope="col">When to use</th>
+                </tr>
+              </thead>
+              <tbody>
+                {colorTokens.map(({ key, token, value, classes, uses, when }) => (
+                  <tr key={key}>
+                    <td className="read-color-table__swatch" data-color={key} aria-hidden="true" />
+                    <td className="read-color-table__token-cell">
+                      <span className="read-gd-token-lbl">{token}</span>
+                      <span className="read-token-value">{value}</span>
+                    </td>
+                    <td>
+                      {classes?.length ? (
+                        <div className="read-gd-tokens">
+                          {classes.map((c) => (
+                            <span className="read-gd-class-lbl" key={c}>{c}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td>
+                      <div className="read-uses">
+                        {uses.map((u) => (
+                          <span key={u} className={`read-use-badge read-use-badge--${u}`}>
+                            {USE_LABELS[u]}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td>{when}</td>
+                  </tr>
+                ))}
+              </tbody>
+          </table>
         </div>
       </ReadSection>
 
@@ -201,32 +249,27 @@ export default function DesignPage() {
         intro="[Section intro — what typographic primitives are tokenized.]"
         whenToUse="All headings (h1–h4) use --gd-font-display (Archivo Narrow) — uppercase, never substituted. Body copy uses --gd-font-body (Work Sans) — sentence-case. --gd-tr-mono-wide (0.22em) is reserved exclusively for .gd-eyebrow. .gd-pullquote is the only Newsreader role at display size; .gd-serif is for generic body-size italic only."
       >
-        <div className="gd-section">
-          <div className="gd-type-list">
-            {typeRoles.map(({ className, sample, tokens, note }) => (
-              <div className="gd-type-row" key={className}>
-                <p className={`gd-type-row__sample ${className}`}>{sample}</p>
-                <div className="read-gd-tokens">
-                  <span className="read-gd-class-lbl">.{className}</span>
-                  {tokens.map((t) => (
-                    <span className="read-gd-token-lbl" key={t}>{t}</span>
-                  ))}
-                  {note ? <span className="read-token-meta">{note}</span> : null}
-                </div>
-                <dl className="read-type-spec" aria-label={`Computed properties for .${className}`}>
-                  {tokens.map((t) => (
-                    <div className="read-type-spec__row" key={t}>
-                      <dt className="read-type-spec__prop">{tokenProperty(t)}</dt>
-                      <dd className="read-type-spec__val">
-                        <span className="read-type-spec__token">{t}</span>
-                        <span className="read-type-spec__value">{TOKEN_VALUES[t] ?? "—"}</span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ))}
-          </div>
+        <div className="read-table-card">
+          <table className="read-type-table">
+            <thead>
+              <tr>
+                <th scope="col">Sample</th>
+                <th scope="col">Styles</th>
+                <th scope="col">When to use</th>
+              </tr>
+            </thead>
+            <tbody>
+              {typeRoles.map(({ className, sample, tokens, when }) => (
+                <ReadTypeRow
+                  key={className}
+                  className={className}
+                  sample={sample}
+                  tokens={tokens}
+                  when={when}
+                />
+              ))}
+            </tbody>
+          </table>
         </div>
       </ReadSection>
 
@@ -644,12 +687,12 @@ export default function DesignPage() {
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-btn</span>
                 <span className="read-gd-class-lbl">.gd-btn--ghost</span>
-                <span className="read-gd-token-lbl">--gd-color-accent</span>
-                <span className="read-gd-token-lbl">--gd-color-accent-soft</span>
+                <span className="read-gd-token-lbl">--gd-color-brand</span>
+                <span className="read-gd-token-lbl">--gd-color-brand-soft</span>
               </div>
             </div>
             <p className="read-section__when">
-              Primary fills with --gd-color-accent and lifts on hover to --gd-color-accent-soft. Ghost variant inverts on hover (slate fill → muted background, accent border).
+              Primary fills with --gd-color-brand and lifts on hover to --gd-color-brand-soft. Ghost variant inverts on hover (slate fill → muted background, accent border).
             </p>
             <div className="read-demo-strip">
               <button type="button" className="gd-btn">Get a quote</button>
@@ -680,7 +723,7 @@ export default function DesignPage() {
         title="Form fields"
         level={2}
         intro="[Section intro — text input, textarea, select, label, and field wrapper. Focus state uses the system orange — no custom focus rings.]"
-        whenToUse=".gd-input / .gd-textarea / .gd-select share a single visual treatment (hairline strong border, full-width, focus-orange). .gd-label is always mono uppercase. Wrap label + control + optional error in .gd-field for vertical rhythm. Errors use --gd-color-accent (the system's only chromatic signal); never invent a red."
+        whenToUse=".gd-input / .gd-textarea / .gd-select share a single visual treatment (hairline strong border, full-width, focus-orange). .gd-label is always mono uppercase. Wrap label + control + optional error in .gd-field for vertical rhythm. Errors use --gd-color-brand (the system's only chromatic signal); never invent a red."
       >
         <div className="gd-section">
           <div className="read-demo-row read-demo-row--stack">
@@ -1232,7 +1275,7 @@ export default function DesignPage() {
                 <span className="read-gd-class-lbl">.gd-warranty__unit</span>
                 <span className="read-gd-class-lbl">.gd-warranty__text</span>
                 <span className="read-gd-token-lbl">--gd-r-full</span>
-                <span className="read-gd-token-lbl">--gd-color-accent</span>
+                <span className="read-gd-token-lbl">--gd-color-brand</span>
               </div>
             </div>
             <p className="read-section__when">
