@@ -62,6 +62,21 @@
   --read-font-weight: 400;
   --read-font-weight-strong: 700;
 
+  /* ---- Mono family — read-namespace analog of --gd-font-mono. Held
+     independently so commentary chrome (token pills, table headers,
+     formatted CSS-rule rendering) doesn't reach across the namespace
+     boundary into the design system's font tokens. The reference to
+     --gd-font-mono-loaded is to next/font's RUNTIME webfont resource
+     (set on <html> by layout.tsx), NOT to a design token; without it
+     the JetBrains Mono webfont wouldn't load for read chrome. The
+     literal fallback mirrors --gd-font-mono's stack so rendered output
+     stays identical even if the webfont fails. ---- */
+  --read-font-mono: var(--gd-font-mono-loaded, "JetBrains Mono"), ui-monospace, monospace;
+  --read-font-size-mono: 0.78rem;     /* mirrors --gd-fs-mono */
+  --read-font-size-mono-s: 0.65rem;   /* mirrors --gd-fs-mono-s */
+  --read-font-size-mono-xs: 0.55rem;  /* mirrors --gd-fs-mono-xs */
+  --read-tracking-mono: 0.18em;       /* mirrors --gd-tr-mono */
+
   /* ---- Elevation ---- */
   --read-shadow-nav: 0 10px 30px hsla(36, 60%, 12%, 0.18),
                      0 2px 6px  hsla(36, 60%, 12%, 0.10);
@@ -87,6 +102,7 @@
   /* ---- Single-purpose layout primitives ---- */
   --read-prose-max-w: 70ch;          /* readable line-length cap for prose blocks */
   --read-toggle-min-w: 2.25rem;      /* collapse toggle min-width                 */
+  --read-demo-grid-min: 4rem;        /* min track width for .read-demo-grid columns */
 
   /* ---- Guide-nav compact link metrics. Padding shrinks deliberately
      vs. the generic --read-space-* scale so vertical list rows read
@@ -359,7 +375,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-family: var(--gd-font-mono);
+  font-family: var(--read-font-mono);
   font-size: var(--read-font-size-body);
   font-weight: var(--read-font-weight-strong);
   line-height: 1;
@@ -448,9 +464,9 @@
    ===================================================================== */
 
 .read-token-value {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  letter-spacing: var(--gd-tr-mono);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  letter-spacing: var(--read-tracking-mono);
   color: var(--read-text-muted);
 }
 
@@ -489,10 +505,10 @@
 
 .read-color-table thead th {
   text-align: left;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
   text-transform: uppercase;
   color: var(--read-text-muted);
   padding: var(--read-space-xs) var(--read-space-sm);
@@ -535,10 +551,10 @@
   display: inline-flex;
   align-items: center;
   padding: var(--read-space-xxs) var(--read-space-xs);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-xs);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-xs);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
   text-transform: uppercase;
   border: var(--read-stroke-hairline) solid transparent;
   border-radius: var(--read-radius-sm);
@@ -737,9 +753,9 @@
   border: var(--read-stroke-hairline) dashed var(--read-text-muted);
   padding: var(--read-space-sm);
   text-align: center;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  letter-spacing: var(--gd-tr-mono);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  letter-spacing: var(--read-tracking-mono);
   text-transform: uppercase;
   color: var(--read-text-muted);
 }
@@ -758,9 +774,9 @@
   display: inline-block;
   padding: var(--read-space-xxs);
   border-radius: var(--read-radius-sm);
-  font-family: var(--gd-font-mono);
+  font-family: var(--read-font-mono);
   font-size: var(--read-font-size-xxs);
-  font-weight: var(--gd-fw-regular);
+  font-weight: var(--read-font-weight);
   line-height: var(--read-line-height-xtight);
   letter-spacing: 0;
   text-transform: none;
@@ -777,7 +793,7 @@
   background: var(--read-bg-strong);
   border: var(--read-stroke-hairline) solid var(--read-accent);
   color: var(--read-accent);
-  font-weight: var(--gd-fw-bold);
+  font-weight: var(--read-font-weight-strong);
 }
 
 /* Toggle variant — used when a .read-gd-class-lbl is rendered as a
@@ -829,10 +845,10 @@
 
 .read-type-table thead th {
   text-align: left;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
   text-transform: uppercase;
   color: var(--read-text-muted);
   padding: var(--read-space-xs) var(--read-space-sm);
@@ -864,8 +880,8 @@
 
 .read-type-table__rule {
   display: block;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
   line-height: var(--read-line-height-tight);
   color: var(--read-text);
   white-space: normal;
@@ -1066,7 +1082,7 @@
 .read-demo-grid {
   display: grid;
   gap: var(--read-space-md);
-  grid-template-columns: repeat(auto-fit, minmax(var(--gd-space-16), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(var(--read-demo-grid-min), 1fr));
   align-items: start;     /* each card uses its natural height; never stretch demo cards to a common row height */
   justify-items: start;   /* let card max-widths take effect — don't stretch cards to fill the track */
 }
@@ -1082,7 +1098,7 @@
 .read-ratio-rail {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--gd-space-4);
+  gap: var(--read-space-md);
   align-items: flex-start;
 }
 
