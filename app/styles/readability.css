@@ -48,6 +48,13 @@
   --read-line-height: 1.55;
   --read-line-height-tight: 1.1;            /* tight body line-height for compact read-* callouts */
   --read-font-size-when: 0.72rem;           /* compact body size for read-* "when to use" callouts */
+
+  /* Floating guide-nav type scale. Distinct from --read-font-size-label
+     (which serves uppercase eyebrow-style labels) because the guide nav
+     wants a smaller, denser pill + list reading at a glance. Two sizes
+     only — the collapsed handle and the expanded link rows. */
+  --read-font-size-nav-handle: 0.6875rem;   /* collapsed handle pill text  */
+  --read-font-size-nav-link: 0.8125rem;     /* expanded vertical list link */
   --read-letter-spacing-wide: 0.06em;
   --read-font-weight: 400;
   --read-font-weight-strong: 700;
@@ -77,6 +84,21 @@
   /* ---- Single-purpose layout primitives ---- */
   --read-prose-max-w: 70ch;          /* readable line-length cap for prose blocks */
   --read-toggle-min-w: 2.25rem;      /* collapse toggle min-width                 */
+
+  /* ---- Guide-nav compact link metrics. Padding shrinks deliberately
+     vs. the generic --read-space-* scale so vertical list rows read
+     dense without crowding. Kept as role tokens so the link row is
+     the single source of truth. ---- */
+  --read-nav-link-pad-y: 0.1875rem;
+  --read-nav-link-pad-x: var(--read-space-sm);
+
+  /* ---- Guide-nav flyout geometry & motion. Local read-* duration and
+     easing — namespaces don't cross, so we mirror motion intent here
+     rather than reference --gd-* tokens. ---- */
+  --read-flyout-w: 11rem;
+  --read-flyout-offset: var(--read-space-xs);
+  --read-d-fast: 120ms;
+  --read-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* =====================================================================
@@ -89,7 +111,7 @@
   left: var(--read-nav-x);
   z-index: var(--read-nav-z);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   max-width: calc(100vw - var(--read-space-lg));
   background: var(--read-bg-strong);
@@ -97,28 +119,34 @@
   border-radius: var(--read-radius-md);
   box-shadow: var(--read-shadow-nav);
   font-family: var(--read-font);
-  font-size: var(--read-font-size-body);
+  font-size: var(--read-font-size-nav-link);
   line-height: var(--read-line-height);
   color: var(--read-text);
   user-select: none;
-  overflow: hidden;
+}
+
+/* Header row: drag handle + collapse toggle sit side-by-side at the top. */
+.read-nav__bar {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
 }
 
 .read-nav__handle {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   gap: var(--read-space-xs);
   padding: var(--read-bar-pad-y) var(--read-space-md);
   background: var(--read-handle-bg);
-  border-right: var(--read-stroke-hairline) solid var(--read-border);
-  font-size: var(--read-font-size-label);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border);
+  font-size: var(--read-font-size-nav-handle);
   font-weight: var(--read-font-weight-strong);
   letter-spacing: var(--read-letter-spacing-wide);
   text-transform: uppercase;
   color: var(--read-text);
   cursor: grab;
   touch-action: none;
-  flex-shrink: 0;
 }
 
 .read-nav__handle:active {
@@ -131,7 +159,7 @@
 }
 
 .read-nav__handle-dots {
-  font-size: var(--read-font-size-body);
+  font-size: var(--read-font-size-nav-handle);
   line-height: 1;
   color: var(--read-text-muted);
 }
@@ -139,47 +167,69 @@
 .read-nav__list {
   list-style: none;
   margin: 0;
-  padding: var(--read-bar-pad-y) var(--read-space-md);
+  padding: var(--read-bar-pad-y) var(--read-space-sm);
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--read-space-sm);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
   min-width: 0;
 }
 
+/* A group is a list row that also anchors a hover/focus flyout panel. */
 .read-nav__group {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--read-space-xs);
+  position: relative;
+  display: block;
   margin: 0;
   padding: 0;
 }
 
+/* Flyout panel: side-attached to the group, hidden until hover or
+   focus-within. Transition-only (no @keyframes per project rules). */
 .read-nav__sub {
   list-style: none;
   margin: 0;
-  padding: 0 0 0 var(--read-space-sm);
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--read-space-xs);
-  border-left: var(--read-stroke-hairline) solid var(--read-border);
+  padding: var(--read-bar-pad-y) var(--read-space-sm);
+  position: absolute;
+  top: 0;
+  left: calc(100% + var(--read-flyout-offset));
+  width: var(--read-flyout-w);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  background: var(--read-bg-strong);
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-md);
+  box-shadow: var(--read-shadow-nav);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--read-d-fast) var(--read-ease),
+              visibility 0s linear var(--read-d-fast);
+  z-index: 1;
+}
+
+.read-nav__group:hover > .read-nav__sub,
+.read-nav__group:focus-within > .read-nav__sub {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity var(--read-d-fast) var(--read-ease),
+              visibility 0s linear 0s;
 }
 
 .read-nav__link {
   display: block;
-  padding: var(--read-space-xs) var(--read-space-sm);
+  padding: var(--read-nav-link-pad-y) var(--read-nav-link-pad-x);
   border-radius: var(--read-radius-sm);
   color: var(--read-accent);
   text-decoration: none;
+  font-size: var(--read-font-size-nav-link);
   font-weight: var(--read-font-weight);
   white-space: nowrap;
 }
 
 .read-nav__sub .read-nav__link {
-  font-size: var(--read-font-size-label);
   color: var(--read-text-muted);
 }
 
@@ -199,8 +249,9 @@
   background: var(--read-handle-bg);
   border: none;
   border-left: var(--read-stroke-hairline) solid var(--read-border);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border);
   font-family: var(--read-font);
-  font-size: var(--read-font-size-body);
+  font-size: var(--read-font-size-nav-handle);
   font-weight: var(--read-font-weight-strong);
   color: var(--read-text);
   cursor: pointer;
@@ -213,6 +264,14 @@
 
 .read-nav--collapsed .read-nav__list {
   display: none;
+}
+
+.read-nav--collapsed .read-nav__handle {
+  border-bottom: 0;
+}
+
+.read-nav--collapsed .read-nav__toggle {
+  border-bottom: 0;
 }
 
 /* =====================================================================

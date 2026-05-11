@@ -10,6 +10,7 @@ const sections = [
   { hash: "#radii", label: "Radii" },
   { hash: "#shadows", label: "Shadows" },
   { hash: "#containers", label: "Containers" },
+  { hash: "#header", label: "Site header" },
   { hash: "#motion", label: "Motion" },
   { hash: "#buttons", label: "Buttons & Links" },
   { hash: "#forms", label: "Forms" },
@@ -109,17 +110,45 @@ export function ReadNav() {
     ? "read-nav read-nav--collapsed"
     : "read-nav";
 
+  // Esc inside a group dismisses the flyout by blurring the focused
+  // child — :focus-within drops, hover-only flyouts also collapse the
+  // moment the pointer leaves. Keeps keyboard parity with mouse users.
+  const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key !== "Escape") return;
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && navRef.current?.contains(active)) {
+      active.blur();
+    }
+  };
+
   return (
-    <nav className={navClassName} ref={navRef} aria-label="Design guide sections">
-      <div
-        className="read-nav__handle"
-        ref={handleRef}
-        role="button"
-        aria-label="Drag to reposition the guide navigator"
-        tabIndex={0}
-      >
-        <span className="read-nav__handle-dots" aria-hidden="true">⋮⋮</span>
-        <span>Guide nav</span>
+    <nav
+      className={navClassName}
+      ref={navRef}
+      aria-label="Design guide sections"
+      onKeyDown={onKeyDown}
+    >
+      <div className="read-nav__bar">
+        <div
+          className="read-nav__handle"
+          ref={handleRef}
+          role="button"
+          aria-label="Drag to reposition the guide navigator"
+          tabIndex={0}
+        >
+          <span className="read-nav__handle-dots" aria-hidden="true">⋮⋮</span>
+          <span>Guide nav</span>
+        </div>
+        <button
+          type="button"
+          className="read-nav__toggle"
+          aria-expanded={!collapsed}
+          aria-controls={listId}
+          aria-label={collapsed ? "Expand guide navigator" : "Collapse guide navigator"}
+          onClick={() => setCollapsed((c) => !c)}
+        >
+          <span aria-hidden="true">{collapsed ? "+" : "−"}</span>
+        </button>
       </div>
       <ul className="read-nav__list" id={listId}>
         {sections.map(({ hash, label }) => (
@@ -130,10 +159,10 @@ export function ReadNav() {
           </li>
         ))}
         <li className="read-nav__group">
-          <a className="read-nav__link" href="#images">
+          <a className="read-nav__link" href="#images" aria-haspopup="true">
             Images
           </a>
-          <ul className="read-nav__sub">
+          <ul className="read-nav__sub" aria-label="Images subsections">
             {imageSubs.map(({ hash, label }) => (
               <li key={hash}>
                 <a className="read-nav__link" href={hash}>
@@ -144,10 +173,10 @@ export function ReadNav() {
           </ul>
         </li>
         <li className="read-nav__group">
-          <a className="read-nav__link" href="#frames">
+          <a className="read-nav__link" href="#frames" aria-haspopup="true">
             Frames
           </a>
-          <ul className="read-nav__sub">
+          <ul className="read-nav__sub" aria-label="Frames subsections">
             {frameSubs.map(({ hash, label }) => (
               <li key={hash}>
                 <a className="read-nav__link" href={hash}>
@@ -158,16 +187,6 @@ export function ReadNav() {
           </ul>
         </li>
       </ul>
-      <button
-        type="button"
-        className="read-nav__toggle"
-        aria-expanded={!collapsed}
-        aria-controls={listId}
-        aria-label={collapsed ? "Expand guide navigator" : "Collapse guide navigator"}
-        onClick={() => setCollapsed((c) => !c)}
-      >
-        <span aria-hidden="true">{collapsed ? "+" : "−"}</span>
-      </button>
     </nav>
   );
 }
