@@ -64,7 +64,6 @@
   --gd-fs-body-l:  1.1rem;
   --gd-fs-body:    1rem;
   --gd-fs-body-s:  0.92rem;
-  --gd-fs-body-xs: 0.85rem;  /* smallest body-family step — caption-adjacent body copy. Not yet consumed by any class; reserve for a future role rather than retrofitting an existing one. */
   --gd-fs-mono:    0.78rem;
   --gd-fs-mono-s:  0.65rem;
   --gd-fs-mono-xs: 0.55rem;      /* tight-overlay mono only — frame meta annotations sitting on top of imagery; never used for primary content */
@@ -197,7 +196,6 @@
      ==================================================================== */
   --gd-d-fast: 120ms;   /* micro-interactions: button hover, link color, status pill */
   --gd-d-base: 240ms;   /* default UI state changes: header collapse, hover lift, image hover */
-  --gd-d-slow: 480ms;   /* hero crossfade, page transitions */
   --gd-ease:   cubic-bezier(0.2, 0.8, 0.2, 1);  /* the one curve, site-wide */
   --gd-lift:   0.125rem; /* hover-lift translation distance — applied as translateY(calc(var(--gd-lift) * -1)) on elevated states */
 }

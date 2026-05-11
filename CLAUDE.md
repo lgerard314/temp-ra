@@ -250,26 +250,20 @@ This repository is exclusively about the **design system** right now. Copy, head
 
 ## Quarantined files (do not read unless explicitly directed)
 
-Some files exist in this repo as **reference-only material** for one-off extraction work. They are NOT part of the design guide, NOT part of the design system, and NOT a source of truth for anything.
+There are currently no quarantined files in this repo. The previous external-reference file (`spec-sheet-family-guide.html`) has been fully extracted and deleted.
 
-Currently quarantined:
+If a quarantined file is ever introduced, it lives outside `app/` and follows these hard rules:
 
-- `spec-sheet-family-guide.html` — external reference. The user will, at their explicit direction in a specific turn, point at parts of this file to extract into `app/styles/tokens.css` and/or `app/page.tsx`. The file is scheduled for deletion once extraction is complete.
-
-Hard rules for quarantined files:
-
-- **Do not open or read them** unless the user has, **in the current turn**, explicitly instructed you to extract from that specific file. Curiosity, "for context," or "to understand the project better" are not valid reasons.
+- **Do not open or read it** unless the user has, in the current turn, explicitly instructed you to extract from that specific file. Curiosity, "for context," or "to understand the project better" are not valid reasons.
 - Each quarantined file carries a banner at the top warning agents off; that banner is authoritative — respect it.
-- **Never** confuse a quarantined file with the design guide. `app/page.tsx` is the design guide. `spec-sheet-family-guide.html` is **not**.
+- **Never** confuse a quarantined file with the design guide. `app/page.tsx` is the design guide.
 - **Never** cite, mimic, copy structure from, or otherwise treat a quarantined file as authoritative for the design system. Anything that ends up in the design system gets there only through an explicit, user-directed extraction step.
 - When extraction is complete and the user says to delete the file, delete it without leaving aliases, references, or breadcrumbs behind.
 
-If a future file needs to be quarantined under the same rules, add it to the list above and include the same kind of top-of-file banner.
-
 ## Repository state
 
-The Next.js site is a **single-page design guide** with the readability namespace in place: a horizontal floating draggable + collapsable nav with anchor-jump links, yellow `.read-section` headers with intros and "When to use" callouts, and non-yellow `.read-placeholder` blocks marking where future design content will go. Sections inlined on the home page (`/`): Design (h1), Colors, Typography, Containers, Motion, Images (with Standard and Sliders subsections via `.read-subsection`).
+The Next.js site is a **single-page design guide**. The home page (`/`) lists every token category and every component in inline `<ReadSection>` blocks, navigable via the floating draggable / collapsable readability nav with anchor-jump links and hover/focus flyouts on grouped subsections. Yellow `.read-section` headers carry an intro paragraph and a "When to use" note; the click-to-collapse mechanism hides only those notes — the actual demo content below the yellow card stays visible.
 
-`app/styles/tokens.css` is still empty — the design system has not been defined yet. Substantive work begins by populating tokens deliberately, one decision at a time, and adding design content into the corresponding `<ReadSection>` blocks on the home page. **Do not** generate design components, design markup, or design CSS ahead of the tokens they would depend on.
+`app/styles/tokens.css` is fully populated: the entire color, typography, spacing, border, radius, shadow, motion, and container vocabulary; the role-token cascade for surface-aware foregrounds (`--gd-fg*`, `--gd-rule`) and the shared dark-surface rule grouping `.gd-surface--dark`, `.gd-banner`, `.gd-bar--dark`, `.gd-frame`, `.gd-slider`; every production component (`.gd-btn`, `.gd-link`, `.gd-input`, `.gd-textarea`, `.gd-select`, `.gd-label`, `.gd-field__error`, `.gd-filebar`, `.gd-card` + `--photo`/`--profile`/`--file` variants, `.gd-tag`/`.gd-chip`, `.gd-status`, `.gd-divider`, `.gd-ledger`, `.gd-quote`, `.gd-trust`, `.gd-list`, `.gd-warranty`, `.gd-pm`, `.gd-stamp`, the entire site-header system including banner + topnav + scroll-collapse, etc.). All design values are tokens; no magic numbers.
 
-`spec-sheet-family-guide.html` is present as a quarantined reference file (see the section above) — not part of the project.
+`app/styles/readability.css` carries the readability namespace (`--read-*` / `.read-*`) — section/subsection chrome, the floating nav, the swatch/ruler/demo elements, plus its own typography vocabulary (mono family, sizes, tracking) so design tokens never have to be cross-referenced from `.read-*` styling rules.

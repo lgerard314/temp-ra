@@ -20,6 +20,7 @@
      anything that is part of the design system at a glance. ---- */
   --read-bg: hsl(48, 100%, 95%);            /* section background tint */
   --read-bg-strong: hsl(46, 90%, 88%);      /* nav, callout emphasis    */
+  --read-bg-card: hsl(0, 0%, 100%);         /* pure-white card surface for read-* table-cards. Held in the read namespace (NOT --gd-color-bg-surface) to honor the namespace boundary — readability chrome never reaches into design tokens. */
   --read-border: hsl(45, 55%, 78%);         /* dividers, edges          */
   --read-border-neutral: hsl(0, 0%, 88%);   /* neutral gray edge — used where a yellow edge would compete with the design content being demoed (e.g. color-swatch chips) */
   --read-pad-fill: hsl(22, 22%, 36%);        /* muted dark gray-orange — fills padding visualizations without competing with --gd-color-brand */
@@ -37,6 +38,7 @@
   /* ---- Radii ---- */
   --read-radius-sm: 4px;
   --read-radius-md: 10px;
+  --read-radius-pill: 999px;                /* pill shape — reserved for the .read-use-badge--statuses chip whose role is to look like a status pill. Not used elsewhere. */
 
   /* ---- Typography. System stack on purpose so readability never
      collides with the design system's chosen fonts. Role-named sizes. ---- */
@@ -80,6 +82,11 @@
   /* ---- Elevation ---- */
   --read-shadow-nav: 0 10px 30px hsla(36, 60%, 12%, 0.18),
                      0 2px 6px  hsla(36, 60%, 12%, 0.10);
+  /* Soft drop reserved for the .read-use-badge--shadows chip whose role
+     is to LOOK like an elevation badge. Held independently from
+     --read-shadow-nav (which is a multi-layer floating-panel shadow);
+     two role-distinct shadows, each used in exactly one place. */
+  --read-shadow-badge: 0 2px 6px hsla(36, 60%, 12%, 0.18);
 
   /* ---- Floating nav runtime state (defaults; drag JS overrides via
      element style.setProperty on the same custom properties) ---- */
@@ -483,7 +490,7 @@
    commentary rather than a design surface. Reusable for any read-*
    table that wants this elevation. */
 .read-table-card {
-  background: #ffffff;
+  background: var(--read-bg-card);
   border: var(--read-stroke-hairline) solid var(--read-border);
   border-radius: var(--read-radius-md);
   padding: var(--read-space-sm) var(--read-space-md);
@@ -585,7 +592,7 @@
 .read-use-badge--shadows {
   background: var(--read-bg-strong);
   border-color: var(--read-border);
-  box-shadow: 0 2px 6px hsla(36, 60%, 12%, 0.18);
+  box-shadow: var(--read-shadow-badge);
 }
 
 /* Accents — the role is brand punctuation, so the badge uses the
@@ -601,7 +608,7 @@
   background: var(--read-text);
   border-color: var(--read-text);
   color: var(--read-bg-strong);
-  border-radius: 999px;
+  border-radius: var(--read-radius-pill);
 }
 
 /* Backgrounds — the role is a soft ground, so the badge is a quiet
@@ -933,13 +940,10 @@
 /* Universal demo-row layout — the read elements (labels + when) sit
    on row 1 as their own section ABOVE the gd example, which spans
    row 2 full-width. Labels + when form a horizontal pair (labels
-   left, when grows right). The previous --stack modifier is now the
-   default behavior; .read-demo-row--stack is kept as a no-op alias
-   so existing JSX usages don't need to be touched.
-   The only exception is data presented as a real <table> — currently
-   only the colors section — which never uses .read-demo-row at all. */
-.read-demo-row,
-.read-demo-row--stack {
+   left, when grows right). The only exception is data presented as a
+   real <table> — currently only the colors section — which never
+   uses .read-demo-row at all. */
+.read-demo-row {
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   align-items: start;

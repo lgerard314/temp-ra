@@ -437,7 +437,7 @@ export default function DesignPage() {
         <div className="gd-section">
           <div className="read-mw-demo">
             {maxWidths.map(({ key, token, value, note }) => (
-              <div className="read-demo-row read-demo-row--stack" key={key}>
+              <div className="read-demo-row" key={key}>
                 <div className="read-demo-row__labels">
                   <div className="read-gd-tokens">
                     <span className="read-gd-token-lbl">{token}</span>
@@ -462,7 +462,7 @@ export default function DesignPage() {
         whenToUse="Exactly one .gd-banner per page, and only at the very top. The banner uses --gd-color-fg-strong (the system's only structural dark) — never invent a second dark. Exactly one .gd-btn (primary CTA) in the header — it is the page's primary action. The scroll transition is transition-based only: max-height + opacity on the banner, padding-block on the topnav, both via --gd-d-base / --gd-ease. Never @keyframes. The weather widget is decorative chrome, never a feature — it carries no interactivity and never grows into a forecast surface. The .gd-phone class powers both renders (banner + topnav-on-scroll); never duplicate the element with bespoke styles."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-site-header</span>
@@ -490,11 +490,11 @@ export default function DesignPage() {
         title="Motion"
         level={2}
         intro="Motions are applied to elements/classes accordingly. Three durations and one easing curve govern every animated state — there is no other curve, and no duration outside this scale."
-        whenToUse="All motion is transition-based. No @keyframes, no scroll-linked animation, no animation libraries — without explicit user approval. --gd-d-fast (120ms) for micro-interactions (button hover, link color shift, status pill tick). --gd-d-base (240ms) for default UI state changes — hover lift on images / cards / frames / sliders, header scroll-collapse, filebar cell hover. --gd-d-slow (480ms) for hero crossfades and page transitions only. --gd-ease is the one curve, site-wide; never substitute another easing function. The hover-lift treatment (border + shadow + translate at --gd-d-base / --gd-ease) is one rule applied to multiple selectors via a comma-grouped list — any new component that adopts this hover behavior joins the existing selector list, never writes a fifth duplicate rule body. Motions are added per element/class — list below covers what's wired so far."
+        whenToUse="All motion is transition-based. No @keyframes, no scroll-linked animation, no animation libraries — without explicit user approval. --gd-d-fast (120ms) for micro-interactions (button hover, link color shift, status pill tick). --gd-d-base (240ms) for default UI state changes — hover lift on images / cards / frames / sliders, header scroll-collapse, filebar cell hover. --gd-ease is the one curve, site-wide; never substitute another easing function. The hover-lift treatment (border + shadow + translate at --gd-d-base / --gd-ease) is one rule applied to multiple selectors via a comma-grouped list — any new component that adopts this hover behavior joins the existing selector list, never writes a fifth duplicate rule body. Motions are added per element/class — list below covers what's wired so far."
       >
         <div className="gd-section">
           <div className="read-pad-demo">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-image &gt; .gd-ratio</span>
@@ -509,7 +509,7 @@ export default function DesignPage() {
               </p>
             </div>
 
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-slider</span>
@@ -547,7 +547,7 @@ export default function DesignPage() {
             </div>
           </header>
           <div className="gd-section">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   {aspectRatios.map(({ token }) => (
@@ -599,7 +599,7 @@ export default function DesignPage() {
             </div>
           </header>
           <div className="gd-section">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-frame</span>
@@ -644,7 +644,7 @@ export default function DesignPage() {
             </div>
           </header>
           <div className="gd-section">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-slider</span>
@@ -682,7 +682,7 @@ export default function DesignPage() {
         whenToUse=".gd-btn (filled accent) for primary actions — there should rarely be more than one on a page. .gd-btn--ghost (outlined slate) for secondary actions. .gd-link for inline body anchors. .gd-link--mono for mono CTA-style links inside cards or ledger rows. Never invent a third button or fourth link style — if the system can't express a state, the design needs to back up."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-btn</span>
@@ -700,7 +700,7 @@ export default function DesignPage() {
             </div>
           </div>
 
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-link</span>
@@ -726,7 +726,7 @@ export default function DesignPage() {
         whenToUse=".gd-input / .gd-textarea / .gd-select share a single visual treatment (hairline strong border, full-width, focus-orange). .gd-label is always mono uppercase. Wrap label + control + optional error in .gd-field for vertical rhythm. Errors use --gd-color-brand (the system's only chromatic signal); never invent a red."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-field</span>
@@ -776,7 +776,7 @@ export default function DesignPage() {
         whenToUse="Used at the top of file/claim pages and inside file-style cards. Cells divide evenly across the bar width. Exactly one cell value may carry the .gd-filebar__value--active modifier per filebar (system rule — one highlighted cell). Never use it as a generic navbar."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-filebar</span>
@@ -834,7 +834,7 @@ export default function DesignPage() {
             </div>
           </header>
           <div className="gd-section">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-card</span>
@@ -883,7 +883,7 @@ export default function DesignPage() {
             </div>
           </header>
           <div className="gd-section">
-            <div className="read-demo-row read-demo-row--stack">
+            <div className="read-demo-row">
               <div className="read-demo-row__labels">
                 <div className="read-gd-tokens">
                   <span className="read-gd-class-lbl">.gd-card</span>
@@ -923,7 +923,7 @@ export default function DesignPage() {
         whenToUse=".gd-status for the file/state indicator — one .gd-status--active per page maximum. .gd-chips for flat tag/exhibit groupings (no active state, no hover). .gd-stamp is the loud editorial mark — never more than one stamp on a page. All three reuse the same mono / accent vocabulary; pick the one whose shape matches the role. For status variants: the border picks up currentColor automatically — each --variant changes only the color property, never re-defines border-color. Use this same currentColor pattern whenever a class has variants that differ only in color."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-status</span>
@@ -942,7 +942,7 @@ export default function DesignPage() {
             </div>
           </div>
 
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-chips</span>
@@ -961,7 +961,7 @@ export default function DesignPage() {
             </div>
           </div>
 
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-stamp</span>
@@ -987,7 +987,7 @@ export default function DesignPage() {
         whenToUse="One class. Use between unrelated content blocks where the spacing alone isn't enough to read as a break. Not for inside cards or filebars — those have their own hairline structure."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-divider</span>
@@ -1013,7 +1013,7 @@ export default function DesignPage() {
         whenToUse="Use for any structured list where each row has the same shape (number, label, money, date, status). Header row uses .gd-ledger__row--header. Hairline rules between rows; no row borders top or bottom outside the container's own."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-ledger</span>
@@ -1070,7 +1070,7 @@ export default function DesignPage() {
         whenToUse="Use .gd-quote for testimonials, customer quotes, and editorial pull-outs that need a self-contained box. The mark, body, and citation are all required slots. For inline italic emphasis inside prose, use .gd-serif (without the .gd-quote wrapper)."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-quote</span>
@@ -1222,7 +1222,7 @@ export default function DesignPage() {
         whenToUse="Apply .gd-list to any <ul>. Add .gd-list--ordered to any <ol>. Both share body typography. Don't nest lists more than one level deep — if you need deeper hierarchy, restructure the content into headed sections instead."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-list</span>
@@ -1239,7 +1239,7 @@ export default function DesignPage() {
             </ul>
           </div>
 
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-list</span>
@@ -1267,7 +1267,7 @@ export default function DesignPage() {
         whenToUse="Use .gd-warranty for an actual warranty or certification mark — the round shape is the recognition cue and is sanctioned alongside the slider grip as the only circular roles in the system. The text inside is display font, bold, uppercase; keep it to short factual claims (LIFETIME WARRANTY / CERTIFIED / NO LEAKS · 10YR). Never use as a decorative graphic flourish."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-warranty</span>
@@ -1312,7 +1312,7 @@ export default function DesignPage() {
         whenToUse="Use .gd-pm for team / project-manager / contact rows in dense layouts (sidebars, &quot;who's on this file&quot; sections). For full-card profile presentation, use .gd-card--profile instead. Each row has a hairline divider below it (suppressed on the last row); rows stack flush, no extra gap needed."
       >
         <div className="gd-section">
-          <div className="read-demo-row read-demo-row--stack">
+          <div className="read-demo-row">
             <div className="read-demo-row__labels">
               <div className="read-gd-tokens">
                 <span className="read-gd-class-lbl">.gd-pm</span>

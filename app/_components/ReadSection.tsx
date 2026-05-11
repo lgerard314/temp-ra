@@ -43,7 +43,7 @@ export function ReadSection({
             aria-controls={controlledIds || undefined}
             onClick={() => setCollapsed((c) => !c)}
           >
-            <span className="read-section__title-text">{title}</span>
+            <span>{title}</span>
             <span className="read-section__chevron" aria-hidden="true" />
           </button>
         </TitleTag>

@@ -80,7 +80,7 @@ export function ReadTypeRow({ className, sample, tokens, when }: Props) {
       <td className="read-type-table__sample">
         <p className={`gd-type-row__sample ${className}`}>{sample}</p>
       </td>
-      <td className="read-type-table__spec">
+      <td>
         <code className="read-type-table__rule">
           <button
             type="button"
