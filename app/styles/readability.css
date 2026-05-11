@@ -89,7 +89,7 @@
      vs. the generic --read-space-* scale so vertical list rows read
      dense without crowding. Kept as role tokens so the link row is
      the single source of truth. ---- */
-  --read-nav-link-pad-y: 0.1875rem;
+  --read-nav-link-pad-y: 0.1rem;
   --read-nav-link-pad-x: var(--read-space-sm);
 
   /* ---- Guide-nav flyout geometry & motion. Local read-* duration and
@@ -227,6 +227,22 @@
   font-size: var(--read-font-size-nav-link);
   font-weight: var(--read-font-weight);
   white-space: nowrap;
+}
+
+/* Parent rows that anchor a flyout get a right-pinned chevron so the
+   flyout affordance is visible at rest. aria-haspopup is the existing
+   semantic marker for these rows — reuse it as the selector hook. */
+.read-nav__link[aria-haspopup="true"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--read-space-xs);
+}
+
+.read-nav__link[aria-haspopup="true"]::after {
+  content: "›";
+  color: var(--read-text-muted);
+  line-height: 1;
 }
 
 .read-nav__sub .read-nav__link {
