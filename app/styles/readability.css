@@ -1,0 +1,781 @@
+/* readability.css
+ *
+ * Styles used ONLY for prose/notes/descriptions ABOUT the design guide
+ * (or any other meta-commentary) that are NOT part of the design itself.
+ *
+ * Strict naming rule:
+ *   - All custom properties MUST be named `--read-*`
+ *   - All classes MUST be named `.read-*`
+ *
+ * Nothing in this file is part of the design system. Anything that IS part
+ * of the design system belongs in tokens.css and uses the design vocabulary,
+ * never the `--read-*` / `.read-*` namespace.
+ *
+ * Confusing these two files is the single most important mistake to avoid.
+ */
+
+:root {
+  /* ---- Color: faint warm-yellow theme.
+     Distinct on purpose so readability content can never be confused with
+     anything that is part of the design system at a glance. ---- */
+  --read-bg: hsl(48, 100%, 95%);            /* section background tint */
+  --read-bg-strong: hsl(46, 90%, 88%);      /* nav, callout emphasis    */
+  --read-border: hsl(45, 55%, 78%);         /* dividers, edges          */
+  --read-border-neutral: hsl(0, 0%, 88%);   /* neutral gray edge — used where a yellow edge would compete with the design content being demoed (e.g. color-swatch chips) */
+  --read-pad-fill: hsl(22, 22%, 36%);        /* muted dark gray-orange — fills padding visualizations without competing with --gd-color-accent */
+  --read-text: hsl(36, 30%, 22%);           /* primary readability text */
+  --read-text-muted: hsl(36, 18%, 45%);     /* intros, secondary copy   */
+  --read-accent: hsl(28, 70%, 38%);         /* nav links, accents       */
+
+  /* ---- Spacing scale (independent from any future design spacing) ---- */
+  --read-space-xs: 0.25rem;
+  --read-space-sm: 0.5rem;
+  --read-space-md: 1rem;
+  --read-space-lg: 1.5rem;
+
+  /* ---- Radii ---- */
+  --read-radius-sm: 4px;
+  --read-radius-md: 10px;
+
+  /* ---- Typography. System stack on purpose so readability never
+     collides with the design system's chosen fonts. Role-named sizes. ---- */
+  --read-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --read-font-size-label: 0.75rem;          /* small caps, handle, labels */
+  --read-font-size-body: 0.9375rem;         /* body prose                 */
+  --read-font-size-subtitle: 1.125rem;      /* h3-level subsection titles */
+  --read-font-size-title: 1.5rem;           /* h2-level section titles    */
+  --read-line-height: 1.55;
+  --read-line-height-tight: 1.1;            /* tight body line-height for compact read-* callouts */
+  --read-font-size-when: 0.72rem;           /* compact body size for read-* "when to use" callouts */
+  --read-letter-spacing-wide: 0.06em;
+  --read-font-weight: 400;
+  --read-font-weight-strong: 700;
+
+  /* ---- Elevation ---- */
+  --read-shadow-nav: 0 10px 30px hsla(36, 60%, 12%, 0.18),
+                     0 2px 6px  hsla(36, 60%, 12%, 0.10);
+
+  /* ---- Floating nav runtime state (defaults; drag JS overrides via
+     element style.setProperty on the same custom properties) ---- */
+  --read-nav-x: 1rem;
+  --read-nav-y: 1rem;
+  --read-nav-z: 9999;
+
+  /* ---- Floating bar geometry. Role token composing from the spacing
+     scale so the bar's padding tracks the system, not a raw literal. ---- */
+  --read-bar-pad-y: var(--read-space-xs);
+
+  /* ---- Stroke widths (each visibly distinct in purpose and in pixels) ---- */
+  --read-stroke-hairline: 1px;       /* hairline borders / dividers           */
+  --read-stroke-focus: 2px;          /* focus-visible outlines                */
+  --read-stroke-emphasis: 3px;       /* accent emphasis bar (e.g. "When to use") */
+
+  /* ---- Floating bar handle / toggle button background ---- */
+  --read-handle-bg: hsl(44, 80%, 80%);
+
+  /* ---- Single-purpose layout primitives ---- */
+  --read-prose-max-w: 70ch;          /* readable line-length cap for prose blocks */
+  --read-toggle-min-w: 2.25rem;      /* collapse toggle min-width                 */
+}
+
+/* =====================================================================
+   Floating, draggable navigator
+   ===================================================================== */
+
+.read-nav {
+  position: fixed;
+  top: var(--read-nav-y);
+  left: var(--read-nav-x);
+  z-index: var(--read-nav-z);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  max-width: calc(100vw - var(--read-space-lg));
+  background: var(--read-bg-strong);
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-md);
+  box-shadow: var(--read-shadow-nav);
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-body);
+  line-height: var(--read-line-height);
+  color: var(--read-text);
+  user-select: none;
+  overflow: hidden;
+}
+
+.read-nav__handle {
+  display: flex;
+  align-items: center;
+  gap: var(--read-space-xs);
+  padding: var(--read-bar-pad-y) var(--read-space-md);
+  background: var(--read-handle-bg);
+  border-right: var(--read-stroke-hairline) solid var(--read-border);
+  font-size: var(--read-font-size-label);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--read-text);
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+}
+
+.read-nav__handle:active {
+  cursor: grabbing;
+}
+
+.read-nav__handle:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: calc(var(--read-stroke-focus) * -1);
+}
+
+.read-nav__handle-dots {
+  font-size: var(--read-font-size-body);
+  line-height: 1;
+  color: var(--read-text-muted);
+}
+
+.read-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--read-bar-pad-y) var(--read-space-md);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--read-space-sm);
+  min-width: 0;
+}
+
+.read-nav__group {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--read-space-xs);
+  margin: 0;
+  padding: 0;
+}
+
+.read-nav__sub {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--read-space-sm);
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--read-space-xs);
+  border-left: var(--read-stroke-hairline) solid var(--read-border);
+}
+
+.read-nav__link {
+  display: block;
+  padding: var(--read-space-xs) var(--read-space-sm);
+  border-radius: var(--read-radius-sm);
+  color: var(--read-accent);
+  text-decoration: none;
+  font-weight: var(--read-font-weight);
+  white-space: nowrap;
+}
+
+.read-nav__sub .read-nav__link {
+  font-size: var(--read-font-size-label);
+  color: var(--read-text-muted);
+}
+
+.read-nav__link:hover,
+.read-nav__link:focus-visible {
+  background: var(--read-bg);
+  outline: none;
+}
+
+.read-nav__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: var(--read-toggle-min-w);
+  padding: var(--read-bar-pad-y) var(--read-space-md);
+  background: var(--read-handle-bg);
+  border: none;
+  border-left: var(--read-stroke-hairline) solid var(--read-border);
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-body);
+  font-weight: var(--read-font-weight-strong);
+  color: var(--read-text);
+  cursor: pointer;
+}
+
+.read-nav__toggle:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: calc(var(--read-stroke-focus) * -1);
+}
+
+.read-nav--collapsed .read-nav__list {
+  display: none;
+}
+
+/* =====================================================================
+   Section containers — the yellow "explanatory" blocks
+   ===================================================================== */
+
+.read-section {
+  background: var(--read-bg);
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-md);
+  padding: var(--read-space-sm) var(--read-space-md);
+  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-xs);
+  box-sizing: border-box;
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-body);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+}
+
+.read-section__title {
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-title);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-letter-spacing-wide);
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--read-text);
+}
+
+/* The title text is wrapped in a real <button> so the section is keyboard
+   focus-reachable and toggles with Enter/Space. Native button chrome is
+   reset; type properties inherit from the parent heading. */
+.read-section__title-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--read-space-sm);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
+.read-section__title-btn:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: var(--read-stroke-focus);
+}
+
+.read-section__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--gd-font-mono);
+  font-size: var(--read-font-size-body);
+  font-weight: var(--read-font-weight-strong);
+  line-height: 1;
+  color: var(--read-text-muted);
+}
+
+.read-section__chevron::before {
+  content: "−";
+}
+
+.read-section--collapsed .read-section__chevron::before {
+  content: "+";
+}
+
+.read-section__body {
+  margin-top: var(--read-space-sm);
+}
+
+.read-section__intro {
+  margin: 0 0 var(--read-space-sm);
+  color: var(--read-text-muted);
+  max-width: var(--read-prose-max-w);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+}
+
+.read-section__when {
+  display: block;
+  background: var(--read-bg-strong);
+  border-left: var(--read-stroke-emphasis) solid var(--read-accent);
+  padding: var(--read-space-xs) var(--read-space-sm);
+  margin: 0;
+  border-radius: 0 var(--read-radius-sm) var(--read-radius-sm) 0;
+  color: var(--read-text);
+  max-width: var(--read-prose-max-w);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+}
+
+.read-section__when::before {
+  content: "When to use: ";
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-letter-spacing-wide);
+  text-transform: uppercase;
+  font-size: var(--read-font-size-label);
+}
+
+/* ---- Subsections (still readability — also yellow, smaller scale) ---- */
+
+.read-subsection {
+  background: var(--read-bg);
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-md);
+  padding: var(--read-space-md) var(--read-space-lg);
+  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-sm);
+  box-sizing: border-box;
+}
+
+.read-subsection__title {
+  font-size: var(--read-font-size-subtitle);
+  font-weight: var(--read-font-weight-strong);
+  margin: 0 0 var(--read-space-xs);
+  color: var(--read-text);
+}
+
+.read-subsection__intro {
+  margin: 0;
+  color: var(--read-text-muted);
+  max-width: var(--read-prose-max-w);
+}
+
+/* =====================================================================
+   Placeholder for empty design-content slots.
+   Deliberately NOT yellow — visually marks where actual design content
+   will eventually live, distinct from the explanatory yellow blocks.
+   ===================================================================== */
+
+/* =====================================================================
+   Token-table caption labels — used inside design demos (swatches,
+   typography samples, etc.) to describe each token. These are commentary
+   about the design (per CLAUDE.md: "a caption" → `.read-*`), NOT design
+   content — so they intentionally use only readability tokens.
+   ===================================================================== */
+
+.read-token-value {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  letter-spacing: var(--gd-tr-mono);
+  color: var(--gd-color-fg-muted);
+}
+
+.read-token-meta {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+/* =====================================================================
+   Color swatch demo — guide scaffolding for the Colors section. The
+   chip backgrounds reference `--gd-color-*` tokens because the entire
+   purpose of the swatch is to demonstrate those tokens; the layout
+   itself (grid, gaps, chip box) is NOT part of the design system.
+   ===================================================================== */
+
+.read-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--read-space-lg);
+}
+
+.read-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--read-space-sm);
+}
+
+.read-swatch__label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--read-space-xs);
+}
+
+.read-swatch__chip {
+  height: 7rem;
+  border: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  border-radius: 0;
+}
+
+.read-swatch__when {
+  display: block;
+  margin: 0;
+  background: var(--read-bg-strong);
+  border-left: var(--read-stroke-emphasis) solid var(--read-accent);
+  padding: var(--read-space-sm) var(--read-space-md);
+  border-radius: 0 var(--read-radius-sm) var(--read-radius-sm) 0;
+  font-family: var(--gd-font-body);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+}
+
+.read-swatch__when::before {
+  content: "When to use: ";
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--read-text);
+  display: block;
+  margin-bottom: var(--read-space-xs);
+}
+
+.read-swatch__chip[data-color="bg-page"]     { background: var(--gd-color-bg-page); }
+.read-swatch__chip[data-color="bg-surface"]  { background: var(--gd-color-bg-surface); }
+.read-swatch__chip[data-color="bg-mute"]     { background: var(--gd-color-bg-mute); }
+.read-swatch__chip[data-color="bg-warm"]     { background: var(--gd-color-bg-warm); }
+.read-swatch__chip[data-color="fg"]          { background: var(--gd-color-fg); }
+.read-swatch__chip[data-color="fg-strong"]   { background: var(--gd-color-fg-strong); }
+.read-swatch__chip[data-color="fg-muted"]    { background: var(--gd-color-fg-muted); }
+.read-swatch__chip[data-color="accent"]      { background: var(--gd-color-accent); }
+.read-swatch__chip[data-color="accent-soft"] { background: var(--gd-color-accent-soft); }
+.read-swatch__chip[data-color="success"]     { background: var(--gd-color-success); }
+
+/* fg-on-dark variants are semi-transparent whites — the visible color
+   depends on what they sit on. Layer the alpha-white over --gd-color-fg-strong
+   so each chip renders the actual on-dark appearance. */
+.read-swatch__chip[data-color="fg-on-dark"] {
+  background-color: var(--gd-color-fg-strong);
+  background-image: linear-gradient(var(--gd-color-fg-on-dark), var(--gd-color-fg-on-dark));
+}
+.read-swatch__chip[data-color="fg-on-dark-dim"] {
+  background-color: var(--gd-color-fg-strong);
+  background-image: linear-gradient(var(--gd-color-fg-on-dark-dim), var(--gd-color-fg-on-dark-dim));
+}
+
+/* =====================================================================
+   Spacing ruler — guide scaffolding for the Spacing section. Each row
+   shows token name, pixel value, and a bar drawn at exactly that width
+   so the relative scale is visible at a glance. The bar uses
+   --gd-color-accent (orange) because the reference visual in the spec
+   does too, and orange is the system's "punctuation" color.
+   ===================================================================== */
+
+.read-ruler {
+  display: grid;
+  gap: var(--read-space-sm);
+  padding: var(--read-space-lg);
+  background: var(--gd-color-bg-surface);
+  border: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  border-radius: var(--read-radius-sm);
+}
+
+.read-ruler__row {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: var(--read-space-md);
+}
+
+.read-ruler__bar {
+  display: block;
+  height: var(--read-stroke-emphasis);
+  background: var(--gd-color-accent);
+}
+
+.read-ruler__bar[data-step="1"]  { width: var(--gd-space-1); }
+.read-ruler__bar[data-step="2"]  { width: var(--gd-space-2); }
+.read-ruler__bar[data-step="3"]  { width: var(--gd-space-3); }
+.read-ruler__bar[data-step="4"]  { width: var(--gd-space-4); }
+.read-ruler__bar[data-step="5"]  { width: var(--gd-space-5); }
+.read-ruler__bar[data-step="6"]  { width: var(--gd-space-6); }
+.read-ruler__bar[data-step="8"]  { width: var(--gd-space-8); }
+.read-ruler__bar[data-step="10"] { width: var(--gd-space-10); }
+.read-ruler__bar[data-step="12"] { width: var(--gd-space-12); }
+.read-ruler__bar[data-step="16"] { width: var(--gd-space-16); }
+.read-ruler__bar[data-step="20"] { width: var(--gd-space-20); }
+
+/* =====================================================================
+   Padding demo — guide scaffolding for the Padding section. Shows a
+   container with a given padding token applied; the inner "content"
+   strip is rendered so the actual padding is visually measurable.
+   ===================================================================== */
+
+.read-pad-demo {
+  display: grid;
+  gap: var(--read-space-md);
+}
+
+.read-pad-demo__box {
+  border: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  border-radius: var(--read-radius-sm);
+  /* The padding area itself is what we're visualizing — base is gray for
+     sides that the token does NOT control; sides the token DOES control
+     get painted accent (orange) via the per-variant rules below. */
+  background: var(--gd-color-bg-mute);
+}
+
+/* --gd-pad-x affects ONLY left/right padding. Paint those two strips
+   orange via a horizontal gradient layered on top of the gray base;
+   keep a small vertical buffer (gray) so the inner content has breathing
+   room without misrepresenting the token. */
+.read-pad-demo__box[data-pad="x"] {
+  padding-inline: var(--gd-pad-x);
+  padding-block: var(--gd-space-4);
+  background:
+    linear-gradient(
+      to right,
+      var(--read-pad-fill) 0,
+      var(--read-pad-fill) var(--gd-pad-x),
+      transparent var(--gd-pad-x),
+      transparent calc(100% - var(--gd-pad-x)),
+      var(--read-pad-fill) calc(100% - var(--gd-pad-x)),
+      var(--read-pad-fill) 100%
+    ),
+    var(--gd-color-bg-mute);
+}
+
+/* All-sides padding tokens — the orange frame represents the actual
+   token applied uniformly to all four sides. */
+.read-pad-demo__box[data-pad="space-2"]  { padding: var(--gd-space-2);  background: var(--read-pad-fill); }
+.read-pad-demo__box[data-pad="space-4"]  { padding: var(--gd-space-4);  background: var(--read-pad-fill); }
+.read-pad-demo__box[data-pad="space-6"]  { padding: var(--gd-space-6);  background: var(--read-pad-fill); }
+.read-pad-demo__box[data-pad="space-10"] { padding: var(--gd-space-10); background: var(--read-pad-fill); }
+
+.read-pad-demo__fill {
+  display: block;
+  background: var(--gd-color-bg-surface);
+  border: var(--read-stroke-hairline) dashed var(--gd-color-fg-muted);
+  padding: var(--read-space-sm);
+  text-align: center;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+/* =====================================================================
+   Inline labels for gd-* token and class names when they appear in
+   prose. Both are inline-block pills — yellow ground, mono type — so
+   tokens/classes pop visually wherever they're mentioned. The two
+   labels are differentiated by border color: token labels have the
+   warm yellow border, class labels have the orange (accent) border
+   because a class is the live consumer of the tokens.
+   ===================================================================== */
+
+.read-gd-token-lbl,
+.read-gd-class-lbl {
+  display: inline-block;
+  padding: var(--gd-space-1) var(--gd-space-2);
+  border-radius: var(--read-radius-sm);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--read-line-height-tight);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.read-gd-token-lbl {
+  background: var(--read-bg);
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  color: var(--gd-color-fg-strong);
+}
+
+.read-gd-class-lbl {
+  background: var(--read-bg-strong);
+  border: var(--read-stroke-hairline) solid var(--read-accent);
+  color: var(--read-accent);
+}
+
+/* Wrapper for a list of gd labels under a demo row. */
+.read-gd-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--read-space-xs);
+  align-items: center;
+}
+
+/* =====================================================================
+   Border-width demo — single horizontal rule per row, drawn at the
+   actual --gd-bw-* width.
+   ===================================================================== */
+
+.read-border-demo,
+.read-rule-demo,
+.read-radius-demo,
+.read-shadow-demo,
+.read-mw-demo,
+.read-pad-demo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Generic row layout for any demo that pairs token/class labels, a
+   "when to use" note, and a visual example. Order: tokens → when →
+   example. Labels column sizes to its widest pill (pills are
+   white-space: nowrap), so the labels column stays as narrow as
+   possible without ever wrapping a token/class name. Each row has a
+   hairline divider so the pattern is scannable. */
+.read-demo-row {
+  display: grid;
+  grid-template-columns: max-content minmax(14rem, 1.2fr) minmax(16rem, 2fr);
+  gap: var(--read-space-md);
+  align-items: center;
+  padding-block: var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+}
+
+.read-demo-row:last-child {
+  border-bottom: none;
+}
+
+/* Stacked variant — tokens → when → example flow vertically. Used where
+   the example needs the full row width to read correctly (e.g. the
+   container max-width bars). */
+.read-demo-row--stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--read-space-sm);
+}
+
+.read-demo-row__labels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--read-space-xs);
+}
+
+.read-border-demo__bar {
+  display: block;
+  background: var(--gd-color-bg-surface);
+}
+
+.read-border-demo__bar[data-bw="hair"] {
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-strong);
+  height: var(--gd-space-4);
+}
+
+.read-border-demo__bar[data-bw="rule"] {
+  border-bottom: var(--gd-bw-rule) solid var(--gd-rule-strong);
+  height: var(--gd-space-4);
+}
+
+/* Rule-color demo — visualize the rule AS a hairline floating in its
+   surrounding surface (light for most, dark for --gd-rule-dim). Using
+   a centered ::before line instead of a bottom border so even very
+   low-alpha rules like --gd-rule-dim read clearly. */
+
+.read-rule-demo__bar {
+  position: relative;
+  display: block;
+  height: var(--gd-space-8);
+  background: var(--gd-color-bg-surface);
+}
+
+.read-rule-demo__bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--gd-bw-hair);
+  transform: translateY(-50%);
+}
+
+.read-rule-demo__bar[data-rule="default"]::before { background: var(--gd-rule-default); }
+.read-rule-demo__bar[data-rule="strong"]::before  { background: var(--gd-rule-strong); }
+.read-rule-demo__bar[data-rule="active"]::before  { background: var(--gd-rule-active); }
+.read-rule-demo__bar[data-rule="dim"]             { background: var(--gd-color-fg-strong); }
+.read-rule-demo__bar[data-rule="dim"]::before     { background: var(--gd-rule-dim); }
+
+/* Radius demo — boxes at each --gd-r-* radius. */
+
+.read-radius-demo__box {
+  width: 6rem;
+  height: 6rem;
+  background: var(--gd-color-bg-mute);
+  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
+}
+
+.read-radius-demo__box[data-r="none"] { border-radius: var(--gd-r-none); }
+.read-radius-demo__box[data-r="full"] { border-radius: var(--gd-r-full); }
+
+/* Shadow demo — boxes at each --gd-shadow-* level. The example column
+   in the row provides the surrounding whitespace needed for the shadow
+   to be visible. */
+
+.read-shadow-demo__box {
+  width: 10rem;
+  height: 5rem;
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.read-shadow-demo__box[data-shadow="none"] { box-shadow: var(--gd-shadow-none); }
+.read-shadow-demo__box[data-shadow="lift"] { box-shadow: var(--gd-shadow-lift); }
+
+/* Max-width demo — a horizontal bar capped at the max-width inside a
+   wider container, so the relative shape is visible. */
+
+.read-mw-demo__track {
+  width: 100%;
+  background: var(--gd-color-bg-mute);
+  padding: var(--gd-space-1);
+}
+
+.read-mw-demo__bar {
+  height: var(--gd-space-4);
+  background: var(--gd-color-accent);
+}
+
+.read-mw-demo__bar[data-mw="prose"] { max-width: var(--gd-mw-prose); }
+.read-mw-demo__bar[data-mw="page"]  { max-width: var(--gd-mw-page); }
+.read-mw-demo__bar[data-mw="cta"]   { max-width: var(--gd-mw-cta); }
+
+/* =====================================================================
+   Generic demo layout helpers — guide scaffolding only. Used inside
+   the example column of .read-demo-row when the example needs more
+   than a single child (e.g. multiple buttons side by side, a card
+   grid, a stack of form fields).
+   ===================================================================== */
+
+.read-demo-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--read-space-md);
+  align-items: center;
+}
+
+.read-demo-stack {
+  display: grid;
+  gap: var(--read-space-md);
+}
+
+.read-demo-grid {
+  display: grid;
+  gap: var(--read-space-md);
+  grid-template-columns: repeat(auto-fit, minmax(var(--gd-space-16), 1fr));
+}
+
+/* =====================================================================
+   Ratio rail — guide scaffolding only. Lays out the five aspect-ratio
+   examples side-by-side as a single comparison row. Each cell is a
+   sizing wrapper so the .gd-image / .gd-ratio inside is untouched by
+   read-* rules (they only see the cell width). Heights vary by ratio
+   on purpose — that's the comparison.
+   ===================================================================== */
+
+.read-ratio-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gd-space-4);
+  align-items: flex-start;
+}
+
+.read-ratio-rail__cell {
+  flex: 0 0 14rem;
+  max-width: 14rem;
+}
+

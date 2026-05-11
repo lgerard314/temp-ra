@@ -1,0 +1,78 @@
+/* base.css
+ *
+ * Foundational element-level rules for the document. NOT tokens (no custom
+ * properties), NOT components (no design classes), NOT readability commentary
+ * — these are bare-element rules that establish the document's baseline:
+ * resets that neutralize browser user-agent defaults, plus document-wide
+ * behavior choices (e.g. scroll-behavior). The design system builds on
+ * top of this baseline.
+ *
+ * Anything that targets a raw HTML element (body, html, *, button, input, …)
+ * belongs here. Anything else does not.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--gd-font-body);
+  color: var(--gd-color-fg);
+  /* Page background is never white. --gd-color-bg-surface is reserved
+     for elevated components (cards, ledger, filebar, inputs, quote);
+     section/body backgrounds use --gd-color-bg-page or --gd-color-bg-warm. */
+  background: var(--gd-color-bg-page);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Bare elements — let the design classes do the actual styling. These
+   resets just neutralize browser defaults so a stray <a> or <button>
+   doesn't bring its own visual baggage into the page. */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+picture,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Focus styles — keyboard-only by default. Mouse-click focus is
+   suppressed; keyboard focus gets the system-wide orange ring. */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--gd-bw-rule) solid var(--gd-rule-active);
+  outline-offset: var(--gd-bw-rule);
+}

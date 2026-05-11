@@ -1,0 +1,1287 @@
+/* tokens.css
+ *
+ * The single source of truth for the design system.
+ * Every design value (color, spacing, typography, radius, shadow, …) and
+ * every design class lives here, prefixed `gd-*`.
+ *
+ * Strict naming rule:
+ *   - All design custom properties MUST start with `--gd-*`
+ *   - All design classes MUST start with `.gd-*`
+ * (The `--read-*` / `.read-*` prefix is reserved for readability.css and
+ *  is strictly forbidden here.)
+ */
+
+:root {
+  /* ====================================================================
+     Color
+     ==================================================================== */
+  --gd-color-bg-page:      #fafaf6;  /* primary page ground */
+  --gd-color-bg-surface:   #ffffff;  /* elevated component surface (cards, ledger, filebar, inputs, quote) — NEVER a page or section background */
+  --gd-color-bg-mute:      #e6e8e6;  /* quiet fills, dividers */
+  --gd-color-bg-warm:      #f0eee6;  /* warm hero ground */
+  --gd-color-fg:           #1d242d;  /* body type */
+  --gd-color-fg-strong:    #0c1117;  /* structural / emphasis type; also background for banner-style sections */
+  --gd-color-fg-muted:     #5a6168;  /* secondary type */
+  --gd-color-accent:       #fb6a1d;  /* primary accent (status, highlight) */
+  --gd-color-accent-soft:  #ff8442;  /* softer accent variant */
+  --gd-color-success:      #1a4a1a;  /* success state */
+  --gd-color-fg-on-dark:     rgba(255, 255, 255, 0.85);  /* primary text on dark surfaces */
+  --gd-color-fg-on-dark-dim: rgba(255, 255, 255, 0.7);   /* dim/secondary text on dark surfaces */
+
+  /* ====================================================================
+     Typography
+     ==================================================================== */
+
+  /* Families. Each token references a runtime --*-loaded variable that
+     next/font defines on <html> (see app/layout.tsx). Inside var() we
+     supply the literal font name as a fallback so the cascade still
+     works if the webfont fails to load. */
+  --gd-font-display: var(--gd-font-display-loaded, "Archivo Narrow"), "Helvetica Neue Condensed", sans-serif;
+  --gd-font-body:    var(--gd-font-body-loaded,    "Work Sans"),      system-ui, sans-serif;
+  --gd-font-mono:    var(--gd-font-mono-loaded,    "JetBrains Mono"), ui-monospace, monospace;
+  --gd-font-serif:   var(--gd-font-serif-loaded,   "Newsreader"),     Georgia, serif;
+
+  /* Sizes (each visibly distinct; near-duplicates from source dropped) clamp(2.5rem, 5vw, 4.5rem)*/
+  --gd-fs-display: clamp(2.6rem, 5vw, 4.2rem);
+  --gd-fs-h1:      clamp(2rem, 3.6vw, 3rem);
+  --gd-fs-h2:      clamp(1.6rem, 2.6vw, 2.2rem);
+  --gd-fs-h2-display: var(--gd-fs-h1);  /* h2 promoted to display-level size; tracks h1 */
+  --gd-fs-h3:      1.5rem;
+  --gd-fs-h4:      1.15rem;   /* Heading scale. Numerically close to --gd-fs-body-l but role-distinct: h4 is display family / semibold / uppercase, body-l is body family / regular. The 0.8px raw-pixel proximity is by design (spec-derived); consumed only through .gd-h4 / .gd-body-l role classes — not as bare size primitives. */
+  --gd-fs-body-l:  1.1rem;
+  --gd-fs-body:    1rem;
+  --gd-fs-body-s:  0.92rem;
+  --gd-fs-mono:    0.78rem;
+  --gd-fs-mono-s:  0.65rem;
+  --gd-fs-mono-xs: 0.55rem;      /* tight-overlay mono only — frame meta annotations sitting on top of imagery; never used for primary content */
+  --gd-fs-pullquote: 1.4rem;     /* pull-quote size — distinct from h4/body-l */
+
+  /* Weights (each visibly distinct in stroke; matches the four
+     weights actually used in the source spec) */
+  --gd-fw-regular:  400;
+  --gd-fw-medium:   500;
+  --gd-fw-semibold: 600;
+  --gd-fw-bold:     700;
+
+  /* Line heights */
+  --gd-lh-display:   0.95;
+  --gd-lh-heading:   1.05;
+  --gd-lh-pullquote: 1.35;  /* between heading & body — pull-quote specific */
+  --gd-lh-body:      1.55;
+
+  /* Letter spacing */
+  --gd-tr-mono:      0.18em;
+  --gd-tr-mono-wide: 0.22em;  /* eyebrow tracking — purposefully wider than --gd-tr-mono to mark its ceremonial role */
+
+  /* ====================================================================
+     Spacing scale — 4px base, document-grid. Each step is visibly and
+     purposefully distinct from its neighbors; gaps in the numeric series
+     (7, 9, 11, 13, …) exist on purpose to prevent near-duplicates.
+     ==================================================================== */
+  --gd-space-1:   0.25rem;   /*  4px */
+  --gd-space-2:   0.5rem;    /*  8px */
+  --gd-space-3:   0.75rem;   /* 12px */
+  --gd-space-4:   1rem;      /* 16px */
+  --gd-space-5:   1.25rem;   /* 20px */
+  --gd-space-6:   1.5rem;    /* 24px */
+  --gd-space-8:   2rem;      /* 32px */
+  --gd-space-10:  2.5rem;    /* 40px */
+  --gd-space-12:  3rem;      /* 48px */
+  --gd-space-16:  4rem;      /* 64px */
+  --gd-space-20:  5rem;      /* 80px */
+
+  /* ====================================================================
+     Padding role tokens — semantic padding values. Each composes from
+     the spacing scale (never invents a literal). Add a new role here only
+     when a recurring padding need clearly has no existing role token.
+     ==================================================================== */
+  --gd-pad-x:        clamp(1.5rem, 4vw, 4rem);  /* fluid page horizontal gutter (24–64px) */
+  --gd-section-pad-x: var(--gd-pad-x);          /* default horizontal gutter for every gd-section */
+
+  /* ====================================================================
+     Border widths — visibly distinct in stroke and role.
+     ==================================================================== */
+  --gd-bw-hair: 1px;   /* default hairline — dividers, filebar cells, ledger rows */
+  --gd-bw-rule: 2px;   /* full rule — section-heading underline, warranty stamp */
+
+  /* ====================================================================
+     Radii — sharp by default. Two values: 0 for every static surface,
+     and "full" reserved exclusively for sanctioned circular roles —
+     the slider drag grip and the warranty seal. Both are role-singular;
+     no decorative rounding anywhere.
+     ==================================================================== */
+  --gd-r-none: 0;
+  --gd-r-full: 9999px;
+
+  /* ====================================================================
+     Rule colors — role tokens that pair a border with the context it
+     sits on. Each maps to a single visual purpose; the alphas are
+     normalized so two near-duplicates can never appear in the system.
+     ==================================================================== */
+  --gd-rule-default: rgba(12, 17, 23, 0.15);   /* hairline on light surfaces */
+  --gd-rule-dim:     rgba(255, 255, 255, 0.16); /* hairline on dark surfaces */
+  --gd-rule-strong:  var(--gd-color-fg-strong); /* full-strength rule on light surfaces */
+  --gd-rule-active:  var(--gd-color-accent);    /* highlight — active filebar cell, focus indicator */
+
+  /* ====================================================================
+     Shadows — two values; most surfaces use neither.
+     ==================================================================== */
+  --gd-shadow-none: 0 0 0 transparent;
+  --gd-shadow-lift: 0 1px 0 rgba(12, 17, 23, 0.06),
+                    0 8px 24px -16px rgba(12, 17, 23, 0.18);
+
+  /* ====================================================================
+     Container max-widths — each a distinct content-shape role.
+     ==================================================================== */
+  --gd-mw-prose: 64ch;    /* body-copy max line length */
+  --gd-mw-page:  100%;    /* full-bleed page container; gutters via --gd-pad-x */
+  --gd-mw-cta:   960px;   /* CTA banner — narrower than page by intent */
+
+  /* ====================================================================
+     Image aspect ratios — the five sanctioned image shapes. No other
+     aspect ratio may appear on the site; every image must adopt one of
+     these. Each shape is visibly distinct in proportion.
+     ==================================================================== */
+  --gd-ar-cinema:    21 / 9;
+  --gd-ar-wide:      16 / 9;
+  --gd-ar-landscape:  4 / 3;
+  --gd-ar-portrait:   3 / 4;
+  --gd-ar-square:     1 / 1;
+
+  /* ====================================================================
+     Layout primitives that feed --gd-image-max-h.
+     --gd-header-h is a placeholder for the eventual fixed-header height;
+     update the value when the real header lands. --gd-section-pad-y is
+     the role token for a section's vertical padding (each side); it
+     defines the rule even though .gd-section doesn't auto-consume it
+     yet (real section classes will).
+     ==================================================================== */
+  --gd-header-h:      4.5rem;                  /* 72px — placeholder for the fixed header */
+  --gd-section-pad-y: var(--gd-space-12);      /* 3rem — vertical section padding per side */
+
+  /* Derived cap: no image (except a full-bleed section background) may
+     exceed this height. Per-ratio max-width on .gd-ratio--* modifiers
+     enforces the cap by shrinking both dimensions proportionally. */
+  --gd-image-max-h:   calc(100vh - var(--gd-section-pad-y) * 2 - var(--gd-header-h));
+
+  /* ====================================================================
+     Motion — three durations and one easing curve. The same ease applies
+     to everything; only duration varies by role. Each duration is
+     visibly distinct in pace.
+     ==================================================================== */
+  --gd-d-fast: 120ms;   /* micro-interactions: button hover, link color, status pill */
+  --gd-d-base: 240ms;   /* default UI state changes: header collapse, hover lift, image hover */
+  --gd-d-slow: 480ms;   /* hero crossfade, page transitions */
+  --gd-ease:   cubic-bezier(0.2, 0.8, 0.2, 1);  /* the one curve, site-wide */
+  --gd-lift:   0.125rem; /* hover-lift translation distance — applied as translateY(calc(var(--gd-lift) * -1)) on elevated states */
+}
+
+/* ======================================================================
+   .gd-section — the outermost wrapper for any design-system demo block
+   on the guide page. Provides the default horizontal padding so every
+   gd-* demo has consistent edge gutters without each demo class
+   duplicating the rule.
+   ====================================================================== */
+
+.gd-section {
+  padding-inline: var(--gd-section-pad-x);
+}
+
+/* ======================================================================
+   Typography utility classes — apply a single typographic role to any
+   element. Use these whenever putting design-system text on the page.
+   ====================================================================== */
+
+/* Display headings (display family, bold, tight display line-height).
+   .gd-h2-display is a semantic <h2> rendered at h1 size. */
+.gd-display,
+.gd-h1,
+.gd-h2-display {
+  font-family: var(--gd-font-display);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-display);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+.gd-display    { font-size: var(--gd-fs-display); }
+.gd-h1         { font-size: var(--gd-fs-h1); }
+.gd-h2-display { font-size: var(--gd-fs-h2-display); }
+
+/* Standard h2 — only differs from the display group by line-height. */
+.gd-h2 {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h2);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+
+/* Subheadings (display family, semibold). */
+.gd-h3,
+.gd-h4 {
+  font-family: var(--gd-font-display);
+  font-weight: var(--gd-fw-semibold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+.gd-h3 { font-size: var(--gd-fs-h3); }
+.gd-h4 { font-size: var(--gd-fs-h4); }
+
+/* Body scale (body family, regular). */
+.gd-body-l,
+.gd-body,
+.gd-body-s {
+  font-family: var(--gd-font-body);
+  font-weight: var(--gd-fw-regular);
+  line-height: var(--gd-lh-body);
+  color: var(--gd-color-fg);
+}
+.gd-body-l { font-size: var(--gd-fs-body-l); }
+.gd-body   { font-size: var(--gd-fs-body); }
+.gd-body-s { font-size: var(--gd-fs-body-s); }
+
+/* Mono labels (mono family, bold, tracked). */
+.gd-mono,
+.gd-mono-s {
+  font-family: var(--gd-font-mono);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-body);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+.gd-mono   { font-size: var(--gd-fs-mono); }
+.gd-mono-s { font-size: var(--gd-fs-mono-s); }
+
+/* Eyebrow — mono at mono-s, but wider tracking + accent color. */
+.gd-eyebrow {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-body);
+  letter-spacing: var(--gd-tr-mono-wide);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+}
+
+/* Serif italics (serif family, medium, italic). */
+.gd-pullquote,
+.gd-serif {
+  font-family: var(--gd-font-serif);
+  font-weight: var(--gd-fw-medium);
+  font-style: italic;
+  color: var(--gd-color-fg-strong);
+}
+.gd-pullquote {
+  font-size: var(--gd-fs-pullquote);
+  line-height: var(--gd-lh-pullquote);
+}
+.gd-serif {
+  font-size: var(--gd-fs-body);
+  line-height: var(--gd-lh-body);
+}
+
+/* Inline accent emphasis — applies the accent color to a fragment of text
+   (e.g. last two words of a display heading). Color only; inherits size,
+   weight, family, etc. from its parent. */
+.gd-accent {
+  color: var(--gd-color-accent);
+}
+
+/* ======================================================================
+   Aspect-ratio frame — applied to any image / media element. The base
+   class neutralizes the media box; modifiers select one of the five
+   sanctioned ratios.
+   ====================================================================== */
+
+.gd-ratio {
+  display: block;
+  width: 100%;
+  background: var(--gd-color-bg-mute);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Any image-bearing child fills the frame exactly and is clipped to it;
+   the aspect ratio is therefore enforced for every image on the site
+   that isn't a full-section background. */
+.gd-ratio > img,
+.gd-ratio > video,
+.gd-ratio > picture > img,
+.gd-ratio > picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Per-ratio max-width caps the box so the image cannot exceed the
+   effective fit-height when scaled by the aspect ratio. The cap reads
+   --gd-image-fit-h (a cascade variable contexts can override to
+   subtract their attached chrome — captions, card content, etc.); it
+   falls back to --gd-image-max-h when no context overrides. When the
+   cap kicks in the entire box shrinks proportionally (the aspect lock
+   is preserved). */
+.gd-ratio--cinema    { aspect-ratio: var(--gd-ar-cinema);    max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 21 / 9); }
+.gd-ratio--wide      { aspect-ratio: var(--gd-ar-wide);      max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 16 / 9); }
+.gd-ratio--landscape { aspect-ratio: var(--gd-ar-landscape); max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 4 / 3); }
+.gd-ratio--portrait  { aspect-ratio: var(--gd-ar-portrait);  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 3 / 4); }
+.gd-ratio--square    { aspect-ratio: var(--gd-ar-square);    max-width: var(--gd-image-fit-h, var(--gd-image-max-h)); }
+
+/* ======================================================================
+   Image with caption — semantic <figure>/<figcaption> pair. The frame
+   is a .gd-ratio; the caption is fixed mono type sitting under a
+   hairline divider, composed from tokens (no new values).
+   ====================================================================== */
+
+.gd-image {
+  display: block;
+  margin: 0;
+  /* Subtract the caption-row height (~3rem: mono-s line + padding-block
+     + hairline top divider) from the image's fit-height so the captioned
+     figure as a whole stays within the viewport-fit cap. */
+  --gd-image-fit-h: calc(var(--gd-image-max-h) - var(--gd-space-12));
+}
+
+/* ======================================================================
+   Shared "lift" treatment — bordered surface with hover elevation.
+   Applied to the image frame (scoped to .gd-image > .gd-ratio so the
+   caption below sits outside the border), to standalone frames, and
+   to sliders.
+   ====================================================================== */
+
+.gd-image > .gd-ratio,
+.gd-frame,
+.gd-slider,
+.gd-card {
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+  box-shadow: var(--gd-shadow-none);
+  transition:
+    border-color var(--gd-d-base) var(--gd-ease),
+    box-shadow var(--gd-d-base) var(--gd-ease),
+    transform var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-image:hover > .gd-ratio,
+.gd-frame:hover,
+.gd-slider:hover,
+.gd-card:hover {
+  box-shadow: var(--gd-shadow-lift);
+  transform: translateY(calc(var(--gd-lift) * -1));
+}
+
+/* Dark-surface treatment — shared by .gd-frame and .gd-slider.
+   background-clip: padding-box keeps the semi-transparent border
+   from blending with the dark fill behind it. */
+
+.gd-frame,
+.gd-slider {
+  background: var(--gd-color-fg-strong);
+  background-clip: padding-box;
+  color: var(--gd-color-bg-surface);
+}
+
+/* Media caption — used by .gd-image. The slider's caption role is
+   played by .gd-slider__meta (internal to the slider element), so no
+   external caption wrapper is needed there. */
+.gd-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-2) var(--gd-space-3);
+  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-body);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-caption-meta {
+  color: var(--gd-color-accent);
+}
+
+/* ======================================================================
+   Frame — the system's photo frame. Dark surface for any image, with
+   orange corner brackets and two mono meta rows (top + bottom).
+   Composes with .gd-ratio--* to lock to one of the sanctioned aspect
+   ratios.
+   ====================================================================== */
+
+/* .gd-frame inherits its border, lift, and dark-surface treatments from
+   the shared rules above. The block below is only frame-specific. */
+
+.gd-frame__brackets {
+  position: absolute;
+  inset: var(--gd-space-2);
+  pointer-events: none;
+}
+
+.gd-frame__brackets::before,
+.gd-frame__brackets::after {
+  content: "";
+  position: absolute;
+  width: var(--gd-space-4);
+  height: var(--gd-space-4);
+  border: var(--gd-bw-hair) solid var(--gd-color-accent);
+}
+
+.gd-frame__brackets::before {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.gd-frame__brackets::after {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+}
+
+.gd-frame__meta-top,
+.gd-frame__meta-bot {
+  position: absolute;
+  left: calc(var(--gd-space-2) + var(--gd-space-1));
+  right: calc(var(--gd-space-2) + var(--gd-space-1));
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gd-space-3);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-xs);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+}
+
+.gd-frame__meta-top {
+  top: calc(var(--gd-space-2) + var(--gd-space-1));
+  color: var(--gd-color-fg-on-dark);
+}
+
+.gd-frame__meta-bot {
+  bottom: calc(var(--gd-space-2) + var(--gd-space-1));
+  color: var(--gd-color-fg-on-dark-dim);
+}
+
+/* ======================================================================
+   Slider — before/after comparison overlay. Built on the same dark
+   surface as .gd-frame, with two stacked image layers (the "after"
+   layer clipped at 50%), a vertical orange divider, before/after tag
+   chips, and a bottom mono meta bar. Composes with .gd-ratio--* for
+   aspect.
+   ====================================================================== */
+
+.gd-slider {
+  /* --gd-slider-pos is a runtime UI-state variable (0–100%); the JS
+     drag handler writes it via setProperty on this element. Default
+     50% so the static (no-JS) render still looks meaningful.
+     Border, lift, and dark-surface treatments come from the shared
+     rules above. */
+  --gd-slider-pos: 50%;
+  user-select: none;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.gd-slider__layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gd-slider__layer--before {
+  background: var(--gd-color-fg-strong);
+}
+
+.gd-slider__layer--after {
+  background: var(--gd-color-fg-muted);
+  clip-path: inset(0 0 0 var(--gd-slider-pos));
+}
+
+.gd-slider__tag {
+  position: absolute;
+  color: var(--gd-color-bg-surface);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-xs);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.gd-slider__tag--before {
+  top: var(--gd-space-2);
+  left: var(--gd-space-2);
+}
+
+/* "After" sits at the bottom-right, clear of the __meta bar (whose
+   height = padding-block * 2 + mono-s line ≈ 26px). Offset uses
+   composed spacing tokens — no magic numbers. */
+.gd-slider__tag--after {
+  bottom: calc(var(--gd-space-8) + var(--gd-space-2));
+  right: var(--gd-space-2);
+}
+
+.gd-slider__handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--gd-slider-pos);
+  width: var(--gd-bw-hair);
+  background: var(--gd-color-accent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.gd-slider__grip {
+  position: absolute;
+  top: 50%;
+  left: var(--gd-slider-pos);
+  transform: translate(-50%, -50%);
+  width: var(--gd-space-8);
+  height: var(--gd-space-8);
+  border-radius: var(--gd-r-full);
+  background: var(--gd-color-accent);
+  color: var(--gd-color-bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.gd-slider__meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-2) var(--gd-space-2);
+  background: var(--gd-color-fg-strong);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-bg-surface);
+}
+
+.gd-slider__meta-num {
+  color: var(--gd-color-accent);
+}
+
+/* (Color swatch demo — `.read-swatch*` — is guide scaffolding, not a
+   design component, and lives in readability.css.) */
+
+/* ======================================================================
+   Buttons — accent-filled primary and slate-outlined ghost. Both share
+   typography, hover lift, and transition timing; only the visual style
+   (fill vs outline) differs.
+   ====================================================================== */
+
+.gd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  padding: var(--gd-space-4) var(--gd-space-6);
+  background: var(--gd-color-accent);
+  color: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-color-accent);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--gd-shadow-none);
+  transition:
+    background var(--gd-d-fast) var(--gd-ease),
+    border-color var(--gd-d-fast) var(--gd-ease),
+    color var(--gd-d-fast) var(--gd-ease),
+    box-shadow var(--gd-d-base) var(--gd-ease),
+    transform var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-btn:hover {
+  background: var(--gd-color-accent-soft);
+  border-color: var(--gd-color-accent-soft);
+  box-shadow: var(--gd-shadow-lift);
+  transform: translateY(calc(var(--gd-lift) * -1));
+}
+
+.gd-btn--ghost {
+  background: transparent;
+  color: var(--gd-color-fg-strong);
+  border-color: var(--gd-rule-strong);
+}
+
+.gd-btn--ghost:hover {
+  background: var(--gd-color-bg-mute);
+  border-color: var(--gd-rule-active);
+  color: var(--gd-color-fg-strong);
+}
+
+/* ======================================================================
+   Links — generic inline body link and a mono CTA variant for use as
+   the bottom link in cards.
+   ====================================================================== */
+
+.gd-link {
+  color: var(--gd-color-accent);
+  text-decoration: underline;
+  text-underline-offset: var(--gd-space-1);
+  text-decoration-thickness: var(--gd-bw-hair);
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-link:hover {
+  color: var(--gd-color-accent-soft);
+}
+
+.gd-link--mono {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.gd-link--mono:hover {
+  text-decoration: underline;
+  text-underline-offset: var(--gd-space-1);
+}
+
+/* ======================================================================
+   Form controls — input, textarea, select sharing common type/border/
+   focus treatment. Labels and field wrappers complete the family.
+   ====================================================================== */
+
+.gd-input,
+.gd-textarea,
+.gd-select {
+  display: block;
+  width: 100%;
+  font-family: var(--gd-font-body);
+  font-size: var(--gd-fs-body);
+  font-weight: var(--gd-fw-regular);
+  line-height: var(--gd-lh-body);
+  color: var(--gd-color-fg);
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
+  padding: var(--gd-space-3) var(--gd-space-4);
+  transition: border-color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-input:focus,
+.gd-textarea:focus,
+.gd-select:focus {
+  border-color: var(--gd-rule-active);
+}
+
+.gd-textarea {
+  resize: vertical;
+  min-height: calc(var(--gd-space-12) * 2);
+}
+
+.gd-select {
+  appearance: none;
+}
+
+.gd-label {
+  display: block;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+
+.gd-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-2);
+}
+
+.gd-field__error {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+}
+
+/* ======================================================================
+   Filebar — multi-cell horizontal bar for file metadata (carrier,
+   status, ID, etc.). Exactly one cell may be active (orange) at a time.
+   ====================================================================== */
+
+.gd-filebar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-filebar__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-1);
+  padding: var(--gd-space-3) var(--gd-space-4);
+  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-filebar__cell:last-child {
+  border-right: 0;
+}
+
+.gd-filebar__label {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-xs);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-filebar__value {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-semibold);
+  color: var(--gd-color-fg-strong);
+}
+
+.gd-filebar__value--active {
+  color: var(--gd-color-accent);
+}
+
+/* ======================================================================
+   Status badge — small bordered mono pill. Border uses currentColor so
+   the modifier just changes the role color and the border follows.
+   Exactly one active status per page (system rule).
+   ====================================================================== */
+
+.gd-status {
+  display: inline-block;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  padding: var(--gd-space-1) var(--gd-space-2);
+  border: var(--gd-bw-hair) solid currentColor;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-status--closed { color: var(--gd-color-success); }
+.gd-status--filed  { color: var(--gd-color-fg-muted); }
+
+.gd-status--active {
+  background: var(--gd-color-accent);
+  color: var(--gd-color-fg-strong);
+  border-color: var(--gd-color-fg-strong);
+}
+
+/* ======================================================================
+   Chips — flexible group of small inline labels (tags, filters,
+   exhibits). No active state — chips are flat metadata; status uses
+   .gd-status if a state is needed.
+   ====================================================================== */
+
+.gd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gd-space-1);
+}
+
+.gd-chip {
+  display: inline-block;
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  padding: var(--gd-space-1) var(--gd-space-2);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  color: var(--gd-color-fg);
+}
+
+/* ======================================================================
+   Card — bordered content block. Border + hover lift come from the
+   shared lift group above. Slots for eyebrow, title, body, link.
+   ====================================================================== */
+
+.gd-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-6);
+  background: var(--gd-color-bg-page);
+  text-decoration: none;
+  color: inherit;
+}
+
+.gd-card__eyebrow {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+}
+
+.gd-card__title {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h4);
+  font-weight: var(--gd-fw-semibold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+  margin: 0;
+}
+
+.gd-card__body {
+  font-family: var(--gd-font-body);
+  font-size: var(--gd-fs-body-s);
+  line-height: var(--gd-lh-body);
+  color: var(--gd-color-fg);
+  margin: 0;
+}
+
+.gd-card__link {
+  margin-top: auto;
+  padding-top: var(--gd-space-3);
+  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+  text-decoration: none;
+}
+
+/* ======================================================================
+   Divider — hairline horizontal rule. Plain <hr>-style separator
+   between content blocks; vertical rhythm comes from --gd-space-6.
+   ====================================================================== */
+
+.gd-divider {
+  border: 0;
+  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  margin: var(--gd-space-6) 0;
+}
+
+/* ======================================================================
+   Stamp — rotated outlined display-font label. One stamp per page max
+   (system rule). The -12deg tilt is the stamp's visual signature; no
+   broader rotation scale exists in the system.
+   ====================================================================== */
+
+.gd-stamp {
+  display: inline-block;
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-pullquote);
+  font-weight: var(--gd-fw-bold);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+  border: var(--gd-bw-rule) solid var(--gd-color-accent);
+  padding: var(--gd-space-2) var(--gd-space-4);
+  transform: rotate(-12deg);
+}
+
+/* ======================================================================
+   Ledger — table-style listing of rows with mixed column types
+   (number, label, money, meta). Header row is muted; body rows divide
+   with hairlines.
+   ====================================================================== */
+
+.gd-ledger {
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
+  box-sizing: border-box;
+}
+
+.gd-ledger__row {
+  display: grid;
+  grid-template-columns: var(--gd-space-12) 1fr auto auto auto;
+  gap: var(--gd-space-6);
+  padding: var(--gd-space-4);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+  align-items: baseline;
+}
+
+.gd-ledger__row:last-child {
+  border-bottom: 0;
+}
+
+.gd-ledger__row--header {
+  padding-block: var(--gd-space-2);
+  background: var(--gd-color-bg-mute);
+}
+
+.gd-ledger__row--header > * {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-ledger__num {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-ledger__label {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-body-l);
+  font-weight: var(--gd-fw-semibold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+
+.gd-ledger__money {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-body-l);
+  font-weight: var(--gd-fw-bold);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+
+.gd-ledger__meta {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono);
+  color: var(--gd-color-fg);
+}
+
+/* ======================================================================
+   Quote — bordered serif quote block with leading orange mark and a
+   mono citation row at the bottom. The quote body itself uses
+   .gd-pullquote (already defined).
+   ====================================================================== */
+
+.gd-quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-4);
+  padding: var(--gd-space-8);
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+  max-width: var(--gd-mw-prose);
+}
+
+.gd-quote__mark {
+  font-family: var(--gd-font-serif);
+  font-style: italic;
+  font-size: var(--gd-fs-display);
+  line-height: 0.5;
+  color: var(--gd-color-accent);
+}
+
+.gd-quote__cite {
+  margin-top: auto;
+  padding-top: var(--gd-space-4);
+  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gd-space-3);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+/* ======================================================================
+   Trust grid — bordered horizontal row of stat cells (e.g. "8 Years /
+   200+ Files / 6 Carriers"). Each cell has a mono label and a display
+   value; cells divide evenly across the bar width.
+   ====================================================================== */
+
+.gd-trust {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-trust__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-6);
+  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-trust__cell:last-child {
+  border-right: 0;
+}
+
+.gd-trust__label {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-trust__value {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h2);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-strong);
+}
+
+/* ======================================================================
+   Lists — body-typography ordered/unordered lists. Unordered uses an
+   orange em-dash marker; ordered uses mono leading-zero numbers in
+   accent. Apply to <ul class="gd-list"> or <ol class="gd-list
+   gd-list--ordered">.
+   ====================================================================== */
+
+.gd-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--gd-font-body);
+  font-size: var(--gd-fs-body);
+  line-height: var(--gd-lh-body);
+  color: var(--gd-color-fg);
+}
+
+.gd-list > li {
+  position: relative;
+  padding-left: var(--gd-space-6);
+  margin-bottom: var(--gd-space-2);
+}
+
+.gd-list > li:last-child {
+  margin-bottom: 0;
+}
+
+.gd-list > li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--gd-color-accent);
+  font-weight: var(--gd-fw-bold);
+}
+
+.gd-list--ordered {
+  counter-reset: gd-list-counter;
+}
+
+.gd-list--ordered > li {
+  counter-increment: gd-list-counter;
+  padding-left: var(--gd-space-8);
+}
+
+.gd-list--ordered > li::before {
+  content: counter(gd-list-counter, decimal-leading-zero);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  color: var(--gd-color-accent);
+  top: var(--gd-space-1);
+}
+
+/* ======================================================================
+   Warranty seal — circular outlined display badge. One per page max.
+   The round shape is the recognition cue, sanctioned alongside the
+   slider grip as the only circular roles in the system.
+   ====================================================================== */
+
+.gd-warranty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: calc(var(--gd-space-20) + var(--gd-space-16));
+  height: calc(var(--gd-space-20) + var(--gd-space-16));
+  padding: var(--gd-space-3);
+  border: var(--gd-bw-rule) solid var(--gd-color-accent);
+  border-radius: var(--gd-r-full);
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-body);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-heading);
+  text-transform: uppercase;
+  color: var(--gd-color-accent);
+}
+
+/* ======================================================================
+   Card variants — three structural modifiers on .gd-card.
+   * --photo  : photo at top spans card; padded content below.
+   * --file   : filebar at top; padded content below.
+   * --profile: same shape as --photo but the photo is a portrait
+     aspect; used for people / profile cards.
+   The padding-rewrite is identical for --photo and --profile, hence
+   the grouped selectors below.
+   ====================================================================== */
+
+.gd-card--photo,
+.gd-card--profile,
+.gd-card--file {
+  padding: 0;
+}
+
+/* Photo / profile cards: image sits above eyebrow + title + body + link
+   + their padding/gaps. Reserve 14rem (5 + 5 + 4) for the content
+   stack so the image is bounded against (max-h − content reserve) and
+   both image AND content fit inside the viewport-fit cap together. The
+   reserve is conservative on purpose — better to underuse image space
+   than to push card content out of the viewport. */
+.gd-card--photo,
+.gd-card--profile {
+  --gd-image-fit-h: calc(
+    var(--gd-image-max-h)
+    - var(--gd-space-20)
+    - var(--gd-space-20)
+    - var(--gd-space-16)
+  );
+}
+
+.gd-card--photo > :not(.gd-ratio),
+.gd-card--profile > :not(.gd-ratio),
+.gd-card--file > :not(.gd-filebar) {
+  padding-inline: var(--gd-space-6);
+}
+
+.gd-card--photo > .gd-ratio + :not(.gd-ratio),
+.gd-card--profile > .gd-ratio + :not(.gd-ratio),
+.gd-card--file > .gd-filebar + :not(.gd-filebar) {
+  padding-top: var(--gd-space-6);
+}
+
+.gd-card--photo > :last-child:not(.gd-ratio),
+.gd-card--profile > :last-child:not(.gd-ratio),
+.gd-card--file > :last-child:not(.gd-filebar) {
+  padding-bottom: var(--gd-space-6);
+}
+
+/* Filebar nested in a file-card drops its outer top/left/right borders
+   so the card's border isn't doubled; the bottom hairline stays as the
+   divider between filebar and content. */
+.gd-card--file > .gd-filebar {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
+/* ======================================================================
+   PM listing — horizontal "person row" with square portrait + name/role
+   meta. Dense alternative to .gd-card--profile for team / contact lists.
+   Each row separated by a hairline; last row has no trailing border.
+   ====================================================================== */
+
+.gd-pm {
+  display: grid;
+  grid-template-columns: var(--gd-space-12) 1fr;
+  gap: var(--gd-space-3);
+  align-items: center;
+  padding-block: var(--gd-space-3);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-pm:last-child {
+  border-bottom: 0;
+}
+
+.gd-pm__photo {
+  width: var(--gd-space-12);
+  aspect-ratio: var(--gd-ar-square);
+  position: relative;
+  overflow: hidden;
+  background: var(--gd-color-bg-mute);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-pm__photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gd-pm__meta {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono);
+  text-transform: uppercase;
+  color: var(--gd-color-fg-muted);
+}
+
+.gd-pm__name {
+  color: var(--gd-color-fg-strong);
+}
+
+/* ======================================================================
+   Typography sample demo — used in the Typography section of the guide.
+   ====================================================================== */
+
+.gd-type-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gd-type-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gd-space-2);
+  padding-block: var(--gd-space-4);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-color-bg-mute);
+}
+
+.gd-type-row:last-child {
+  border-bottom: none;
+}
+
+.gd-type-row__sample {
+  margin: 0;
+}
+
+/* (The metadata caption under each type sample is commentary about the
+   design — it lives in readability.css as .read-token-meta.) */
