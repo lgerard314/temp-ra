@@ -1,0 +1,193 @@
+/* components/mark.css
+ *
+ * Marks vocabulary — small role-singular badges and separators:
+ *   .gd-status      — bordered mono status pill (one active per page)
+ *   .gd-chips/chip  — flat metadata label group
+ *   .gd-divider     — hairline horizontal rule (consumes --gd-rule)
+ *   .gd-stamp       — rotated outlined display label (one per page)
+ *   .gd-warranty    — circular outlined display seal (one per page)
+ *   .gd-pm          — horizontal person-row (portrait + meta)
+ */
+
+/* ----- Status badge — small bordered mono pill. Border uses currentColor
+   so the modifier just changes the role color and the border follows.
+   Exactly one active status per page (system rule). */
+
+/* Typography composed in JSX: .gd-status + .gd-mono-s .gd-mono-s--bold */
+.gd-status {
+  display: inline-block;
+  padding: var(--gd-space-1) var(--gd-space-2);
+  border: var(--gd-bw-hair) solid currentColor;
+  color: var(--gd-fg-muted);
+}
+
+.gd-status--closed { color: var(--gd-color-success); }
+.gd-status--filed  { color: var(--gd-fg-muted); }
+
+.gd-status--active {
+  background: var(--gd-color-brand);
+  color: var(--gd-fg-strong);
+  border-color: var(--gd-fg-strong);
+}
+
+/* ----- Chips — flexible group of small inline labels (tags, filters,
+   exhibits). No active state — chips are flat metadata; status uses
+   .gd-status if a state is needed. */
+
+.gd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gd-space-1);
+}
+
+/* Typography composed in JSX: .gd-chip + .gd-mono-s .gd-mono-s--bold */
+.gd-chip {
+  display: inline-block;
+  padding: var(--gd-space-1) var(--gd-space-2);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  color: var(--gd-fg);
+}
+
+/* ----- Divider — hairline horizontal rule. Plain <hr>-style separator
+   between content blocks; vertical rhythm comes from --gd-space-6. */
+
+.gd-divider {
+  border: 0;
+  /* Pure hairline that sits on whatever surface it's dropped on —
+     consumes --gd-rule (role token) so it flips to --gd-rule-dim
+     inside .gd-surface--dark wrappers. */
+  border-top: var(--gd-bw-hair) solid var(--gd-rule);
+  margin: var(--gd-space-6) 0;
+}
+
+/* ----- Stamp — small outlined "sticker": a printed-once annotation that
+   sits on top of other content. One stamp per page max (system rule).
+   The -12deg tilt is the stamp's visual signature; no broader rotation
+   scale exists in the system.
+
+   Typography composed in JSX: .gd-stamp + .gd-mono-s .gd-mono-s--bold.
+   The slot owns only the outline + tilt + color + padding so the
+   stamp's type vocabulary stays in the mono-s/bold "chrome" family with
+   .gd-status / .gd-chip — they're all small bordered marks. */
+.gd-stamp {
+  display: inline-block;
+  color: var(--gd-color-brand);
+  border: var(--gd-bw-rule) solid var(--gd-color-brand);
+  padding: var(--gd-space-2) var(--gd-space-4);
+  transform: rotate(-12deg);
+}
+
+/* ----- Warranty seal — circular outlined display badge. One per page max.
+   The round shape is the recognition cue, sanctioned alongside the
+   slider grip as the only circular roles in the system. */
+
+/* Wrapper — composes the round orange seal (.gd-warranty__shape) beside
+   the optional display text block (.gd-warranty__text). For a bare seal
+   use just .gd-warranty > .gd-warranty__shape. */
+.gd-warranty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gd-space-4);
+}
+
+/* Round orange seal — the recognition cue. Contains the headline number
+   (display, bold) and an optional .gd-warranty__unit beneath it. */
+.gd-warranty__shape {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-shrink: 0;
+  width: calc(var(--gd-space-16) + var(--gd-space-4));
+  aspect-ratio: var(--gd-ar-square);
+  padding: var(--gd-space-3);
+  border: var(--gd-bw-rule) solid var(--gd-color-brand);
+  border-radius: var(--gd-r-full);
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h2);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-display);
+  text-transform: uppercase;
+  color: var(--gd-color-brand);
+}
+
+/* Small unit label beneath the headline number inside the seal
+   (e.g. "YEARS" under "25"). Inherits the accent color from the
+   shape; size + tracking match the small-mono-label role. */
+/* Typography composed in JSX: .gd-warranty__unit + .gd-mono-s .gd-mono-s--bold */
+.gd-warranty__unit {
+  color: inherit;
+}
+
+/* Display text block sitting beside the seal (e.g. "Written. / Signed.").
+   Typography composed in JSX: .gd-warranty__text + .gd-h3 — never used
+   standalone; always paired with a .gd-warranty__shape inside .gd-warranty. */
+.gd-warranty__text {
+  color: var(--gd-fg-strong);
+}
+
+/* ----- PM listing — horizontal "person row" with square portrait +
+   name/role meta. Dense alternative to .gd-card--profile for team /
+   contact lists. Each row separated by a hairline; last row has no
+   trailing border. */
+
+.gd-pm {
+  display: grid;
+  grid-template-columns: var(--gd-space-12) 1fr;
+  gap: var(--gd-space-3);
+  align-items: center;
+  padding-block: var(--gd-space-3);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-pm:last-child {
+  border-bottom: 0;
+}
+
+.gd-pm__photo {
+  width: var(--gd-space-12);
+  aspect-ratio: var(--gd-ar-square);
+  position: relative;
+  overflow: hidden;
+  background: var(--gd-color-bg-mute);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-pm__photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Typography composed in JSX: .gd-pm__meta + .gd-mono-s .gd-mono-s--bold
+   (so all descendants — name + title — inherit the mono-s/bold base). */
+.gd-pm__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-1);
+  color: var(--gd-fg-muted);
+}
+
+/* .gd-pm__name is the role-singular exception: a person's name rendered
+   at body size in the mono family with slight negative tracking. Doesn't
+   fit any system role (the mono family at body-size + tight tracking is
+   unique to this slot). Kept slot-local with token references — no
+   magic numbers. */
+.gd-pm__name {
+  color: var(--gd-fg-strong);
+  font-size: var(--gd-fs-body);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-display-tight);
+}
+
+/* Role / title row beneath the name. Inherits type from .gd-pm__meta;
+   the explicit muted color documents the intent so it survives any
+   future change to the parent's default color. */
+.gd-pm__title {
+  color: var(--gd-fg-muted);
+}

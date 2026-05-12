@@ -1,8 +1,28 @@
 /* tokens.css
  *
- * The single source of truth for the design system.
- * Every design value (color, spacing, typography, radius, shadow, …) and
- * every design class lives here, prefixed `gd-*`.
+ * The single source of truth for the design system's VALUES.
+ * Every design custom property (`--gd-*`) lives here, plus the small set
+ * of cross-cutting class rules that genuinely span multiple components:
+ *
+ *   - .gd-section            — universal demo wrapper / horizontal gutters
+ *   - Typography roles       — .gd-display / .gd-h1..h4 / .gd-body* /
+ *                              .gd-mono* / .gd-eyebrow / .gd-pullquote /
+ *                              .gd-serif / .gd-accent. Every component
+ *                              composes its typography from these roles.
+ *   - .gd-ratio + .gd-ratio--* — foundational image aspect-ratio
+ *                                vocabulary consumed by .gd-image,
+ *                                .gd-card--photo/--profile, .gd-frame,
+ *                                .gd-slider.
+ *   - Hover-lift selector group — one rule list applied to
+ *     .gd-image > .gd-ratio, .gd-frame, .gd-slider, .gd-card. Any new
+ *     component that adopts this hover behavior MUST join this list,
+ *     never write a parallel duplicate rule body.
+ *   - Dark-surface selector group — one rule list applied to
+ *     .gd-surface--dark, .gd-banner, .gd-bar--dark, .gd-frame,
+ *     .gd-slider. Same rule: join, never duplicate.
+ *
+ * Per-component class rules live in app/styles/components/*.css; this
+ * file holds only the vocabulary and the cross-cutting rules.
  *
  * Strict naming rule:
  *   - All design custom properties MUST start with `--gd-*`
@@ -61,16 +81,22 @@
   --gd-fs-h2-display: var(--gd-fs-h1);  /* h2 promoted to display-level size; tracks h1 */
   --gd-fs-h3:      1.5rem;
   --gd-fs-h4:      1.15rem;   /* Heading scale. Numerically close to --gd-fs-body-l but role-distinct: h4 is display family / semibold / uppercase, body-l is body family / regular. The 0.8px raw-pixel proximity is by design (spec-derived); consumed only through .gd-h4 / .gd-body-l role classes — not as bare size primitives. */
-  --gd-fs-body-l:  1.1rem;
+  --gd-fs-h5:      1.05rem;   /* SECONDARY display tier — added to mirror the reference's ledger-money / process-title sizing. Sits within 0.1rem of --gd-fs-h4 (1.15rem) AND of --gd-fs-body-l (1.05rem) — this is borderline near-duplicate territory; consumed only through .gd-h5 role. Reconsider before adopting widely. */
+  --gd-fs-body-l:  1.05rem;
   --gd-fs-body:    1rem;
   --gd-fs-body-s:  0.92rem;
   --gd-fs-mono:    0.78rem;
   --gd-fs-mono-s:  0.65rem;
-  --gd-fs-mono-xs: 0.55rem;      /* tight-overlay mono only — frame meta annotations sitting on top of imagery; never used for primary content */
-  --gd-fs-pullquote: 1.4rem;     /* pull-quote size — distinct from h4/body-l */
+  --gd-fs-mono-xs: 0.6rem;       /* tight-overlay mono only — frame meta annotations sitting on top of imagery; never used for primary content */
+  --gd-fs-mono-data: 0.86rem;    /* mixed-case tabular-data mono — for ledger/audit row body text; sits between --gd-fs-mono (0.78rem uppercase labels) and --gd-fs-body (1rem) */
+  --gd-fs-mono-data-l: 1rem;     /* total-row variant of tabular-data mono — size jumps to body for emphasis on summary rows */
+  --gd-fs-pullquote: clamp(1.4rem, 2.2vw, 1.75rem);  /* pull-quote / stamp display size — fluid; distinct from h4/body-l. Consumed by .gd-pullquote and .gd-stamp; both intentionally scale with viewport. */
 
-  /* Weights (each visibly distinct in stroke; matches the four
-     weights actually used in the source spec) */
+  /* Weights — exactly four, each role-distinct: regular for body, medium
+     for promoted body (body-l, pullquote, serif), semibold for subheads
+     (h3, h4, ledger labels, filebar values), bold for everything that
+     should read as emphatic / structural type. Never add a fifth without
+     a role that no existing weight can play. */
   --gd-fw-regular:  400;
   --gd-fw-medium:   500;
   --gd-fw-semibold: 600;
@@ -80,12 +106,17 @@
   --gd-lh-display:   0.95;
   --gd-lh-heading:   1.05;
   --gd-lh-pullquote: 1.35;  /* between heading & body — pull-quote specific */
-  --gd-lh-body:      1.55;
+  --gd-lh-body:      1.4;   /* system-wide cap on body / mono line-height — set to 1.4 deliberately tighter than the reference's 1.55 so body copy reads denser. Every consumer of this token (.gd-body*, .gd-mono*, .gd-serif, plus slot classes that compose mono lh) inherits the cap. */
 
-  /* Letter spacing */
-  --gd-tr-mono:      0.18em;
-  --gd-tr-mono-wide: 0.22em;  /* eyebrow tracking — purposefully wider than --gd-tr-mono to mark its ceremonial role */
-  --gd-tr-mono-s:    0.16rem; /* tracking for the small-mono-uppercase label role (paired with --gd-fs-mono-s). Uses rem rather than em so absolute tracking stays generous at the smaller font-size — em-based --gd-tr-mono would collapse to <2px on mono-s glyphs. */
+  /* Letter spacing — three mono trackings form a deliberate scale (wider
+     tracking for tighter type sizes). --gd-tr-display-tight is the
+     system's only negative-tracking primitive, applied to the display
+     family heading group; .gd-h4 / .gd-h5 reset to 0 by not consuming it. */
+  --gd-tr-mono:         0.18em;
+  --gd-tr-mono-s:       0.16em;  /* paired with .gd-mono-s — em-based so tracking scales with the font-size */
+  --gd-tr-mono-xs:      0.14em;  /* paired with .gd-mono-xs — tightest mono tracking, the floor of the scale */
+  --gd-tr-mono-data:    0.04em;  /* paired with .gd-mono-data — much tighter than the uppercase-label trackings above because it's the only mono role that renders mixed-case prose-like content */
+  --gd-tr-display-tight: -0.005em; /* negative tracking on display headings (display/h1/h2-display/h2/h3). The only negative-tracking primitive in the system. */
 
   /* ====================================================================
      Spacing scale — 4px base, document-grid. Each step is visibly and
@@ -214,46 +245,52 @@
 /* ======================================================================
    Typography utility classes — apply a single typographic role to any
    element. Use these whenever putting design-system text on the page.
+   Every component composes its typography from these roles rather than
+   re-declaring family/size/weight/line-height on its own slots.
    ====================================================================== */
 
-/* Display headings (display family, bold, tight display line-height).
-   .gd-h2-display is a semantic <h2> rendered at h1 size. */
+/* Display heading group — every display/h-class shares family, weight,
+   uppercase, and color. .gd-display alone gets the tighter display
+   line-height; everything else uses heading line-height. The tight
+   negative tracking applies to display + h1-h3; h4/h5 stay at 0
+   (the reference explicitly resets letter-spacing on h4, and our
+   .gd-h5 inherits that "no tracking" posture for the sub-h4 tier). */
 .gd-display,
 .gd-h1,
-.gd-h2-display {
+.gd-h2-display,
+.gd-h2,
+.gd-h3,
+.gd-h4,
+.gd-h5 {
   font-family: var(--gd-font-display);
   font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-display);
+  line-height: var(--gd-lh-heading);
   text-transform: uppercase;
   color: var(--gd-fg-strong);
 }
+
+.gd-display { line-height: var(--gd-lh-display); }
+
+.gd-display,
+.gd-h1,
+.gd-h2-display,
+.gd-h2,
+.gd-h3 {
+  letter-spacing: var(--gd-tr-display-tight);
+}
+
 .gd-display    { font-size: var(--gd-fs-display); }
 .gd-h1         { font-size: var(--gd-fs-h1); }
 .gd-h2-display { font-size: var(--gd-fs-h2-display); }
+.gd-h2         { font-size: var(--gd-fs-h2); }
+.gd-h3         { font-size: var(--gd-fs-h3); }
+.gd-h4         { font-size: var(--gd-fs-h4); }
+.gd-h5         { font-size: var(--gd-fs-h5); }
 
-/* Standard h2 — only differs from the display group by line-height. */
-.gd-h2 {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h2);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-/* Subheadings (display family, semibold). */
-.gd-h3,
-.gd-h4 {
-  font-family: var(--gd-font-display);
-  font-weight: var(--gd-fw-semibold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-.gd-h3 { font-size: var(--gd-fs-h3); }
-.gd-h4 { font-size: var(--gd-fs-h4); }
-
-/* Body scale (body family, regular). */
+/* Body scale (body family, regular). Body line-height comes from
+   --gd-lh-body (capped system-wide at 1.4). Color note: body-s drops
+   to fg-muted because it's the small-text role (captions, fine print);
+   .gd-body-l carries promoted weight (medium) for intro / lead copy. */
 .gd-body-l,
 .gd-body,
 .gd-body-s {
@@ -264,47 +301,102 @@
 }
 .gd-body-l { font-size: var(--gd-fs-body-l); font-weight: var(--gd-fw-medium); }
 .gd-body   { font-size: var(--gd-fs-body); }
-.gd-body-s { font-size: var(--gd-fs-body-s); }
+.gd-body-s { font-size: var(--gd-fs-body-s); color: var(--gd-fg-muted); }
 
-/* Mono labels (mono family, bold, tracked). */
+/* Mono labels — three sizes, each paired with a deliberately distinct
+   tracking value (wider tracking for larger sizes, tighter for smaller).
+   Weight: .gd-mono is bold (the workhorse emphatic mono label);
+   .gd-mono-s and .gd-mono-xs default to medium (less-emphatic, calmer).
+   Compose .gd-mono with .gd-mono--medium when you want the larger size
+   at the medium weight. */
 .gd-mono,
-.gd-mono-s {
+.gd-mono-s,
+.gd-mono-xs {
   font-family: var(--gd-font-mono);
-  font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-body);
   letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
   color: var(--gd-fg-muted);
 }
-.gd-mono   { font-size: var(--gd-fs-mono); }
-.gd-mono-s { font-size: var(--gd-fs-mono-s); letter-spacing: var(--gd-tr-mono-s); }
+.gd-mono    { font-size: var(--gd-fs-mono);    font-weight: var(--gd-fw-bold); }
+.gd-mono-s  { font-size: var(--gd-fs-mono-s);  font-weight: var(--gd-fw-medium); letter-spacing: var(--gd-tr-mono-s); }
+.gd-mono-xs { font-size: var(--gd-fs-mono-xs); font-weight: var(--gd-fw-medium); letter-spacing: var(--gd-tr-mono-xs); }
 
-/* Eyebrow — mono at mono-s, but wider tracking + accent color. */
+/* Weight modifiers — symmetric pair. .gd-mono is bold by default and
+   drops to medium with --medium; .gd-mono-s and .gd-mono-xs are medium
+   by default and lift to bold with --bold. Most label/status/chrome
+   slots want the bold variants of the smaller sizes (.gd-status,
+   .gd-chip, .gd-label, .gd-banner__meta, .gd-filebar__label, the frame
+   meta rows, etc.); they compose .gd-mono-s + .gd-mono-s--bold or
+   .gd-mono-xs + .gd-mono-xs--bold instead of redeclaring the typography
+   inline. */
+.gd-mono--medium { font-weight: var(--gd-fw-medium); }
+.gd-mono-s--bold { font-weight: var(--gd-fw-bold); }
+.gd-mono-xs--bold { font-weight: var(--gd-fw-bold); }
+
+/* Tabular-data mono — the ONLY mono role that renders mixed-case
+   content. Used for prose-like cells in numeric line-items (ledger
+   rows, audit-row body, anything that reads as "data" rather than
+   as an uppercase label). Distinguishing properties from every
+   other .gd-mono*:
+     - mixed case (no text-transform)
+     - 0.04em tracking (much tighter than the 0.14–0.18em uppercase
+       trackings — mixed-case glyphs already have natural breathing
+       room and wider tracking would crowd)
+     - regular weight by default (compose --semibold / --bold to
+       emphasize numerals or totals)
+     - ink color (--gd-fg, not --gd-fg-muted like the label monos)
+   The --l modifier swaps the size to body (1rem) for summary /
+   total rows. --semibold / --bold / --uppercase are single-axis
+   modifiers composed onto cells inside the audit-row pattern. */
+.gd-mono-data {
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-data);
+  font-weight: var(--gd-fw-regular);
+  line-height: var(--gd-lh-body);
+  letter-spacing: var(--gd-tr-mono-data);
+  color: var(--gd-fg);
+}
+
+.gd-mono-data--l         { font-size: var(--gd-fs-mono-data-l); }
+.gd-mono-data--semibold  { font-weight: var(--gd-fw-semibold); }
+.gd-mono-data--bold      { font-weight: var(--gd-fw-bold); }
+.gd-mono-data--uppercase { text-transform: uppercase; }
+
+/* Eyebrow — mono at mono-s, bold and accent-colored. Distinguished
+   from .gd-mono-s by weight (bold here, medium there) and color
+   (brand here, muted there). Tracking matches --gd-tr-mono (the
+   default mono tracking) — the reference uses the same value for
+   eyebrows; no separate "wide" tracking primitive needed. */
 .gd-eyebrow {
   font-family: var(--gd-font-mono);
   font-size: var(--gd-fs-mono-s);
   font-weight: var(--gd-fw-bold);
   line-height: var(--gd-lh-body);
-  letter-spacing: var(--gd-tr-mono-wide);
+  letter-spacing: var(--gd-tr-mono);
   text-transform: uppercase;
   color: var(--gd-color-brand);
 }
 
-/* Serif italics (serif family, medium, italic). */
-.gd-pullquote,
-.gd-serif {
-  font-family: var(--gd-font-serif);
-  font-weight: var(--gd-fw-medium);
-  font-style: italic;
-  color: var(--gd-fg-strong);
-}
+/* Serif italics. .gd-pullquote uses the lighter regular weight to match
+   the reference's soft display-size quote; .gd-serif stays medium for
+   inline body italics where the slightly heavier stroke holds up at
+   body size. */
 .gd-pullquote {
+  font-family: var(--gd-font-serif);
+  font-style: italic;
+  font-weight: var(--gd-fw-regular);
   font-size: var(--gd-fs-pullquote);
   line-height: var(--gd-lh-pullquote);
+  color: var(--gd-fg-strong);
 }
 .gd-serif {
+  font-family: var(--gd-font-serif);
+  font-style: italic;
+  font-weight: var(--gd-fw-medium);
   font-size: var(--gd-fs-body);
   line-height: var(--gd-lh-body);
+  color: var(--gd-fg-strong);
 }
 
 /* Inline accent emphasis — applies the accent color to a fragment of text
@@ -314,10 +406,40 @@
   color: var(--gd-color-brand);
 }
 
+/* Stat-number role — big numeral / short-string display value for
+   stat cells, key figures, totals. Mirrors the .gd-h1 sibling pattern
+   (heading line-height + tight tracking) EXCEPT no uppercase: this
+   role is for numerals (which have no case) and short numeric strings
+   ("240+", "12", "$28K"); forcing uppercase here is meaningless and
+   would interfere if non-numeric units crept in. The inner <small>
+   annotation slot covers inline unit suffixes ("hr", "+", "yrs") —
+   sized one step below the numeral and tinted with the system's
+   accent so the unit reads as subordinate. */
+.gd-stat {
+  font-family: var(--gd-font-display);
+  font-size: var(--gd-fs-h1);
+  font-weight: var(--gd-fw-bold);
+  line-height: var(--gd-lh-heading);
+  letter-spacing: var(--gd-tr-display-tight);
+  color: var(--gd-fg-strong);
+}
+
+.gd-stat small {
+  font-size: var(--gd-fs-h4);
+  margin-left: var(--gd-space-1);
+  color: var(--gd-color-brand);
+}
+
+/* Typography sample demo — used in the Typography section of the guide. */
+.gd-type-row__sample {
+  margin: 0;
+}
+
 /* ======================================================================
    Aspect-ratio frame — applied to any image / media element. The base
    class neutralizes the media box; modifiers select one of the five
-   sanctioned ratios.
+   sanctioned ratios. Foundational image vocabulary consumed by
+   .gd-image, .gd-card--photo/--profile, .gd-frame, .gd-slider.
    ====================================================================== */
 
 .gd-ratio {
@@ -357,25 +479,12 @@
 .gd-ratio--square    { aspect-ratio: var(--gd-ar-square);    max-width: var(--gd-image-fit-h, var(--gd-image-max-h)); }
 
 /* ======================================================================
-   Image with caption — semantic <figure>/<figcaption> pair. The frame
-   is a .gd-ratio; the caption is fixed mono type sitting under a
-   hairline divider, composed from tokens (no new values).
-   ====================================================================== */
-
-.gd-image {
-  display: block;
-  margin: 0;
-  /* Subtract the caption-row height (~3rem: mono-s line + padding-block
-     + hairline top divider) from the image's fit-height so the captioned
-     figure as a whole stays within the viewport-fit cap. */
-  --gd-image-fit-h: calc(var(--gd-image-max-h) - var(--gd-space-12));
-}
-
-/* ======================================================================
    Shared "lift" treatment — bordered surface with hover elevation.
    Applied to the image frame (scoped to .gd-image > .gd-ratio so the
-   caption below sits outside the border), to standalone frames, and
-   to sliders.
+   caption below sits outside the border), to standalone frames,
+   sliders, and cards. One rule list — any new component that adopts
+   this hover behavior MUST join this selector list, never write a
+   parallel duplicate rule body.
    ====================================================================== */
 
 .gd-image > .gd-ratio,
@@ -401,722 +510,12 @@
 
 /* .gd-frame and .gd-slider also carry the dark surface treatment;
    their background + role-token re-pointing comes from the shared
-   .gd-surface--dark rule (selector list joined below). Here we keep
-   only the frame/slider-specific quirk: background-clip: padding-box
-   keeps the semi-transparent border from blending with the dark fill
-   behind it. */
+   .gd-surface--dark rule (selector list below). Here we keep only the
+   frame/slider-specific quirk: background-clip: padding-box keeps the
+   semi-transparent border from blending with the dark fill behind it. */
 .gd-frame,
 .gd-slider {
   background-clip: padding-box;
-}
-
-/* Media caption — used by .gd-image. The slider's caption role is
-   played by .gd-slider__meta (internal to the slider element), so no
-   external caption wrapper is needed there. */
-.gd-caption {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--gd-space-3);
-  padding: var(--gd-space-2) var(--gd-space-1);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-display);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-.gd-caption-meta {
-  color: var(--gd-color-brand);
-}
-
-/* ======================================================================
-   Frame — the system's photo frame. Dark surface for any image, with
-   orange corner brackets and two mono meta rows (top + bottom).
-   Composes with .gd-ratio--* to lock to one of the sanctioned aspect
-   ratios.
-   ====================================================================== */
-
-/* .gd-frame inherits its border, lift, and dark-surface treatments from
-   the shared rules above. The block below is only frame-specific. */
-
-.gd-frame__brackets {
-  position: absolute;
-  inset: var(--gd-space-2);
-  pointer-events: none;
-}
-
-.gd-frame__brackets::before,
-.gd-frame__brackets::after {
-  content: "";
-  position: absolute;
-  width: var(--gd-space-4);
-  height: var(--gd-space-4);
-  border: var(--gd-bw-hair) solid var(--gd-color-brand);
-}
-
-.gd-frame__brackets::before {
-  top: 0;
-  left: 0;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.gd-frame__brackets::after {
-  bottom: 0;
-  right: 0;
-  border-left: 0;
-  border-top: 0;
-}
-
-.gd-frame__meta-top,
-.gd-frame__meta-bot {
-  position: absolute;
-  left: calc(var(--gd-space-2) + var(--gd-space-1));
-  right: calc(var(--gd-space-2) + var(--gd-space-1));
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gd-space-3);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-xs);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-}
-
-.gd-frame__meta-top {
-  top: calc(var(--gd-space-2) + var(--gd-space-1));
-  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark. */
-  color: var(--gd-fg);
-}
-
-.gd-frame__meta-bot {
-  bottom: calc(var(--gd-space-2) + var(--gd-space-1));
-  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark-dim. */
-  color: var(--gd-fg-muted);
-}
-
-/* ======================================================================
-   Slider — before/after comparison overlay. Built on the same dark
-   surface as .gd-frame, with two stacked image layers (the "after"
-   layer clipped at 50%), a vertical orange divider, before/after tag
-   chips, and a bottom mono meta bar. Composes with .gd-ratio--* for
-   aspect.
-   ====================================================================== */
-
-.gd-slider {
-  /* --gd-slider-pos is a runtime UI-state variable (0–100%); the JS
-     drag handler writes it via setProperty on this element. Default
-     50% so the static (no-JS) render still looks meaningful.
-     Border, lift, and dark-surface treatments come from the shared
-     rules above. */
-  --gd-slider-pos: 50%;
-  user-select: none;
-  cursor: ew-resize;
-  touch-action: none;
-}
-
-.gd-slider__layer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.gd-slider__layer--before {
-  background: var(--gd-color-fg-strong);
-}
-
-.gd-slider__layer--after {
-  background: var(--gd-color-fg-muted);
-  clip-path: inset(0 0 0 var(--gd-slider-pos));
-}
-
-.gd-slider__tag {
-  position: absolute;
-  color: var(--gd-color-bg-surface);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-xs);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.gd-slider__tag--before {
-  top: var(--gd-space-2);
-  left: var(--gd-space-2);
-}
-
-/* "After" sits at the bottom-right, clear of the __meta bar (whose
-   height = padding-block * 2 + mono-s line ≈ 26px). Offset uses
-   composed spacing tokens — no magic numbers. */
-.gd-slider__tag--after {
-  bottom: calc(var(--gd-space-8) + var(--gd-space-2));
-  right: var(--gd-space-2);
-}
-
-.gd-slider__handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--gd-slider-pos);
-  width: var(--gd-bw-hair);
-  background: var(--gd-color-brand);
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.gd-slider__grip {
-  position: absolute;
-  top: 50%;
-  left: var(--gd-slider-pos);
-  transform: translate(-50%, -50%);
-  width: var(--gd-space-8);
-  height: var(--gd-space-8);
-  border-radius: var(--gd-r-full);
-  background: var(--gd-color-brand);
-  color: var(--gd-color-bg-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  line-height: 1;
-  pointer-events: none;
-}
-
-.gd-slider__meta {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--gd-space-3);
-  padding: var(--gd-space-2) var(--gd-space-2);
-  background: var(--gd-color-fg-strong);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-color-bg-surface);
-}
-
-.gd-slider__meta-num {
-  color: var(--gd-color-brand);
-}
-
-/* (Color table — `.read-color-table*` — is guide scaffolding, not a
-   design component, and lives in readability.css.) */
-
-/* ======================================================================
-   Buttons — accent-filled primary and slate-outlined ghost. Both share
-   typography, hover lift, and transition timing; only the visual style
-   (fill vs outline) differs.
-   ====================================================================== */
-
-.gd-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  padding: var(--gd-space-4) var(--gd-space-6);
-  background: var(--gd-color-brand);
-  color: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-color-brand);
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: var(--gd-shadow-none);
-  transition:
-    background var(--gd-d-fast) var(--gd-ease),
-    border-color var(--gd-d-fast) var(--gd-ease),
-    color var(--gd-d-fast) var(--gd-ease),
-    box-shadow var(--gd-d-base) var(--gd-ease),
-    transform var(--gd-d-base) var(--gd-ease);
-}
-
-.gd-btn:hover {
-  background: var(--gd-color-brand-soft);
-  border-color: var(--gd-color-brand-soft);
-  box-shadow: var(--gd-shadow-lift);
-  transform: translateY(calc(var(--gd-lift) * -1));
-}
-
-.gd-btn--ghost {
-  background: transparent;
-  color: var(--gd-fg-strong);
-  border-color: var(--gd-rule-strong);
-}
-
-.gd-btn--ghost:hover {
-  background: var(--gd-color-bg-mute);
-  border-color: var(--gd-rule-active);
-  color: var(--gd-color-brand);
-}
-
-/* ======================================================================
-   Links — generic inline body link and a mono CTA variant for use as
-   the bottom link in cards.
-   ====================================================================== */
-
-.gd-link {
-  color: var(--gd-color-brand);
-  text-decoration: underline;
-  text-underline-offset: var(--gd-space-1);
-  text-decoration-thickness: var(--gd-bw-hair);
-  transition: color var(--gd-d-fast) var(--gd-ease);
-}
-
-.gd-link:hover {
-  color: var(--gd-color-brand-soft);
-}
-
-.gd-link--mono {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  text-decoration: none;
-}
-
-.gd-link--mono:hover {
-  text-decoration: underline;
-  text-underline-offset: var(--gd-space-1);
-}
-
-/* ======================================================================
-   Form controls — input, textarea, select sharing common type/border/
-   focus treatment. Labels and field wrappers complete the family.
-   ====================================================================== */
-
-.gd-input,
-.gd-textarea,
-.gd-select {
-  display: block;
-  width: 100%;
-  max-width: calc(100vw - 1.5 * var(--gd-pad-x));
-  font-family: var(--gd-font-body);
-  font-size: var(--gd-fs-body);
-  font-weight: var(--gd-fw-regular);
-  line-height: var(--gd-lh-body);
-  color: var(--gd-fg);
-  background: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
-  padding: var(--gd-space-3) var(--gd-space-4);
-  transition: border-color var(--gd-d-fast) var(--gd-ease);
-}
-
-.gd-input:focus,
-.gd-textarea:focus,
-.gd-select:focus {
-  border-color: var(--gd-rule-active);
-}
-
-.gd-textarea {
-  resize: vertical;
-  min-height: calc(var(--gd-space-12) * 2);
-}
-
-.gd-select {
-  appearance: none;
-}
-
-.gd-label {
-  display: block;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-.gd-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-2);
-}
-
-.gd-field__error {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-color-brand);
-}
-
-/* ======================================================================
-   Filebar — multi-cell horizontal bar for file metadata (carrier,
-   status, ID, etc.). Exactly one cell may be active (orange) at a time.
-   ====================================================================== */
-
-.gd-filebar {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  background: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  box-sizing: border-box;
-}
-
-.gd-filebar__cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-1);
-  padding: var(--gd-space-3) var(--gd-space-4);
-  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
-}
-
-.gd-filebar__cell:last-child {
-  border-right: 0;
-}
-
-.gd-filebar__label {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-xs);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-.gd-filebar__value {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-semibold);
-  color: var(--gd-fg-strong);
-}
-
-.gd-filebar__value--active {
-  color: var(--gd-color-brand);
-}
-
-/* ======================================================================
-   Status badge — small bordered mono pill. Border uses currentColor so
-   the modifier just changes the role color and the border follows.
-   Exactly one active status per page (system rule).
-   ====================================================================== */
-
-.gd-status {
-  display: inline-block;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  padding: var(--gd-space-1) var(--gd-space-2);
-  border: var(--gd-bw-hair) solid currentColor;
-  color: var(--gd-fg-muted);
-}
-
-.gd-status--closed { color: var(--gd-color-success); }
-.gd-status--filed  { color: var(--gd-fg-muted); }
-
-.gd-status--active {
-  background: var(--gd-color-brand);
-  color: var(--gd-fg-strong);
-  border-color: var(--gd-fg-strong);
-}
-
-/* ======================================================================
-   Chips — flexible group of small inline labels (tags, filters,
-   exhibits). No active state — chips are flat metadata; status uses
-   .gd-status if a state is needed.
-   ====================================================================== */
-
-.gd-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gd-space-1);
-}
-
-.gd-chip {
-  display: inline-block;
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  padding: var(--gd-space-1) var(--gd-space-2);
-  border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  color: var(--gd-fg);
-}
-
-/* ======================================================================
-   Card — bordered content block. Border + hover lift come from the
-   shared lift group above. Slots for eyebrow, title, body, link.
-   ====================================================================== */
-
-.gd-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-3);
-  padding: var(--gd-space-6);
-  background: var(--gd-color-bg-page);
-  text-decoration: none;
-  color: inherit;
-}
-
-.gd-card__eyebrow {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-color-brand);
-}
-
-.gd-card__title {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h4);
-  font-weight: var(--gd-fw-semibold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-  margin: 0;
-}
-
-.gd-card__body {
-  font-family: var(--gd-font-body);
-  font-size: var(--gd-fs-body-s);
-  line-height: var(--gd-lh-body);
-  color: var(--gd-fg);
-  margin: 0;
-}
-
-.gd-card__link {
-  margin-top: auto;
-  padding-top: var(--gd-space-3);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  color: var(--gd-color-brand);
-  text-decoration: none;
-}
-
-/* ======================================================================
-   Divider — hairline horizontal rule. Plain <hr>-style separator
-   between content blocks; vertical rhythm comes from --gd-space-6.
-   ====================================================================== */
-
-.gd-divider {
-  border: 0;
-  /* Pure hairline that sits on whatever surface it's dropped on —
-     consumes --gd-rule (role token) so it flips to --gd-rule-dim
-     inside .gd-surface--dark wrappers. */
-  border-top: var(--gd-bw-hair) solid var(--gd-rule);
-  margin: var(--gd-space-6) 0;
-}
-
-/* ======================================================================
-   Stamp — rotated outlined display-font label. One stamp per page max
-   (system rule). The -12deg tilt is the stamp's visual signature; no
-   broader rotation scale exists in the system.
-   ====================================================================== */
-
-.gd-stamp {
-  display: inline-block;
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-pullquote);
-  font-weight: var(--gd-fw-bold);
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--gd-color-brand);
-  border: var(--gd-bw-rule) solid var(--gd-color-brand);
-  padding: var(--gd-space-2) var(--gd-space-4);
-  transform: rotate(-12deg);
-}
-
-/* ======================================================================
-   Ledger — table-style listing of rows with mixed column types
-   (number, label, money, meta). Header row is muted; body rows divide
-   with hairlines.
-   ====================================================================== */
-
-.gd-ledger {
-  background: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
-  box-sizing: border-box;
-}
-
-.gd-ledger__row {
-  display: grid;
-  grid-template-columns: var(--gd-space-12) 1fr auto auto auto;
-  gap: var(--gd-space-6);
-  padding: var(--gd-space-4);
-  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
-  align-items: baseline;
-}
-
-.gd-ledger__row:last-child {
-  border-bottom: 0;
-}
-
-.gd-ledger__row--header {
-  padding-block: var(--gd-space-2);
-  background: var(--gd-color-bg-mute);
-}
-
-.gd-ledger__row--header > * {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-.gd-ledger__num {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  color: var(--gd-fg-muted);
-}
-
-.gd-ledger__label {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-body-l);
-  font-weight: var(--gd-fw-semibold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-.gd-ledger__money {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-body-l);
-  font-weight: var(--gd-fw-bold);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-.gd-ledger__meta {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  color: var(--gd-fg);
-}
-
-/* ======================================================================
-   Quote — bordered serif quote block with leading orange mark and a
-   mono citation row at the bottom. The quote body itself uses
-   .gd-pullquote (already defined).
-   ====================================================================== */
-
-.gd-quote {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-4);
-  padding: var(--gd-space-8);
-  background: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  box-sizing: border-box;
-  max-width: var(--gd-mw-prose);
-}
-
-.gd-quote__mark {
-  font-family: var(--gd-font-serif);
-  font-style: italic;
-  font-size: var(--gd-fs-display);
-  line-height: 0.5;
-  color: var(--gd-color-brand);
-}
-
-.gd-quote__cite {
-  margin-top: auto;
-  padding-top: var(--gd-space-4);
-  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gd-space-3);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-/* ======================================================================
-   Trust grid — bordered horizontal row of stat cells (e.g. "8 Years /
-   200+ Files / 6 Carriers"). Each cell has a mono label and a display
-   value; cells divide evenly across the bar width.
-   ====================================================================== */
-
-.gd-trust {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  background: var(--gd-color-bg-surface);
-  border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  box-sizing: border-box;
-}
-
-.gd-trust__cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-3);
-  padding: var(--gd-space-6);
-  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
-}
-
-.gd-trust__cell:last-child {
-  border-right: 0;
-}
-
-.gd-trust__label {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-.gd-trust__value {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h2);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-/* ======================================================================
-   Bars — horizontal meta strip with three-or-so slots in mono uppercase.
-   Used as a header / metadata strip on top of compound modules (the
-   consolidated trust grid, ledger, CTA). Cells distribute via
-   space-between. The dark modifier flips it onto the system's structural
-   dark surface; that is the only color variant the bar carries.
-   ====================================================================== */
-
-.gd-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gd-space-4);
-  padding: var(--gd-space-3) var(--gd-space-6);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
 }
 
 /* ======================================================================
@@ -1133,6 +532,8 @@
    role; they appear in the same comma-grouped selector so a single
    rule defines the dark surface vocabulary and there's no drift
    between three near-duplicate copies of the same dark-surface block.
+   Any new component that adopts this dark treatment MUST join this
+   selector list, never write a parallel duplicate rule body.
    ====================================================================== */
 .gd-surface--dark,
 .gd-banner,
@@ -1146,547 +547,3 @@
   --gd-rule:      var(--gd-rule-dim);
   color: var(--gd-fg);
 }
-
-/* ======================================================================
-   Trust grid — consolidated variant. Vertical stack: dark meta-bar on
-   top, then a single row of rich cells. Each cell stacks a mono label
-   (.gd-trust__label) + arbitrary primitives (.gd-pm rows, .gd-warranty
-   seal, .gd-chips group). Reuses the base .gd-trust shell and the same
-   .gd-trust__cell rules; .gd-trust__value is not used inside --rich.
-   ====================================================================== */
-
-.gd-trust--rich {
-  display: flex;
-  flex-direction: column;
-  grid-auto-flow: unset;
-  grid-auto-columns: unset;
-}
-
-.gd-trust--rich > .gd-bar {
-  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
-}
-
-.gd-trust__body {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-}
-
-/* ======================================================================
-   Lists — body-typography ordered/unordered lists. Unordered uses an
-   orange em-dash marker; ordered uses mono leading-zero numbers in
-   accent. Apply to <ul class="gd-list"> or <ol class="gd-list
-   gd-list--ordered">.
-   ====================================================================== */
-
-.gd-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--gd-font-body);
-  font-size: var(--gd-fs-body-s);
-  line-height: var(--gd-lh-body);
-  color: var(--gd-fg);
-}
-
-.gd-list > li {
-  position: relative;
-  padding-left: var(--gd-space-6);
-  margin-bottom: var(--gd-space-2);
-}
-
-.gd-list > li:last-child {
-  margin-bottom: 0;
-}
-
-.gd-list > li::before {
-  content: "—";
-  position: absolute;
-  left: 0;
-  color: var(--gd-color-brand);
-  font-weight: var(--gd-fw-bold);
-}
-
-.gd-list--ordered {
-  counter-reset: gd-list-counter;
-}
-
-.gd-list--ordered > li {
-  counter-increment: gd-list-counter;
-  padding-left: var(--gd-space-8);
-}
-
-.gd-list--ordered > li::before {
-  content: counter(gd-list-counter, decimal-leading-zero);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  color: var(--gd-color-brand);
-  top: var(--gd-space-1);
-}
-
-/* ======================================================================
-   Warranty seal — circular outlined display badge. One per page max.
-   The round shape is the recognition cue, sanctioned alongside the
-   slider grip as the only circular roles in the system.
-   ====================================================================== */
-
-/* Wrapper — composes the round orange seal (.gd-warranty__shape) beside
-   the optional display text block (.gd-warranty__text). For a bare seal
-   use just .gd-warranty > .gd-warranty__shape. */
-.gd-warranty {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gd-space-4);
-}
-
-/* Round orange seal — the recognition cue. Contains the headline number
-   (display, bold) and an optional .gd-warranty__unit beneath it. */
-.gd-warranty__shape {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  flex-shrink: 0;
-  width: calc(var(--gd-space-16) + var(--gd-space-4));
-  aspect-ratio: var(--gd-ar-square);
-  padding: var(--gd-space-3);
-  border: var(--gd-bw-rule) solid var(--gd-color-brand);
-  border-radius: var(--gd-r-full);
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h2);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-display);
-  text-transform: uppercase;
-  color: var(--gd-color-brand);
-}
-
-/* Small unit label beneath the headline number inside the seal
-   (e.g. "YEARS" under "25"). Inherits the accent color from the
-   shape; size + tracking match the small-mono-label role. */
-.gd-warranty__unit {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  line-height: var(--gd-lh-body);
-  color: inherit;
-}
-
-/* Display text block sitting beside the seal (e.g. "Written. / Signed.").
-   Reuses the heading display family at h3 size; never used standalone —
-   always paired with a .gd-warranty__shape inside .gd-warranty. */
-.gd-warranty__text {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h3);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-heading);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-}
-
-/* ======================================================================
-   Card variants — three structural modifiers on .gd-card.
-   * --photo  : photo at top spans card; padded content below.
-   * --file   : filebar at top; padded content below.
-   * --profile: same shape as --photo but the photo is a portrait
-     aspect; used for people / profile cards.
-   The padding-rewrite is identical for --photo and --profile, hence
-   the grouped selectors below.
-   ====================================================================== */
-
-.gd-card--photo,
-.gd-card--profile,
-.gd-card--file {
-  padding: 0;
-}
-
-/* Photo / profile cards: image sits above eyebrow + title + body + link
-   + their padding/gaps. Reserve 14rem (5 + 5 + 4) for the content
-   stack so the image is bounded against (max-h − content reserve) and
-   both image AND content fit inside the viewport-fit cap together. The
-   reserve is conservative on purpose — better to underuse image space
-   than to push card content out of the viewport. */
-.gd-card--photo,
-.gd-card--profile {
-  --gd-image-fit-h: calc(
-    var(--gd-image-max-h)
-    - var(--gd-space-20)
-    - var(--gd-space-20)
-    - var(--gd-space-16)
-  );
-}
-
-/* Image-bearing cards fit to the image's effective width — the card's
-   max-width mirrors the .gd-ratio--* per-ratio max-width formula so
-   the card hugs the image instead of stretching beyond it. The image
-   itself is never altered; only the card's outer max-width is bounded.
-   Uses :has() to read the ratio modifier off the .gd-ratio child. */
-.gd-card--photo:has(.gd-ratio--cinema),
-.gd-card--profile:has(.gd-ratio--cinema) {
-  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 21 / 9);
-}
-.gd-card--photo:has(.gd-ratio--wide),
-.gd-card--profile:has(.gd-ratio--wide) {
-  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 16 / 9);
-}
-.gd-card--photo:has(.gd-ratio--landscape),
-.gd-card--profile:has(.gd-ratio--landscape) {
-  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 4 / 3);
-}
-.gd-card--photo:has(.gd-ratio--portrait),
-.gd-card--profile:has(.gd-ratio--portrait) {
-  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 3 / 4);
-}
-.gd-card--photo:has(.gd-ratio--square),
-.gd-card--profile:has(.gd-ratio--square) {
-  max-width: var(--gd-image-fit-h, var(--gd-image-max-h));
-}
-
-.gd-card--photo > :not(.gd-ratio),
-.gd-card--profile > :not(.gd-ratio),
-.gd-card--file > :not(.gd-filebar) {
-  padding-inline: var(--gd-space-6);
-}
-
-.gd-card--photo > .gd-ratio + :not(.gd-ratio),
-.gd-card--profile > .gd-ratio + :not(.gd-ratio),
-.gd-card--file > .gd-filebar + :not(.gd-filebar) {
-  padding-top: var(--gd-space-6);
-}
-
-.gd-card--photo > :last-child:not(.gd-ratio),
-.gd-card--profile > :last-child:not(.gd-ratio),
-.gd-card--file > :last-child:not(.gd-filebar) {
-  padding-bottom: var(--gd-space-6);
-}
-
-/* Filebar nested in a file-card drops its outer top/left/right borders
-   so the card's border isn't doubled; the bottom hairline stays as the
-   divider between filebar and content. */
-.gd-card--file > .gd-filebar {
-  border-top: 0;
-  border-left: 0;
-  border-right: 0;
-}
-
-/* ======================================================================
-   PM listing — horizontal "person row" with square portrait + name/role
-   meta. Dense alternative to .gd-card--profile for team / contact lists.
-   Each row separated by a hairline; last row has no trailing border.
-   ====================================================================== */
-
-.gd-pm {
-  display: grid;
-  grid-template-columns: var(--gd-space-12) 1fr;
-  gap: var(--gd-space-3);
-  align-items: center;
-  padding-block: var(--gd-space-3);
-  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
-}
-
-.gd-pm:last-child {
-  border-bottom: 0;
-}
-
-.gd-pm__photo {
-  width: var(--gd-space-12);
-  aspect-ratio: var(--gd-ar-square);
-  position: relative;
-  overflow: hidden;
-  background: var(--gd-color-bg-mute);
-  border: var(--gd-bw-hair) solid var(--gd-rule-default);
-  box-sizing: border-box;
-}
-
-.gd-pm__photo > img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.gd-pm__meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gd-space-1);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-.gd-pm__name {
-  color: var(--gd-fg-strong);
-}
-
-/* Role / title row beneath the name. Inherits type from .gd-pm__meta;
-   the explicit muted color documents the intent so it survives any
-   future change to the parent's default color. */
-.gd-pm__title {
-  color: var(--gd-fg-muted);
-}
-
-/* ======================================================================
-   Site header — the real chrome at the top of every page. Two stacked
-   strips:
-     .gd-banner   — thin dark strip, --gd-color-fg-strong ground, two
-                    tiers of on-dark text. Slides away when scrolled.
-     .gd-topnav   — main nav: logo + weather widget + tab links + the
-                    page's one primary .gd-btn (Get a free quote).
-                    Vertical padding halves in the scrolled state.
-
-   The header is position: sticky so the topnav remains pinned at the
-   top after the banner collapses; the banner sits inside the same
-   sticky wrapper so the height of the chrome itself is what scrolls
-   off — no separate fixed positioning.
-
-   State: .gd-site-header.is-scrolled is written by the React wrapper
-   when window.scrollY crosses a small threshold. The class swaps which
-   role-padding token the topnav consumes and reveals the topnav phone
-   slot (the banner phone slot fades out with the banner).
-   ====================================================================== */
-
-.gd-site-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--gd-z-header);
-  background: var(--gd-color-bg-page);
-}
-
-/* Embed modifier — used ONLY in the design guide demo, where the
-   header is rendered inside a section instead of as real chrome.
-   Drops sticky + the header z-index so the demo instance can't
-   compete with the real chrome at the viewport top. The cardinality
-   rule (one banner per page, at the very top) still applies to real
-   usage — embeds are guide-only and never ship in production pages. */
-.gd-site-header--embed {
-  position: static;
-  z-index: auto;
-}
-
-/* Banner strip — dark ground, on-dark text. Collapses by animating its
-   max-height + opacity to zero in the scrolled state. The transition
-   targets only properties the system already animates (max-height,
-   opacity); duration + ease come from existing motion tokens. */
-.gd-banner {
-  /* background + text color come from the shared dark-surface rule
-     above (.gd-surface--dark, .gd-banner, .gd-bar--dark). Only banner-
-     specific layout properties live here. */
-  overflow: hidden;
-  max-height: var(--gd-space-12);              /* generous ceiling — content sets the actual height */
-  transition:
-    max-height var(--gd-d-base) var(--gd-ease),
-    opacity    var(--gd-d-base) var(--gd-ease),
-    border-color var(--gd-d-base) var(--gd-ease);
-  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-dim);
-}
-
-.gd-site-header.is-scrolled > .gd-banner {
-  max-height: 0;
-  opacity: 0;
-  border-bottom-color: transparent;
-}
-
-.gd-banner__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gd-space-6);
-  padding-block: var(--gd-banner-pad-y);
-  padding-inline: var(--gd-pad-x);
-}
-
-.gd-banner__meta {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  /* Cascades from .gd-banner — --gd-fg-muted is re-pointed to
-     --gd-color-fg-on-dark-dim inside the dark-surface rule. */
-  color: var(--gd-fg-muted);
-}
-
-/* Topnav — light ground (page color, so it blends with the page beneath
-   when the banner collapses). Padding role tokens swap on the scroll
-   state. */
-.gd-topnav {
-  background: var(--gd-color-bg-page);
-  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
-  transition: padding-block var(--gd-d-base) var(--gd-ease);
-}
-
-.gd-topnav__inner {
-  display: flex;
-  align-items: center;
-  gap: var(--gd-space-6);
-  padding-block: var(--gd-header-pad-y);
-  padding-inline: var(--gd-pad-x);
-  transition: padding-block var(--gd-d-base) var(--gd-ease);
-}
-
-.gd-site-header.is-scrolled .gd-topnav__inner {
-  padding-block: var(--gd-header-pad-y-compact);
-}
-
-.gd-topnav__brand {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-}
-
-.gd-topnav__logo {
-  display: block;
-  height: var(--gd-logo-h);
-  width: auto;
-}
-
-.gd-topnav__links {
-  display: flex;
-  flex: 1 1 auto;               /* take the slack between weather widget and CTA group */
-  justify-content: center;      /* center the page tabs in that slack */
-  align-items: center;
-  gap: var(--gd-space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.gd-topnav__link {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  color: var(--gd-fg-strong);
-  text-decoration: none;
-  transition: color var(--gd-d-fast) var(--gd-ease);
-}
-
-.gd-topnav__link:hover {
-  color: var(--gd-color-brand);
-}
-
-.gd-topnav__cta {
-  display: flex;
-  align-items: center;
-  gap: var(--gd-space-4);
-}
-
-/* The topnav-slot phone is hidden by default and revealed on scroll —
-   it duplicates the banner phone visually but only one is on-screen at
-   a time, so the user never sees both. Same .gd-phone class powers
-   both renders; the wrapper controls visibility. */
-.gd-topnav__phone-slot {
-  display: none;
-}
-
-.gd-site-header.is-scrolled .gd-topnav__phone-slot {
-  display: inline-flex;
-}
-
-/* ======================================================================
-   Phone link — a CTA-style mono link for the phone number with an
-   inline icon to the left. No background, no border (per spec). Two
-   tier modifiers select on-dark vs on-light context so the same class
-   powers both the banner render and the topnav render.
-   ====================================================================== */
-
-.gd-phone {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gd-space-2);
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono);
-  text-transform: uppercase;
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: var(--gd-fg-strong);
-  transition: color var(--gd-d-fast) var(--gd-ease);
-}
-
-.gd-phone:hover {
-  color: var(--gd-color-brand);
-}
-
-/* On-dark variant — used inside .gd-banner. Two-tier on-dark vocab
-   only; primary tier here so the phone reads as a CTA. */
-.gd-phone--on-dark {
-  color: var(--gd-color-fg-on-dark);
-}
-
-.gd-phone--on-dark:hover {
-  color: var(--gd-color-brand);
-}
-
-.gd-phone__icon {
-  width: var(--gd-fs-mono);
-  height: var(--gd-fs-mono);
-  display: inline-block;
-  flex: 0 0 auto;
-}
-
-/* ======================================================================
-   Weather widget — small icon + temperature + short label, sitting
-   inside the topnav next to the brand. Decorative chrome, never a
-   feature; uses the existing mono / muted vocabulary and adds no new
-   primitives.
-   ====================================================================== */
-
-.gd-weather {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gd-space-2);
-  padding-inline: var(--gd-space-3);
-  border-left: var(--gd-bw-hair) solid var(--gd-rule-default);
-  color: var(--gd-fg-muted);
-}
-
-.gd-weather__icon {
-  width: var(--gd-fs-h4);
-  height: var(--gd-fs-h4);
-  display: inline-block;
-  flex: 0 0 auto;
-  color: var(--gd-color-brand);
-}
-
-.gd-weather__temp {
-  font-family: var(--gd-font-display);
-  font-size: var(--gd-fs-h4);
-  font-weight: var(--gd-fw-bold);
-  line-height: var(--gd-lh-heading);
-  color: var(--gd-fg-strong);
-}
-
-.gd-weather__label {
-  font-family: var(--gd-font-mono);
-  font-size: var(--gd-fs-mono-s);
-  font-weight: var(--gd-fw-bold);
-  letter-spacing: var(--gd-tr-mono-s);
-  text-transform: uppercase;
-  color: var(--gd-fg-muted);
-}
-
-/* ======================================================================
-   Typography sample demo — used in the Typography section of the guide.
-   ====================================================================== */
-
-.gd-type-row__sample {
-  margin: 0;
-}
-
-/* (The when-to-use copy for each typography role is commentary about
-   the design — it lives in the readability namespace as part of the
-   .read-type-table column structure.) */

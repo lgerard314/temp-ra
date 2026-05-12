@@ -1,0 +1,56 @@
+/* components/list.css
+ *
+ * .gd-list — body-typography ordered/unordered list. Unordered uses an
+ * orange em-dash marker; ordered uses mono leading-zero numbers in
+ * accent. Apply to <ul class="gd-list"> or <ol class="gd-list
+ * gd-list--ordered">.
+ */
+
+/* Typography composed in JSX: .gd-list + .gd-body-s
+   The ::before pseudo-elements below are an unavoidable exception —
+   pseudo-elements can't accept class composition, so their typography
+   (mono leading-zero numerals for the ordered variant; bold em-dash for
+   the unordered marker) stays inline. */
+.gd-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--gd-fg);
+}
+
+.gd-list > li {
+  position: relative;
+  padding-left: var(--gd-space-6);
+  margin-bottom: var(--gd-space-2);
+}
+
+.gd-list > li:last-child {
+  margin-bottom: 0;
+}
+
+.gd-list > li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--gd-color-brand);
+  font-weight: var(--gd-fw-bold);
+}
+
+.gd-list--ordered {
+  counter-reset: gd-list-counter;
+}
+
+.gd-list--ordered > li {
+  counter-increment: gd-list-counter;
+  padding-left: var(--gd-space-8);
+}
+
+.gd-list--ordered > li::before {
+  content: counter(gd-list-counter, decimal-leading-zero);
+  font-family: var(--gd-font-mono);
+  font-size: var(--gd-fs-mono-s);
+  font-weight: var(--gd-fw-bold);
+  letter-spacing: var(--gd-tr-mono-s);
+  color: var(--gd-color-brand);
+  top: var(--gd-space-1);
+}

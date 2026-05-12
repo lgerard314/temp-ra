@@ -7,6 +7,26 @@ import {
 } from "next/font/google";
 import "./styles/base.css";
 import "./styles/tokens.css";
+// Design components — each file owns one component (or a tight family).
+// Order among components doesn't matter; components compose tokens and
+// the cross-cutting rules in tokens.css (hover-lift selector group,
+// dark-surface selector group), never each other. Add new components
+// here in the same alphabetical order.
+import "./styles/components/audit.css";
+import "./styles/components/btn.css";
+import "./styles/components/card.css";
+import "./styles/components/filebar.css";
+import "./styles/components/form.css";
+import "./styles/components/frame.css";
+import "./styles/components/header.css";
+import "./styles/components/image.css";
+import "./styles/components/ledger.css";
+import "./styles/components/link.css";
+import "./styles/components/list.css";
+import "./styles/components/mark.css";
+import "./styles/components/quote.css";
+import "./styles/components/slider.css";
+import "./styles/components/trust.css";
 import "./styles/readability.css";
 import { ReadNav } from "@/app/_components/ReadNav";
 import { SiteHeader } from "@/app/_components/SiteHeader";

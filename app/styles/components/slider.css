@@ -1,0 +1,137 @@
+/* components/slider.css
+ *
+ * .gd-slider — before/after comparison overlay. Built on the same dark
+ * surface as .gd-frame (from the shared dark-surface selector group in
+ * tokens.css), with two stacked image layers (the "after" layer clipped
+ * at 50%), a vertical orange divider, before/after tag chips, and a
+ * bottom mono meta bar. Composes with .gd-ratio--* for aspect.
+ *
+ * Border, hover lift, and dark-surface treatments come from the shared
+ * rules in tokens.css. Only slider-specific rules live here.
+ */
+
+.gd-slider {
+  /* --gd-slider-pos is a runtime UI-state variable (0–100%); the JS
+     drag handler writes it via setProperty on this element. Default
+     50% so the static (no-JS) render still looks meaningful. */
+  --gd-slider-pos: 50%;
+  user-select: none;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.gd-slider__layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gd-slider__layer--before {
+  background: var(--gd-color-fg-strong);
+}
+
+.gd-slider__layer--after {
+  background: var(--gd-color-fg-muted);
+  clip-path: inset(0 0 0 var(--gd-slider-pos));
+}
+
+/* Typography composed in JSX: .gd-slider__tag + .gd-mono. Bumped up from
+   mono-xs so the tag-chip floating over imagery reads as the loudest
+   element in the slider (above the meta-bar's mono-s annotation). */
+.gd-slider__tag {
+  position: absolute;
+  color: var(--gd-color-bg-surface);
+  pointer-events: none;
+}
+
+.gd-slider__tag--before {
+  top: var(--gd-space-2);
+  left: var(--gd-space-2);
+}
+
+/* "After" sits at the bottom-right, clear of the __meta bar (whose
+   height = padding-block * 2 + mono-xs line ≈ 36px after the padding
+   bump to --gd-space-3). Offset uses composed spacing tokens — no
+   magic numbers. */
+.gd-slider__tag--after {
+  bottom: calc(var(--gd-space-8) + var(--gd-space-2));
+  right: var(--gd-space-2);
+}
+
+.gd-slider__handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--gd-slider-pos);
+  width: var(--gd-bw-hair);
+  background: var(--gd-color-brand);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* No typography composition — the grip is an icon slot (single glyph),
+   not a text label. It inherits font from the document; letter-spacing
+   on a single character would be dead weight. */
+.gd-slider__grip {
+  position: absolute;
+  top: 50%;
+  left: var(--gd-slider-pos);
+  transform: translate(-50%, -50%);
+  width: var(--gd-space-8);
+  height: var(--gd-space-8);
+  border-radius: var(--gd-r-full);
+  background: var(--gd-color-brand);
+  color: var(--gd-color-bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Typography composed in JSX: .gd-slider__meta + .gd-mono-xs. Medium
+   weight (mono-xs's default) at 0.6rem — the calmer annotation below
+   the louder .gd-mono slider tags. Text colors come from the role
+   tokens (--gd-fg / --gd-fg-muted) which cascade to the on-dark
+   variants because .gd-slider is in the dark-surface group. */
+.gd-slider__meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-3) var(--gd-space-5);
+  background: var(--gd-color-fg-strong);
+  color: var(--gd-fg);
+}
+
+/* Left half — number + dash + label, gap-spaced so the dash sits as a
+   typographic separator (not a literal " · " in the label string). */
+.gd-slider__meta-left {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-3);
+  min-width: 0;
+}
+
+.gd-slider__meta-num {
+  color: var(--gd-color-brand);
+}
+
+/* The dash sits between the section number and the label as a muted
+   separator — distinct from --num (brand) and from the label (--fg),
+   so the eye reads "§ 02 — hail strike fingerprint" as three voices. */
+.gd-slider__meta-dash {
+  color: var(--gd-fg-muted);
+}
+
+/* Right half — secondary annotation (location / date). Muted to keep
+   the left voice as the primary read. */
+.gd-slider__meta-right {
+  color: var(--gd-fg-muted);
+}

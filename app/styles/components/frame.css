@@ -1,0 +1,66 @@
+/* components/frame.css
+ *
+ * .gd-frame — the system's photo frame. Dark surface (from the shared
+ * dark-surface selector group in tokens.css) with orange corner brackets
+ * and two mono meta rows (top + bottom). Composes with .gd-ratio--* to
+ * lock to one of the sanctioned aspect ratios.
+ *
+ * .gd-frame inherits its border, hover lift, and dark-surface treatment
+ * from the shared rules in tokens.css. Only frame-specific layout +
+ * decoration rules live here.
+ */
+
+.gd-frame__brackets {
+  position: absolute;
+  inset: var(--gd-space-4);
+  pointer-events: none;
+}
+
+.gd-frame__brackets::before,
+.gd-frame__brackets::after {
+  content: "";
+  position: absolute;
+  width: var(--gd-space-4);
+  height: var(--gd-space-4);
+  border: var(--gd-bw-hair) solid var(--gd-color-brand);
+}
+
+.gd-frame__brackets::before {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.gd-frame__brackets::after {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* Typography composed in JSX: each meta row carries
+   .gd-mono-xs .gd-mono-xs--bold (bold mono-xs uppercase). The slot
+   rules carry only positioning and the dark-surface color overrides
+   that cascade from .gd-frame's role-token reassignment. */
+.gd-frame__meta-top,
+.gd-frame__meta-bot {
+  position: absolute;
+  left: calc(var(--gd-space-4) + var(--gd-space-1));
+  right: calc(var(--gd-space-4) + var(--gd-space-1));
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gd-space-3);
+}
+
+.gd-frame__meta-top {
+  top: calc(var(--gd-space-4) + var(--gd-space-1));
+  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark. */
+  color: var(--gd-fg);
+}
+
+.gd-frame__meta-bot {
+  bottom: calc(var(--gd-space-4) + var(--gd-space-1));
+  /* Cascades from .gd-frame's role-token reassignment to --gd-color-fg-on-dark-dim. */
+  color: var(--gd-fg-muted);
+}

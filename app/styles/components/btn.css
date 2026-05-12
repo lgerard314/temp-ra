@@ -1,0 +1,49 @@
+/* components/btn.css
+ *
+ * .gd-btn — accent-filled primary and slate-outlined ghost. Both share
+ * typography, hover lift, and transition timing; only the visual style
+ * (fill vs outline) differs.
+ */
+
+/* Typography (mono family, fs-mono, bold, tr-mono, uppercase) is
+   contributed by composing .gd-mono on the JSX element alongside
+   .gd-btn. This rule carries only the slot's non-font concerns:
+   layout, padding, background, border, transitions, and the surface
+   color override (white text on the orange ground). */
+.gd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gd-space-4) var(--gd-space-6);
+  background: var(--gd-color-brand);
+  color: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-color-brand);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--gd-shadow-none);
+  transition:
+    background var(--gd-d-fast) var(--gd-ease),
+    border-color var(--gd-d-fast) var(--gd-ease),
+    color var(--gd-d-fast) var(--gd-ease),
+    box-shadow var(--gd-d-base) var(--gd-ease),
+    transform var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-btn:hover {
+  background: var(--gd-color-brand-soft);
+  border-color: var(--gd-color-brand-soft);
+  box-shadow: var(--gd-shadow-lift);
+  transform: translateY(calc(var(--gd-lift) * -1));
+}
+
+.gd-btn--ghost {
+  background: transparent;
+  color: var(--gd-fg-strong);
+  border-color: var(--gd-rule-strong);
+}
+
+.gd-btn--ghost:hover {
+  background: var(--gd-color-bg-mute);
+  border-color: var(--gd-rule-active);
+  color: var(--gd-color-brand);
+}

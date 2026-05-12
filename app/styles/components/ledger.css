@@ -1,0 +1,40 @@
+/* components/ledger.css
+ *
+ * .gd-ledger — table-style listing of rows with mixed column types
+ * (number, label, money, meta). Header row is muted; body rows divide
+ * with hairlines.
+ */
+
+.gd-ledger {
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
+  box-sizing: border-box;
+}
+
+.gd-ledger__row {
+  display: grid;
+  grid-template-columns: var(--gd-space-12) 1fr auto auto auto;
+  gap: var(--gd-space-6);
+  padding: var(--gd-space-4);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+  align-items: baseline;
+}
+
+.gd-ledger__row:last-child {
+  border-bottom: 0;
+}
+
+.gd-ledger__row--header {
+  padding-block: var(--gd-space-2);
+  background: var(--gd-color-bg-mute);
+}
+
+/* Typography composed in JSX:
+   .gd-ledger__row--header > each cell  + .gd-mono-s .gd-mono-s--bold
+   .gd-ledger__num                       + .gd-mono
+   .gd-ledger__label                     + .gd-h5  (was semibold/1.05rem; .gd-h5 is bold/1.05rem)
+   .gd-ledger__money                     + .gd-h5
+   .gd-ledger__meta                      + .gd-mono  (with color override below) */
+.gd-ledger__meta {
+  color: var(--gd-fg);
+}

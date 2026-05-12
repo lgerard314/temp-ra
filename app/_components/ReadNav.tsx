@@ -6,29 +6,27 @@ const sections = [
   { hash: "#colors", label: "Colors" },
   { hash: "#typography", label: "Typography" },
   { hash: "#spacing", label: "Spacing & Padding" },
-  { hash: "#borders", label: "Borders" },
-  { hash: "#radii", label: "Radii" },
-  { hash: "#shadows", label: "Shadows" },
+  { hash: "#lines", label: "Lines" },
+  { hash: "#radii-shadows", label: "Radii & Shadows" },
   { hash: "#containers", label: "Containers" },
   { hash: "#header", label: "Site header" },
   { hash: "#motion", label: "Motion" },
   { hash: "#buttons", label: "Buttons & Links" },
   { hash: "#forms", label: "Form fields" },
   { hash: "#filebar", label: "Filebar" },
-  { hash: "#tags", label: "Tags" },
-  { hash: "#dividers", label: "Dividers" },
+  { hash: "#marks", label: "Marks" },
   { hash: "#ledger", label: "Ledger" },
+  { hash: "#audit", label: "Audit row" },
   { hash: "#quotes", label: "Quotes" },
   { hash: "#trust", label: "Trust grid" },
   { hash: "#lists", label: "Lists" },
-  { hash: "#warranty", label: "Warranty seal" },
   { hash: "#pm-listing", label: "PM listing" },
 ];
 
 const imageSubs = [
   { hash: "#images-standard", label: "Standard" },
-  { hash: "#frames-frame", label: "Frame" },
-  { hash: "#frames-slider", label: "Slider" },
+  { hash: "#images-frame", label: "Frame" },
+  { hash: "#images-slider", label: "Slider" },
 ];
 
 const cardSubs = [

@@ -1,0 +1,88 @@
+/* components/trust.css
+ *
+ * .gd-trust — bordered horizontal row of stat cells (e.g. "8 Years /
+ * 200+ Files / 6 Carriers"). Each cell has a mono label and a display
+ * value; cells divide evenly across the bar width.
+ *
+ * .gd-trust--rich — consolidated vertical variant with a dark meta-bar
+ * on top and a row of rich cells below.
+ *
+ * .gd-bar — horizontal meta strip used at the top of the rich trust
+ * variant (and any future compound that needs a mono uppercase
+ * status/meta row). The dark modifier .gd-bar--dark flips it onto the
+ * structural dark surface (rule in tokens.css).
+ */
+
+.gd-trust {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-trust__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-6);
+  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-trust__cell:last-child {
+  border-right: 0;
+}
+
+/* Typography composed in JSX: .gd-trust__label + .gd-mono-s .gd-mono-s--bold
+   (tracking aligns to mono-s default 0.16em; the slot previously used the
+   wider 0.18em which was drift). */
+.gd-trust__label {
+  color: var(--gd-fg-muted);
+  margin-bottom: var(--gd-space-3);
+}
+
+/* (The numeral inside a trust cell is rendered via the .gd-stat
+   typography role — defined in tokens.css alongside the other type
+   roles. Trust JSX applies .gd-stat directly to the number element;
+   no per-trust slot class needed.) */
+
+/* ----- Bars — horizontal meta strip with three-or-so slots in mono
+   uppercase. Used as a header / metadata strip on top of compound
+   modules (the consolidated trust grid, ledger, CTA). Cells distribute
+   via space-between. The dark modifier flips it onto the system's
+   structural dark surface (via the shared dark-surface rule in
+   tokens.css); that is the only color variant the bar carries. */
+
+/* Typography composed in JSX: .gd-bar + .gd-mono-s .gd-mono-s--bold */
+.gd-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gd-space-4);
+  padding: var(--gd-space-3) var(--gd-space-6);
+}
+
+/* ----- Trust grid — consolidated variant. Vertical stack: dark meta-bar
+   on top, then a single row of rich cells. Each cell stacks a mono
+   label (.gd-trust__label) + arbitrary primitives (.gd-pm rows,
+   .gd-warranty seal, .gd-chips group). Reuses the base .gd-trust shell
+   and the same .gd-trust__cell rules; .gd-stat is not used inside
+   --rich (the rich variant has no numeral cell). */
+
+.gd-trust--rich {
+  display: flex;
+  flex-direction: column;
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+}
+
+.gd-trust--rich > .gd-bar {
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-trust__body {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}

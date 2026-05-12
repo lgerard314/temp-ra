@@ -25,8 +25,8 @@ export function GdWeather(): ReactElement {
         <circle cx="12" cy="12" r="4" />
         <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M4.5 19.5l2-2M17.5 6.5l2-2" />
       </svg>
-      <span className="gd-weather__temp">86°</span>
-      <span className="gd-weather__label">DFW · Clear</span>
+      <span className="gd-weather__temp gd-h4">86°</span>
+      <span className="gd-weather__label gd-mono-s gd-mono-s--bold">DFW · Clear</span>
     </span>
   );
 }

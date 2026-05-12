@@ -1,0 +1,34 @@
+/* components/image.css
+ *
+ * .gd-image — semantic <figure>/<figcaption> pair with a hairline-bordered
+ * image frame on top and a mono meta caption below. The frame is a
+ * .gd-ratio (foundational vocabulary, defined in tokens.css); the border +
+ * hover-lift treatment comes from the shared lift selector group in
+ * tokens.css. Only image-specific rules live here.
+ */
+
+.gd-image {
+  display: block;
+  margin: 0;
+  /* Subtract the caption-row height (~3rem: mono-s line + padding-block
+     + hairline top divider) from the image's fit-height so the captioned
+     figure as a whole stays within the viewport-fit cap. */
+  --gd-image-fit-h: calc(var(--gd-image-max-h) - var(--gd-space-12));
+}
+
+/* Typography composed in JSX: .gd-caption + .gd-mono-s (medium weight,
+   the role default). Differentiates from the bold "chrome" family
+   (.gd-status / .gd-chip / .gd-stamp) so a caption reads as a calmer
+   annotation beneath an image rather than a stateful label. */
+.gd-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-2) var(--gd-space-1);
+  color: var(--gd-fg-muted);
+}
+
+.gd-caption-meta {
+  color: var(--gd-color-brand);
+}

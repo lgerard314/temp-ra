@@ -1,0 +1,29 @@
+/* components/link.css
+ *
+ * .gd-link — generic inline body link.
+ * .gd-link--mono — mono CTA variant for use as the bottom link in cards.
+ */
+
+.gd-link {
+  color: var(--gd-color-brand);
+  text-decoration: underline;
+  text-underline-offset: var(--gd-space-1);
+  text-decoration-thickness: var(--gd-bw-hair);
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-link:hover {
+  color: var(--gd-color-brand-soft);
+}
+
+/* Typography composed in JSX: .gd-link .gd-link--mono + .gd-mono
+   (the parent .gd-link contributes the brand color; .gd-mono contributes
+   typography only). */
+.gd-link--mono {
+  text-decoration: none;
+}
+
+.gd-link--mono:hover {
+  text-decoration: underline;
+  text-underline-offset: var(--gd-space-1);
+}

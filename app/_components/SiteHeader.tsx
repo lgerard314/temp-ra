@@ -69,7 +69,7 @@ export function SiteHeader({
     <header className={className}>
       <div className="gd-banner">
         <div className="gd-banner__inner">
-          <span className="gd-banner__meta">Licensed &amp; Insured · TX RCC #12345</span>
+          <span className="gd-banner__meta gd-mono-s gd-mono-s--bold">Licensed &amp; Insured · TX RCC #12345</span>
           <GdPhone tier="dark" />
         </div>
       </div>
@@ -86,7 +86,7 @@ export function SiteHeader({
           <ul className="gd-topnav__links">
             {NAV_ITEMS.map(({ label, href }) => (
               <li key={label}>
-                <a className="gd-topnav__link" href={href}>{label}</a>
+                <a className="gd-topnav__link gd-mono" href={href}>{label}</a>
               </li>
             ))}
           </ul>
@@ -94,7 +94,7 @@ export function SiteHeader({
             <span className="gd-topnav__phone-slot">
               <GdPhone tier="light" />
             </span>
-            <a className="gd-btn" href="#quote">Get a free quote</a>
+            <a className="gd-btn gd-mono" href="#quote">Get a free quote</a>
           </div>
         </div>
       </nav>

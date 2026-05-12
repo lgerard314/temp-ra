@@ -66,15 +66,17 @@ export function GdSlider({ ratio, metaLabel, metaValue }: Props) {
     >
       <span className="gd-slider__layer gd-slider__layer--before" aria-hidden="true" />
       <span className="gd-slider__layer gd-slider__layer--after" aria-hidden="true" />
-      <span className="gd-slider__tag gd-slider__tag--before">Before</span>
-      <span className="gd-slider__tag gd-slider__tag--after">After</span>
+      <span className="gd-slider__tag gd-slider__tag--before gd-mono">Before</span>
+      <span className="gd-slider__tag gd-slider__tag--after gd-mono">After</span>
       <span className="gd-slider__handle" aria-hidden="true" />
       <span className="gd-slider__grip" aria-hidden="true">↔</span>
-      <span className="gd-slider__meta">
-        <span>
-          <span className="gd-slider__meta-num">§ 02</span> · {metaLabel}
+      <span className="gd-slider__meta gd-mono-xs">
+        <span className="gd-slider__meta-left">
+          <span className="gd-slider__meta-num">§ 02</span>
+          <span className="gd-slider__meta-dash">—</span>
+          <span>{metaLabel}</span>
         </span>
-        <span>{metaValue}</span>
+        <span className="gd-slider__meta-right">{metaValue}</span>
       </span>
     </div>
   );

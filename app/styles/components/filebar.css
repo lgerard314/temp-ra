@@ -1,0 +1,42 @@
+/* components/filebar.css
+ *
+ * .gd-filebar — multi-cell horizontal bar for file metadata (carrier,
+ * status, ID, etc.). Exactly one cell may be active (orange) at a time.
+ */
+
+.gd-filebar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+}
+
+.gd-filebar__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-1);
+  padding: var(--gd-space-3) var(--gd-space-4);
+  border-right: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-filebar__cell:last-child {
+  border-right: 0;
+}
+
+/* Typography is composed in JSX:
+   .gd-filebar__label + .gd-mono-xs .gd-mono-xs--bold
+   .gd-filebar__value + .gd-mono
+   The slot rules carry only the slot color overrides. */
+.gd-filebar__label {
+  /* color comes from .gd-mono-xs (fg-muted) — no override needed */
+}
+
+.gd-filebar__value {
+  color: var(--gd-fg-strong);
+}
+
+.gd-filebar__value--active {
+  color: var(--gd-color-brand);
+}

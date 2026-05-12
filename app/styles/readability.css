@@ -27,13 +27,21 @@
   --read-text: hsl(36, 30%, 22%);           /* primary readability text */
   --read-text-muted: hsl(36, 18%, 45%);     /* intros, secondary copy   */
   --read-accent: hsl(28, 70%, 38%);         /* nav links, accents       */
+  /* On-dark readability text variants — used by the typography table's
+     surface toggle when the "dark" option is selected. Lets the table
+     chrome (headers, when-to-use prose, rule punctuation) stay legible
+     on a dark surface without crossing into the design namespace's
+     --gd-color-fg-on-dark* tokens. */
+  --read-text-on-dark: hsl(0, 0%, 96%);
+  --read-text-muted-on-dark: hsl(0, 0%, 70%);
+  --read-border-on-dark: hsla(0, 0%, 100%, 0.16);
 
   /* ---- Spacing scale (independent from any future design spacing) ---- */
   --read-space-xs: 0.25rem;
   --read-space-sm: 0.5rem;
   --read-space-md: 1rem;
   --read-space-lg: 1.5rem;
-  --read-space-xxs: 0.1rem;
+  --read-space-xxs: 0.1rem;   /* exactly 2px at 16px root — the smallest visible chip gap */
 
   /* ---- Radii ---- */
   --read-radius-sm: 4px;
@@ -47,12 +55,12 @@
   --read-font-size-label: 0.75rem;          /* small caps, handle, labels */
   --read-font-size-body: 0.9375rem;         /* body prose                 */
   --read-font-size-subtitle: 1.125rem;      /* h3-level subsection titles */
-  --read-font-size-title: 1.5rem;           /* h2-level section titles    */
+  --read-font-size-title: 1.3rem;           /* h2-level section titles    */
   --read-line-height: 1.55;
   --read-line-height-tight: 1.1;            /* tight body line-height for compact read-* callouts */
   --read-line-height-xtight: 1;
   --read-font-size-when: 0.72rem;           /* compact body size for read-* "when to use" callouts */
-  --read-font-size-xxs: 0.6rem;
+  --read-font-size-xxs: 0.55rem;
 
   /* Floating guide-nav type scale. Distinct from --read-font-size-label
      (which serves uppercase eyebrow-style labels) because the guide nav
@@ -77,6 +85,12 @@
   --read-font-size-mono: 0.78rem;     /* mirrors --gd-fs-mono */
   --read-font-size-mono-s: 0.65rem;   /* mirrors --gd-fs-mono-s */
   --read-font-size-mono-xs: 0.55rem;  /* mirrors --gd-fs-mono-xs */
+  /* Annotation size for the resolved-value spans inside the typography
+     table's expanded { styles } block. Read as a comment-style remark
+     after each token — meant to be skimmed past, not read. Distinctly
+     smaller than --read-font-size-mono-xs so the eye lands on the token
+     name first and the value second. */
+  --read-font-size-type-value: 0.55rem;
   --read-tracking-mono: 0.18em;       /* mirrors --gd-tr-mono */
 
   /* ---- Elevation ---- */
@@ -122,6 +136,11 @@
      easing — namespaces don't cross, so we mirror motion intent here
      rather than reference --gd-* tokens. ---- */
   --read-flyout-w: 11rem;
+  /* Size cap for interactive demo content inside the motion table —
+     image / frame / slider / card otherwise render at composition-
+     context width and overflow the cell. Held as a readability-namespace
+     primitive because it's pure demo chrome, not a system design value. */
+  --read-motion-demo-cap: 10rem;
   --read-flyout-offset: var(--read-space-xs);
   --read-d-fast: 120ms;
   --read-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -326,7 +345,7 @@
   border: var(--read-stroke-hairline) solid var(--read-border);
   border-radius: var(--read-radius-md);
   padding: var(--read-space-sm) var(--read-space-md);
-  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-xs);
+  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-md);
   box-sizing: border-box;
   font-family: var(--read-font);
   font-size: var(--read-font-size-body);
@@ -406,20 +425,15 @@
   padding-top: var(--read-space-sm);
 }
 
-/* Two role-distinct "When to use" callouts share the same visual
-   treatment (orange-edge yellow-strong card with a "When to use:"
-   prefix); they are NAMED separately because they live in two
-   different contexts:
-     .read-section__notes  — inside the yellow .read-section card,
-                             stacked under the intro, full width.
-     .read-section__when   — inside a demo-row grid cell, sitting in
-                             the row's right column next to labels.
-   Visual styling is grouped to prevent drift; only the layout-tier
-   geometry differs per class. */
-.read-section__notes,
-.read-section__when {
+/* "When to use" callout — orange-edge yellow-strong card with a
+   "When to use:" prefix. Single class used in two contexts: inside
+   the yellow .read-section header card (stacked under the intro),
+   and inside example sub-section .read-section blocks (stacked under
+   the chip/token list). Both contexts get identical visual treatment
+   plus the full-width / margin-top layout. */
+.read-section__notes {
   display: block;
-  margin: 0;
+  margin: var(--read-space-sm) 0 0;
   background: var(--read-bg-strong);
   border-left: var(--read-stroke-emphasis) solid var(--read-accent);
   padding: var(--read-space-xs) var(--read-space-sm);
@@ -427,10 +441,10 @@
   color: var(--read-text);
   font-size: var(--read-font-size-when);
   line-height: var(--read-line-height-tight);
+  width: 100%;
 }
 
-.read-section__notes::before,
-.read-section__when::before {
+.read-section__notes::before {
   content: "When to use: ";
   font-weight: var(--read-font-weight-strong);
   letter-spacing: var(--read-letter-spacing-wide);
@@ -438,11 +452,28 @@
   font-size: var(--read-font-size-label);
 }
 
-/* Notes layout — full row inside the yellow card, sitting under the
-   intro paragraph. */
-.read-section__notes {
-  width: 100%;
-  margin-top: var(--read-space-sm);
+/* When a ReadSection is collapsed (state lives on the outer
+   .read-section-wrap element), hide every .read-section__notes
+   inside it — both the one in the yellow header card AND every
+   .read-section__notes in example sub-section .read-section blocks
+   nested beneath it. The header's intro is hidden separately via
+   the inline hidden attribute in ReadSection.tsx because intros
+   only live inside the header card. */
+.read-section-wrap--collapsed .read-section__notes {
+  display: none;
+}
+
+/* Optional chip-group slot inside the yellow .read-section header card —
+   sits at the bottom, below the When-to-use notes. Surfaces the classes
+   and tokens that this section is "about" so a reader sees the index
+   right in the header. Top margin mirrors __notes for vertical rhythm.
+   Collapses with the rest of the header chrome. */
+.read-section__tokens {
+  margin: var(--read-space-sm) 0 0;
+}
+
+.read-section-wrap--collapsed .read-section__tokens {
+  display: none;
 }
 
 /* ---- Subsections — chrome shared with .read-section above (joined into
@@ -470,11 +501,20 @@
    content — so they intentionally use only readability tokens.
    ===================================================================== */
 
+/* Standard table-cell annotation — renders a resolved value (e.g.
+   "24 px", "clamp(1rem, …)") or a CSS property name inside a table
+   cell. Uses the body-cell font vocabulary explicitly so it inherits
+   nothing special from its surroundings (overrides any parent mono
+   context like .read-class-rule). Color is inherited so the
+   class picks up the table's contextual color, including the
+   dark-surface override on .read-type-surface.gd-surface--dark.
+   One class, used in every readability table — color table, type
+   table's expanded { styles } block, and the primitive table. */
 .read-token-value {
-  font-family: var(--read-font-mono);
-  font-size: var(--read-font-size-mono-s);
-  letter-spacing: var(--read-tracking-mono);
-  color: var(--read-text-muted);
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-when);
+  letter-spacing: normal;
+  color: inherit;
 }
 
 /* =====================================================================
@@ -495,6 +535,25 @@
   border-radius: var(--read-radius-md);
   padding: var(--read-space-sm) var(--read-space-md);
   margin: var(--read-space-md) var(--read-space-lg) var(--read-space-xs);
+}
+
+/* Layout container for placing multiple .read-table-card siblings
+   side-by-side (e.g. Spacing scale + Padding role tokens in the
+   Spacing section). auto-fit with a min track width lets the row
+   fall back to stacking when there isn't horizontal room for two
+   side-by-side cards. The grid's own margin matches a single card's
+   so the row sits in the same horizontal rail as standalone cards;
+   each child card has its outer margin neutralized so the grid gap
+   is the only separator. */
+.read-table-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: var(--read-space-md);
+  margin: var(--read-space-md) var(--read-space-lg) var(--read-space-xs);
+}
+
+.read-table-row > .read-table-card {
+  margin: 0;
 }
 
 /* Colors section table. First column is the swatch — empty cell whose
@@ -532,16 +591,6 @@
   border-bottom: 0;
 }
 
-/* Token cell — the --gd-color-* chip with its resolved value stacked
-   directly beneath it on its own line. Replaces the standalone Value
-   column the table used to have. */
-.read-color-table__token-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--read-space-xxs);
-}
-
 /* Uses column — small role badges showing which surfaces a color is
    used on. Each variant is visually distinct in a way that mimics the
    role itself, so the chip looks like the thing it describes. Keep the
@@ -551,79 +600,167 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--read-space-xxs);
-  align-items: center;
+  align-items: flex-start;
 }
 
 .read-use-badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--read-space-xxs) var(--read-space-xs);
+  padding: 0 var(--read-space-xxs);
   font-family: var(--read-font-mono);
-  font-size: var(--read-font-size-mono-xs);
+  font-size: 0.5rem;
   font-weight: var(--read-font-weight-strong);
-  letter-spacing: var(--read-tracking-mono);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   border: var(--read-stroke-hairline) solid transparent;
   border-radius: var(--read-radius-sm);
   background: transparent;
   color: var(--read-text);
-  line-height: 1.2;
+  line-height: 1;
 }
 
-/* Type — the role is text itself, so the badge is bare bold uppercase
-   with no chrome. */
-.read-use-badge--typography {
-  padding: 0 var(--read-space-xxs);
-  background: transparent;
-  border-color: transparent;
+/* Button-element-specific behavior — only badges that have classes to
+   disclose render as <button>. Plain <span> badges (no chips behind)
+   keep the resting style without any interactive chrome. Element-
+   scoped so the same .read-use-badge class can render either way
+   without a modifier.
+
+   Note: we deliberately do NOT use the `font:` shorthand here — it
+   would have higher specificity than the base .read-use-badge rule's
+   individual font-* declarations and would re-inherit a larger size
+   from the parent. appearance: none alone is enough to strip the UA's
+   native-button chrome; the font properties cascade through normally. */
+button.read-use-badge {
+  cursor: pointer;
+  appearance: none;
+  margin: 0;
 }
 
-/* Lines — the role is a rule, so the badge is just the chip text with
-   a dashed bottom underline (a literal line). */
-.read-use-badge--lines {
-  padding: 0 var(--read-space-xxs) var(--read-space-xxs);
-  border: 0;
-  border-bottom: var(--read-stroke-hairline) dashed var(--read-text);
-  border-radius: 0;
+button.read-use-badge:hover,
+button.read-use-badge[aria-expanded="true"] {
+  outline: var(--read-stroke-hairline) solid var(--read-accent);
+  outline-offset: 0;
 }
 
-/* Shadows — the role is elevation, so the badge sits on a soft drop
-   shadow. */
-.read-use-badge--shadows {
-  background: var(--read-bg-strong);
-  border-color: var(--read-border);
-  box-shadow: var(--read-shadow-badge);
+button.read-use-badge:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: var(--read-stroke-focus);
 }
 
-/* Accents — the role is brand punctuation, so the badge uses the
-   read-namespace accent (orange) as outline + text color. */
-.read-use-badge--accents {
-  border-color: var(--read-accent);
-  color: var(--read-accent);
+/* Disclosure panel — the row of .gd-class-lbl chips that appears below
+   an expanded badge. Full-width so chips wrap naturally inside the
+   "Uses" cell instead of sitting cramped beside the badge. */
+.read-uses__expand {
+  flex: 1 0 100%;
+  padding-top: var(--read-space-xxs);
 }
 
-/* Statuses — the role is a status pill, so the badge is filled dark
-   with full radius. */
-.read-use-badge--statuses {
-  background: var(--read-text);
+/* Family group — when a disclosure contains several BEM siblings under
+   the same root (e.g. .gd-card__title + .gd-card__eyebrow + .gd-card__link
+   + .gd-card--photo), they render as one parent chip ".gd-card" followed
+   by attached suffix chips "__title", "__eyebrow", etc. The group acts
+   as a single unit visually — zero inner gap between parent and suffixes
+   so the BEM hierarchy reads tight; the outer right/bottom margin lives
+   on the group itself (not the inner chips) so it spaces evenly with
+   neighboring groups. */
+.read-class-group {
+  display: inline-flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 var(--read-space-xxs) var(--read-space-xxs) 0;
+}
+
+.read-class-group > .read-gd-chip,
+.read-class-group > .read-gd-class-lbl {
+  margin: 0;
+}
+
+/* Family-marker prefix — shown in place of the parent chip when the
+   BEM root is NOT itself a consumer of the token (e.g. .gd-slider__grip
+   uses --gd-r-full but .gd-slider does not, so ".gd-slider" appears as
+   a non-interactive marker followed by the real consumer "__grip").
+   Visually distinct from a real chip: italic, muted, no border / bg /
+   click affordance — reads as a hierarchy hook, not data. */
+.read-class-marker {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--read-space-xxs);
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-xxs);
+  font-style: italic;
+  font-weight: var(--read-font-weight);
+  color: var(--read-text-muted);
+  line-height: var(--read-line-height-xtight);
+}
+
+/* Component-area badge variants. Categorization is by which component
+   family (or structural role) consumes the token; each row in every
+   token table renders one badge per category present. The visual
+   treatments differentiate categories without being so loud they
+   compete with the chips disclosed below them — small monochrome
+   chrome by default, light fill on grouped areas, accent outline on
+   the chromatic and typography roles. */
+
+/* Structural roles — Type is bare bold uppercase (the badge IS the
+   thing); Section + Surface get the lightest fill. */
+.read-use-badge--type {
   border-color: var(--read-text);
-  color: var(--read-bg-strong);
-  border-radius: var(--read-radius-pill);
+  color: var(--read-text);
 }
 
-/* Backgrounds — the role is a soft ground, so the badge is a quiet
-   filled rectangle with the readability bg. */
-.read-use-badge--backgrounds {
+.read-use-badge--section,
+.read-use-badge--surface {
   background: var(--read-bg);
   border-color: var(--read-border);
 }
 
-/* Value reads denser than the shared .read-token-value — the table
-   layout gives each cell its own column, so the mono tracking that
-   helps inline pill-style labels isn't needed here. */
-.read-color-table .read-token-value {
-  font-size: var(--read-font-size-xxs);
-  letter-spacing: 0;
+/* Site chrome — header chrome gets the read-bg-strong fill so it reads
+   as the "top of the page" area. */
+.read-use-badge--header {
+  background: var(--read-bg-strong);
+  border-color: var(--read-border);
+}
+
+/* Interactive surfaces — buttons + forms share a treatment because
+   they're the page's interactive primitives. */
+.read-use-badge--buttons,
+.read-use-badge--forms {
+  background: var(--read-bg);
+  border-color: var(--read-text);
+}
+
+/* Tabular families — filebar + ledger + audit display data in rows or
+   columns; they share a quiet outlined treatment. */
+.read-use-badge--filebar,
+.read-use-badge--ledger,
+.read-use-badge--audit {
+  border-color: var(--read-text);
+}
+
+/* Surface families — cards / media / trust / pm are all
+   elevated-content surfaces. Light fill. */
+.read-use-badge--cards,
+.read-use-badge--media,
+.read-use-badge--trust,
+.read-use-badge--pm {
+  background: var(--read-bg);
+  border-color: var(--read-border);
+}
+
+/* Editorial — quote and lists are body-content carriers. */
+.read-use-badge--quote,
+.read-use-badge--lists {
+  border-color: var(--read-text-muted);
+  color: var(--read-text-muted);
+}
+
+/* Marks — every small/ornamental role lives here (status, chip, stamp,
+   warranty, divider). The accent outline + accent text mirrors the
+   brand-punctuation nature of these elements. */
+.read-use-badge--marks {
+  border-color: var(--read-accent);
+  color: var(--read-accent);
 }
 
 .read-color-table__col-swatch {
@@ -784,7 +921,7 @@
   font-family: var(--read-font-mono);
   font-size: var(--read-font-size-xxs);
   font-weight: var(--read-font-weight);
-  line-height: var(--read-line-height-xtight);
+  line-height: 1;
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
@@ -803,38 +940,40 @@
   font-weight: var(--read-font-weight-strong);
 }
 
-/* Toggle variant — used when a .read-gd-class-lbl is rendered as a
-   real <button> that expands / collapses an adjacent { styles }
-   block (typography table). Resets native button chrome so the chip
-   visual stays identical; adds cursor + focus affordance. */
-.read-gd-class-lbl--toggle {
-  font: inherit;
+/* Button-element-specific behavior. Single class everywhere; the
+   button affordance is gained by being rendered as <button>, not by
+   adding a modifier class. Span chips and button chips share the
+   exact same rest-state visual; buttons add hover / focus /
+   aria-expanded interaction states.
+
+   Note: we do NOT use the `font:` shorthand here — it would have
+   higher specificity than the chip's own font-family / font-size /
+   font-weight declarations in the base rule, and would re-inherit
+   from the parent (~15px sans-serif body), blowing up the chip.
+   appearance: none is enough to strip the UA's native-button chrome;
+   the chip rule's font properties cascade through normally. */
+button.read-gd-class-lbl {
   cursor: pointer;
   appearance: none;
-  margin: 0;
 }
 
-.read-gd-class-lbl--toggle:hover {
+button.read-gd-class-lbl:hover,
+button.read-gd-class-lbl[aria-expanded="true"] {
   background: var(--read-accent);
   color: var(--read-bg-strong);
 }
 
-.read-gd-class-lbl--toggle:focus-visible {
+button.read-gd-class-lbl:focus-visible {
   outline: var(--read-stroke-focus) solid var(--read-accent);
   outline-offset: var(--read-stroke-focus);
-}
-
-.read-gd-class-lbl--toggle[aria-expanded="true"] {
-  background: var(--read-accent);
-  color: var(--read-bg-strong);
 }
 
 /* Wrapper for a list of gd labels under a demo row. */
 .read-gd-tokens {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--read-space-xs);
-  align-items: center;
+  gap: 0;
+  align-items: flex-start;
 }
 
 /* Typography section table. Two columns: rendered sample on the left,
@@ -865,7 +1004,7 @@
 .read-type-table tbody td {
   padding: var(--read-space-sm) var(--read-space-sm);
   border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .read-type-table tbody tr:last-child td {
@@ -885,35 +1024,329 @@
   color: var(--read-text);
 }
 
-.read-type-table__rule {
+.read-class-rule {
   display: block;
   font-family: var(--read-font-mono);
   font-size: var(--read-font-size-mono-s);
   line-height: var(--read-line-height-tight);
   color: var(--read-text);
   white-space: normal;
+  letter-spacing: -0.05rem;
 }
 
-.read-type-table__decl {
+.read-class-rule__decl {
   display: block;
   padding-left: var(--read-space-md);
 }
 
-.read-type-table__prop {
+.read-class-rule__brace,
+.read-class-rule__punct {
   color: var(--read-text-muted);
 }
 
-.read-type-table__brace,
-.read-type-table__punct {
-  color: var(--read-text-muted);
-}
-
-/* Resolved value rendered as an inline annotation after each token —
-   italic + muted so it reads as a comment-style remark, never as
-   primary content. */
-.read-type-table__value {
+/* Resolved value of a --gd-* token, rendered as an inline annotation
+   alongside its .read-gd-token-lbl chip. Italic + muted + tiny so it
+   reads as a comment-style remark, never as primary content.
+   Distinctly smaller than --read-font-size-mono-xs so the eye lands
+   on the token name first and the value second. Used in every
+   readability table that surfaces token values (typography table's
+   { styles } block, color table token cell, primitive tables, image
+   variant tables). Pairs with .read-gd-token-lbl — chip then value,
+   inline on the same line; value text wraps within itself if it can't
+   fit, but never appears as a block below the chip. */
+.read-gd-token-value {
+  font-size: var(--read-font-size-type-value);
   font-style: italic;
   color: var(--read-text-muted);
+  /* Value is one unbreakable atom — it stays on one line and either
+     fits next to its chip or wraps as a whole unit to the line below.
+     It never breaks internally (no clamp(1.5rem,/4vw,/4rem) on three
+     lines). Pairs with .read-gd-token-lbl which is also nowrap; the
+     parent cell's white-space: normal allows wrapping BETWEEN the
+     two atoms. */
+  white-space: nowrap;
+}
+
+/* Uniform 2px gap to the right and below every class/token badge,
+   site-wide. Per-badge margins (rather than a sibling margin-left) so
+   the gap survives line wrapping — when chips reflow onto a new line
+   the vertical gap matches the horizontal one, and the first chip on
+   every line still sits flush to its container's left edge.
+   .read-gd-chip carries the margin for togglable class chips so that
+   the chip + its expanded rule body act as one atomic unit (margin
+   wraps the whole unit, not just the chip). Bare .read-gd-class-lbl
+   (the plain-span fallback for non-togglable classes) and the token
+   badges carry the margin directly. */
+.read-gd-chip,
+.read-gd-token-lbl,
+.read-gd-class-lbl,
+.read-gd-token-value {
+  margin: 0 var(--read-space-xxs) var(--read-space-xxs) 0;
+}
+
+/* Inside the wrapper the button is the head of the chip unit; the
+   wrapper carries the unit-level margin, so the button itself resets
+   to zero to avoid double-spacing. */
+.read-gd-chip > .read-gd-class-lbl {
+  margin: 0;
+}
+
+/* Atomic wrapper for a togglable class chip. Holds the button and,
+   when expanded, the .read-class-rule body that renders below it.
+   inline-block keeps the chip flowing inline like every other badge,
+   while letting its block child (the rule body) stack BELOW the
+   button instead of beside it. vertical-align: top so the chip sits
+   level with siblings on the same line. Works identically in flex
+   containers (.read-gd-tokens), table cells, and inline prose —
+   collapsed it's just a button; expanded it's a button-plus-rule
+   stacked, always as one wrapping unit. */
+.read-gd-chip {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* =====================================================================
+   Surface toggle — segmented-control row above the typography table.
+   Lets a reader switch the demo wrapper's background between the four
+   canonical surfaces of the design system (page / warm / surface /
+   dark). The typography role-token cascade does the rest: on the
+   three light surfaces the role tokens stay at their :root aliases,
+   and on the dark surface the toggle adds .gd-surface--dark to the
+   wrapper, which both supplies the dark background AND re-points the
+   role tokens that every .gd-h, .gd-body, .gd-mono sample consumes
+   — so the samples flip automatically with no per-row override.
+
+   Cross-namespace reference to --gd-color-bg-* below is sanctioned
+   because the wrapper's role is literally to demonstrate typography
+   on each design surface (same exception as color swatches rendering
+   --gd-color-* values for demo).
+   ===================================================================== */
+
+.read-surface-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--read-space-xs);
+  margin-bottom: var(--read-space-md);
+}
+
+.read-surface-toggle__btn {
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-label);
+  letter-spacing: var(--read-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--read-text-muted);
+  background: transparent;
+  border: var(--read-stroke-hairline) solid var(--read-border);
+  border-radius: var(--read-radius-sm);
+  padding: var(--read-space-xs) var(--read-space-sm);
+  cursor: pointer;
+  transition: background var(--read-d-fast) var(--read-ease),
+              color var(--read-d-fast) var(--read-ease),
+              border-color var(--read-d-fast) var(--read-ease);
+}
+
+.read-surface-toggle__btn:hover {
+  color: var(--read-text);
+}
+
+.read-surface-toggle__btn:focus-visible {
+  outline: var(--read-stroke-focus) solid var(--read-accent);
+  outline-offset: var(--read-stroke-focus);
+}
+
+.read-surface-toggle__btn[aria-pressed="true"] {
+  background: var(--read-bg-strong);
+  border-color: var(--read-bg-strong);
+  color: var(--read-text);
+}
+
+.read-type-surface {
+  border-radius: var(--read-radius-sm);
+  padding: var(--read-space-md);
+  transition: background var(--read-d-fast) var(--read-ease);
+}
+
+.read-type-surface[data-surface="page"]    { background: var(--gd-color-bg-page); }
+.read-type-surface[data-surface="warm"]    { background: var(--gd-color-bg-warm); }
+.read-type-surface[data-surface="surface"] { background: var(--gd-color-bg-surface); }
+/* data-surface="dark" — background is supplied by .gd-surface--dark
+   itself (applied alongside in the JSX), which also re-points the
+   role tokens. */
+
+/* On-dark chrome overrides — when the surface toggle is set to dark,
+   re-point the table's commentary chrome (headers, when-to-use prose,
+   rule punctuation, row dividers) to the on-dark readability variants
+   so the table stays legible. The typography SAMPLES themselves flip
+   automatically through the role-token cascade in tokens.css. */
+.read-type-surface.gd-surface--dark .read-type-table,
+.read-type-surface.gd-surface--dark .read-class-rule,
+.read-type-surface.gd-surface--dark .read-type-table__when {
+  color: var(--read-text-on-dark);
+}
+
+.read-type-surface.gd-surface--dark .read-type-table thead th,
+.read-type-surface.gd-surface--dark .read-class-rule__brace,
+.read-type-surface.gd-surface--dark .read-class-rule__punct,
+.read-type-surface.gd-surface--dark .read-gd-token-value {
+  color: var(--read-text-muted-on-dark);
+}
+
+.read-type-surface.gd-surface--dark .read-type-table thead th,
+.read-type-surface.gd-surface--dark .read-type-table tbody td {
+  border-bottom-color: var(--read-border-on-dark);
+}
+
+/* =====================================================================
+   Primitive table — shared layout for the Spacing & Padding, Borders,
+   Radii, and Shadows sections. Three columns: a Demo cell that renders
+   the actual primitive at the right scale, a Token cell stacking the
+   --gd-* name + resolved value + any class chips, and a When-to-use
+   column. Same chrome conventions as .read-color-table / .read-type-table
+   so the four "system" tables read as one family.
+   ===================================================================== */
+
+.read-primitive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--read-font);
+  font-size: var(--read-font-size-when);
+  line-height: var(--read-line-height-tight);
+  color: var(--read-text);
+}
+
+.read-primitive-table thead th {
+  text-align: left;
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
+  text-transform: uppercase;
+  color: var(--read-text-muted);
+  padding: var(--read-space-xs) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+}
+
+.read-primitive-table tbody td {
+  padding: var(--read-space-sm) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border-neutral);
+  vertical-align: middle;
+}
+
+.read-primitive-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Demo and Token columns shrink to fit their content; When column
+   absorbs the remaining width. Using width: 1% with the default
+   table-layout: auto is the standard CSS idiom for "make this column
+   as narrow as its content allows" — the browser honors min-content
+   width and the other columns flex into the freed space. Prevents
+   dead horizontal space between the Token cell content and the
+   adjacent When column. */
+.read-primitive-table__demo {
+  width: 1%;
+  white-space: nowrap;  /* a demo primitive (bar, box, image) never wraps */
+}
+
+.read-primitive-table__demo > * {
+  margin: 0;
+}
+
+/* Token cell — chip + value + optional class chips flow inline. The
+   cell's white-space stays normal so the browser is free to break
+   BETWEEN atoms when the column is too narrow. The chip and value
+   are each individually nowrap, so neither breaks internally — when
+   a break happens, the value drops as a whole unit to the line below
+   the chip. Cell auto-sizes to fit chip+value on one line when the
+   table has the room.
+
+   Side-by-side tables (Spacing & Padding, Radii & Shadows): force the
+   Token column to its min-content width = the widest unbreakable atom
+   in the column. The cell can't fit chip + value side-by-side so the
+   value drops below the chip — by design. */
+.read-table-row .read-token-cell {
+  width: 1%;
+}
+
+/* Section-header rows split a single table into role groups (e.g.
+   "Spacing scale" then "Padding role tokens" inside the Spacing &
+   Padding table). One row spanning all columns, mono-uppercase header
+   chrome, hairline rule beneath. */
+.read-primitive-table__section {
+  background: var(--read-bg);
+}
+
+.read-primitive-table__section th {
+  text-align: left;
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
+  text-transform: uppercase;
+  color: var(--read-text);
+  padding: var(--read-space-sm) var(--read-space-sm);
+  border-bottom: var(--read-stroke-hairline) solid var(--read-border);
+}
+
+/* Borderless variant — suppresses every body-row + section-header
+   horizontal rule on a primitive table. Used by the Borders section,
+   where the row dividers visually compete with the actual line
+   primitives being demoed (a hairline rule between rows reads as
+   another --gd-bw-hair example). The thead-to-body separator stays
+   because that's structural, not row-internal. */
+.read-primitive-table--no-rules tbody td,
+.read-primitive-table--no-rules .read-primitive-table__section th {
+  border-bottom: 0;
+}
+
+/* Transposed variant — axes swapped so ratio names become column
+   headers (one per ratio across the top) and each axis (Demo / Token
+   / When) becomes a body row. Used by the image-related tables
+   (Standard / Frame / Slider) where seeing all five ratios side by
+   side highlights the shape comparison. Fixed table layout lets the
+   row-label column hold a narrow fixed width while the ratio columns
+   share the remainder evenly. */
+.read-primitive-table--transposed {
+  table-layout: fixed;
+}
+
+.read-primitive-table--transposed tbody td,
+.read-primitive-table--transposed tbody th {
+  vertical-align: top;
+}
+
+/* Axis-label cell in the transposed view (leftmost column of each
+   body row + a placeholder in thead). Same mono-uppercase chrome as
+   thead column headers so the table reads symmetrically along both
+   axes. */
+.read-primitive-table__row-label {
+  width: 8rem;
+  text-align: left;
+  font-family: var(--read-font-mono);
+  font-size: var(--read-font-size-mono-s);
+  font-weight: var(--read-font-weight-strong);
+  letter-spacing: var(--read-tracking-mono);
+  text-transform: uppercase;
+  color: var(--read-text-muted);
+  vertical-align: top;
+}
+
+/* In the transposed view the Demo column is no longer a single
+   skinny cell — there are five demo cells (one per ratio) and they
+   share the remaining table width equally. Override the standalone
+   __demo rule (width: 1%; white-space: nowrap) so each cell stretches
+   to its allotted column. */
+.read-primitive-table--transposed .read-primitive-table__demo {
+  width: auto;
+  white-space: normal;
+}
+
+/* Wrapper class for interactive demo content inside the motion table.
+   Caps the rendered size so hover/drag motion is still legible while
+   the demo fits in its cell. */
+.read-motion-demo {
+  display: block;
+  max-width: var(--read-motion-demo-cap);
 }
 
 /* =====================================================================
@@ -961,13 +1394,13 @@
   max-width: 50%;          /* labels block never exceeds half the row's first track — chips wrap inside if needed */
 }
 
-.read-demo-row > .read-section__when {
+.read-demo-row > .read-section__notes {
   grid-column: 2;
 }
 
-/* Anything that isn't labels or when (the actual demo example) spans
+/* Anything that isn't labels or notes (the actual demo example) spans
    the full row width on its own row below. */
-.read-demo-row > *:not(.read-demo-row__labels):not(.read-section__when) {
+.read-demo-row > *:not(.read-demo-row__labels):not(.read-section__notes) {
   grid-column: 1 / -1;
 }
 
@@ -1019,6 +1452,44 @@
 .read-rule-demo__bar[data-rule="active"]::before  { background: var(--gd-rule-active); }
 .read-rule-demo__bar[data-rule="dim"]             { background: var(--gd-color-fg-strong); }
 .read-rule-demo__bar[data-rule="dim"]::before     { background: var(--gd-rule-dim); }
+
+/* Border-demo box — shows the same width/color as a border on a
+   small surface so the reader sees the line both as a free-floating
+   rule and as the edge of an actual element. Pairs with __bar in the
+   Lines table. */
+.read-border-demo__box,
+.read-rule-demo__box {
+  display: inline-block;
+  width: var(--gd-space-8);
+  height: var(--gd-space-8);
+  background: var(--gd-color-bg-surface);
+  box-sizing: border-box;
+}
+
+.read-border-demo__box[data-bw="hair"] { border: var(--gd-bw-hair) solid var(--gd-rule-strong); }
+.read-border-demo__box[data-bw="rule"] { border: var(--gd-bw-rule) solid var(--gd-rule-strong); }
+
+.read-rule-demo__box[data-rule="default"] { border: var(--gd-bw-rule) solid var(--gd-rule-default); }
+.read-rule-demo__box[data-rule="strong"]  { border: var(--gd-bw-rule) solid var(--gd-rule-strong); }
+.read-rule-demo__box[data-rule="active"]  { border: var(--gd-bw-rule) solid var(--gd-rule-active); }
+.read-rule-demo__box[data-rule="dim"] {
+  border: var(--gd-bw-rule) solid var(--gd-rule-dim);
+  background: var(--gd-color-fg-strong);
+}
+
+/* Dark backdrop wrapper for the rule-color box demo. Universal markup
+   (every row gets the frame) but only the dim variant carries the
+   dark background + padding, because --gd-rule-dim is white at 16%
+   alpha and only reads against the system's structural dark. Other
+   variants render as a transparent inline-block (no visual effect). */
+.read-rule-demo__frame {
+  display: inline-block;
+}
+
+.read-rule-demo__frame[data-rule="dim"] {
+  background: var(--gd-color-fg-strong);
+  padding: var(--read-space-xs);
+}
 
 /* Radius demo — boxes at each --gd-r-* radius. */
 

@@ -1,0 +1,36 @@
+/* components/quote.css
+ *
+ * .gd-quote — bordered serif quote block with leading orange mark and a
+ * mono citation row at the bottom. The quote body itself uses
+ * .gd-pullquote (defined in tokens.css).
+ */
+
+.gd-quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-4);
+  padding: var(--gd-space-8);
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-default);
+  box-sizing: border-box;
+  max-width: var(--gd-mw-prose);
+}
+
+.gd-quote__mark {
+  font-family: var(--gd-font-serif);
+  font-style: italic;
+  font-size: var(--gd-fs-display);
+  line-height: 0.5;
+  color: var(--gd-color-brand);
+}
+
+/* Typography composed in JSX: .gd-quote__cite + .gd-mono-s .gd-mono-s--bold */
+.gd-quote__cite {
+  margin-top: auto;
+  padding-top: var(--gd-space-4);
+  border-top: var(--gd-bw-hair) solid var(--gd-rule-default);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gd-space-3);
+  color: var(--gd-fg-muted);
+}

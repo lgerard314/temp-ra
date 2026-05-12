@@ -1,0 +1,76 @@
+/* components/audit.css
+ *
+ * .gd-audit-row — line-item row for itemized estimates / supplements /
+ * audit cards. Pairs a label cell (text on the left) with a value cell
+ * (numeral on the right). Typography is supplied by composing
+ * .gd-mono-data on the row (and per-cell modifiers like
+ * .gd-mono-data--semibold on values, .gd-mono-data--bold +
+ * .gd-mono-data--uppercase on totals / uplift rows). The slot rules
+ * below carry ONLY layout, dividers, color, and the firstpass
+ * strikethrough chrome — every font property comes from .gd-mono-data.
+ *
+ * Variants:
+ *   --firstpass  — initial estimate row; the value renders with
+ *                  strikethrough to read as "this is what was first
+ *                  offered, before the supplement."
+ *   --total      — summary row; padding-top + top hairline separates
+ *                  it visually from the line items above. Compose
+ *                  .gd-mono-data--l on the row to bump size to body.
+ *   --uplift     — closing emphasis row; no border, intended to be
+ *                  composed with .gd-mono-data--bold +
+ *                  .gd-mono-data--uppercase for the all-caps treatment.
+ */
+
+.gd-audit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--gd-space-2) 0;
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+}
+
+.gd-audit-row:last-of-type {
+  border-bottom: 0;
+}
+
+/* Slot cells — label on the left (inherits ink color from
+   .gd-mono-data), value on the right (slot overrides to fg-strong
+   so numerals read structurally even though the row default is body
+   ink). Width/alignment come from the parent's flex layout — the
+   cells themselves only set color. */
+.gd-audit-row__label {
+  /* color inherited from .gd-mono-data (--gd-fg / ink) */
+}
+
+.gd-audit-row__value {
+  color: var(--gd-fg-strong);
+}
+
+/* First-pass row — the original carrier estimate, before the
+   supplement. The value strikes through to read as "this got
+   superseded." Strike color borrows the default rule color so it
+   doesn't compete with the brand or live like an error indicator. */
+.gd-audit-row--firstpass .gd-audit-row__value {
+  text-decoration: line-through;
+  text-decoration-color: var(--gd-rule-default);
+}
+
+/* Total row — the structural divider between line items and summary.
+   Top hairline in --gd-fg-strong (matches .gd-ledger's outer border)
+   gives the total its visual weight; no bottom border (it's the
+   penultimate or final row depending on whether an uplift row
+   follows). Compose .gd-mono-data--l on the row JSX for the body-size
+   typography. */
+.gd-audit-row--total {
+  padding-top: var(--gd-space-3);
+  border-top: var(--gd-bw-hair) solid var(--gd-fg-strong);
+  border-bottom: 0;
+}
+
+/* Uplift row — the marketing-style emphasis line ("Supplement uplift:
+   + $X / Y%"). No border so it sits flush below the total. Bold +
+   uppercase typography comes from composing .gd-mono-data--bold +
+   .gd-mono-data--uppercase on the row in JSX. */
+.gd-audit-row--uplift {
+  border-bottom: 0;
+}

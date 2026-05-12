@@ -1,0 +1,127 @@
+/* components/card.css
+ *
+ * .gd-card — bordered content block. Border + hover lift come from the
+ * shared lift selector group in tokens.css. Slots for eyebrow, title,
+ * body, link.
+ *
+ * Variants: --photo (image-anchored), --profile (portrait-anchored),
+ *           --file (filebar-anchored).
+ */
+
+.gd-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-3);
+  padding: var(--gd-space-6);
+  background: var(--gd-color-bg-page);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Card slot rules carry only layout/spacing/color (where the slot's
+   color differs from the role default). Typography is composed in JSX:
+   .gd-card__eyebrow + .gd-eyebrow
+   .gd-card__title   + .gd-h4
+   .gd-card__body    + .gd-body-s
+   .gd-card__link    + .gd-mono (color stays slot-overridden to brand) */
+.gd-card__eyebrow {
+  /* color comes from .gd-eyebrow (brand) — no slot override needed */
+}
+
+.gd-card__title {
+  margin: 0;
+}
+
+.gd-card__body {
+  margin: 0;
+}
+
+.gd-card__link {
+  margin-top: auto;
+  padding-top: var(--gd-space-3);
+  color: var(--gd-color-brand);
+  text-decoration: none;
+}
+
+/* ----- Card variants — three structural modifiers on .gd-card.
+   * --photo  : photo at top spans card; padded content below.
+   * --file   : filebar at top; padded content below.
+   * --profile: same shape as --photo but the photo is a portrait
+     aspect; used for people / profile cards.
+   The padding-rewrite is identical for --photo and --profile, hence
+   the grouped selectors below. */
+
+.gd-card--photo,
+.gd-card--profile,
+.gd-card--file {
+  padding: 0;
+}
+
+/* Photo / profile cards: image sits above eyebrow + title + body + link
+   + their padding/gaps. Reserve 14rem (5 + 5 + 4) for the content
+   stack so the image is bounded against (max-h − content reserve) and
+   both image AND content fit inside the viewport-fit cap together. The
+   reserve is conservative on purpose — better to underuse image space
+   than to push card content out of the viewport. */
+.gd-card--photo,
+.gd-card--profile {
+  --gd-image-fit-h: calc(
+    var(--gd-image-max-h)
+    - var(--gd-space-20)
+    - var(--gd-space-20)
+    - var(--gd-space-16)
+  );
+}
+
+/* Image-bearing cards fit to the image's effective width — the card's
+   max-width mirrors the .gd-ratio--* per-ratio max-width formula so
+   the card hugs the image instead of stretching beyond it. The image
+   itself is never altered; only the card's outer max-width is bounded.
+   Uses :has() to read the ratio modifier off the .gd-ratio child. */
+.gd-card--photo:has(.gd-ratio--cinema),
+.gd-card--profile:has(.gd-ratio--cinema) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 21 / 9);
+}
+.gd-card--photo:has(.gd-ratio--wide),
+.gd-card--profile:has(.gd-ratio--wide) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 16 / 9);
+}
+.gd-card--photo:has(.gd-ratio--landscape),
+.gd-card--profile:has(.gd-ratio--landscape) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 4 / 3);
+}
+.gd-card--photo:has(.gd-ratio--portrait),
+.gd-card--profile:has(.gd-ratio--portrait) {
+  max-width: calc(var(--gd-image-fit-h, var(--gd-image-max-h)) * 3 / 4);
+}
+.gd-card--photo:has(.gd-ratio--square),
+.gd-card--profile:has(.gd-ratio--square) {
+  max-width: var(--gd-image-fit-h, var(--gd-image-max-h));
+}
+
+.gd-card--photo > :not(.gd-ratio),
+.gd-card--profile > :not(.gd-ratio),
+.gd-card--file > :not(.gd-filebar) {
+  padding-inline: var(--gd-space-6);
+}
+
+.gd-card--photo > .gd-ratio + :not(.gd-ratio),
+.gd-card--profile > .gd-ratio + :not(.gd-ratio),
+.gd-card--file > .gd-filebar + :not(.gd-filebar) {
+  padding-top: var(--gd-space-6);
+}
+
+.gd-card--photo > :last-child:not(.gd-ratio),
+.gd-card--profile > :last-child:not(.gd-ratio),
+.gd-card--file > :last-child:not(.gd-filebar) {
+  padding-bottom: var(--gd-space-6);
+}
+
+/* Filebar nested in a file-card drops its outer top/left/right borders
+   so the card's border isn't doubled; the bottom hairline stays as the
+   divider between filebar and content. */
+.gd-card--file > .gd-filebar {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+}

@@ -1,0 +1,54 @@
+/* components/form.css
+ *
+ * Form controls — .gd-input, .gd-textarea, .gd-select share common
+ * type/border/focus treatment. .gd-label, .gd-field, .gd-field__error
+ * complete the family.
+ */
+
+/* Typography composed in JSX:
+   .gd-input / .gd-textarea / .gd-select   + .gd-body
+   .gd-label                                + .gd-mono-s .gd-mono-s--bold
+   .gd-field__error                         + .gd-mono-s .gd-mono-s--bold
+   The slot rules carry only layout, borders, focus chrome, and color
+   overrides where the slot's color differs from the role default. */
+.gd-input,
+.gd-textarea,
+.gd-select {
+  display: block;
+  width: 100%;
+  max-width: calc(100vw - 1.5 * var(--gd-pad-x));
+  background: var(--gd-color-bg-surface);
+  border: var(--gd-bw-hair) solid var(--gd-rule-strong);
+  padding: var(--gd-space-3) var(--gd-space-4);
+  transition: border-color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-input:focus,
+.gd-textarea:focus,
+.gd-select:focus {
+  border-color: var(--gd-rule-active);
+}
+
+.gd-textarea {
+  resize: vertical;
+  min-height: calc(var(--gd-space-12) * 2);
+}
+
+.gd-select {
+  appearance: none;
+}
+
+.gd-label {
+  display: block;
+  color: var(--gd-fg-strong);
+}
+
+.gd-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-space-2);
+}
+
+.gd-field__error {
+  color: var(--gd-color-brand);
+}

@@ -20,8 +20,10 @@ export function GdPhone({
 }: {
   tier?: "dark" | "light";
 }): ReactElement {
+  // Typography (mono family, fs-mono, bold, tr-mono, uppercase) comes
+  // from .gd-mono composed onto the .gd-phone slot.
   const className =
-    tier === "dark" ? "gd-phone gd-phone--on-dark" : "gd-phone";
+    tier === "dark" ? "gd-phone gd-phone--on-dark gd-mono" : "gd-phone gd-mono";
   return (
     <a className={className} href={`tel:${E164}`} aria-label={`Call ${DISPLAY}`}>
       <svg

@@ -9,6 +9,7 @@ type ReadSectionProps = {
   level?: 1 | 2;
   intro?: ReactNode;
   whenToUse?: ReactNode;
+  tokens?: ReactNode;
   children?: ReactNode;
 };
 
@@ -18,6 +19,7 @@ export function ReadSection({
   level = 1,
   intro,
   whenToUse,
+  tokens,
   children,
 }: ReadSectionProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -32,8 +34,12 @@ export function ReadSection({
     ? "read-section read-section--collapsed"
     : "read-section";
 
+  const wrapClassName = collapsed
+    ? "read-section-wrap read-section-wrap--collapsed"
+    : "read-section-wrap";
+
   return (
-    <section id={id} aria-labelledby={titleId}>
+    <section id={id} aria-labelledby={titleId} className={wrapClassName}>
       <header className={headerClassName}>
         <TitleTag className="read-section__title" id={titleId}>
           <button
@@ -64,6 +70,11 @@ export function ReadSection({
           >
             {whenToUse}
           </p>
+        ) : null}
+        {tokens ? (
+          <div className="read-section__tokens" hidden={collapsed}>
+            {tokens}
+          </div>
         ) : null}
       </header>
       {children ?? null}

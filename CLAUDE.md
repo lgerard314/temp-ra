@@ -98,7 +98,7 @@ These rules govern recurring decisions that drift would corrupt fastest. They li
 ### Typography
 
 - **All `<h1>`–`<h4>` use `--gd-font-display`, uppercase.** Never substitute another family on a heading.
-- **`--gd-tr-mono-wide` (0.22em tracking) is reserved exclusively for `.gd-eyebrow`.** No other class may use it.
+- **`.gd-eyebrow` uses `--gd-tr-mono` (0.18em)** like the rest of the mono uppercase family — it is differentiated by its brand color and bold weight, not by a unique tracking value.
 - **`.gd-pullquote` is the only Newsreader display-size role.** `.gd-serif` is body-size italic only.
 - **Forms / errors: use `--gd-color-brand`, never invent a red.** Same for any other "warning" / "destructive" indicator.
 
@@ -131,7 +131,7 @@ These rules govern recurring decisions that drift would corrupt fastest. They li
 
 ### Hover-lift treatment
 
-The shared border + box-shadow + transform-translateY treatment is one rule applied to `.gd-image > .gd-ratio`, `.gd-frame`, `.gd-slider`, `.gd-card` via a single comma-grouped selector in `tokens.css`. **Any new component that adopts this hover behavior must join the existing selector list**, not write a fifth duplicate rule body. New components get the same `--gd-d-base` / `--gd-ease` / `--gd-shadow-lift` / `--gd-lift` treatment or none.
+The shared border + box-shadow + transform-translateY treatment is one rule applied to `.gd-image > .gd-ratio`, `.gd-frame`, `.gd-slider`, `.gd-card` via a single comma-grouped selector in `tokens.css` (the cross-cutting rule lives in `tokens.css`, not in any individual component file). **Any new component that adopts this hover behavior must join the existing selector list in `tokens.css`**, not write a fifth duplicate rule body in its own component file. New components get the same `--gd-d-base` / `--gd-ease` / `--gd-shadow-lift` / `--gd-lift` treatment or none.
 
 ### Motion
 
@@ -157,16 +157,36 @@ The repository deliberately separates **the design system** from **commentary ab
 ```
 ra-v2/
   app/                          ← THE WHOLE GUIDE. The website IS the design system.
-    layout.tsx                  ← root layout, imports the three CSS files
+    layout.tsx                  ← root layout, imports every CSS file in cascade order
     page.tsx                    ← THE Design page. Single route (/). All sections inline.
     styles/                     ← ALL CSS SOURCES live here
       base.css                  ← Bare-element resets + document-wide behavior
-      tokens.css                ← THE DESIGN SYSTEM (every design value lives here)
+      tokens.css                ← Every --gd-* token + cross-cutting rules
+                                  (.gd-section, typography roles, .gd-ratio + ratios,
+                                   hover-lift selector group, dark-surface selector group)
+      components/               ← One file per component (or tight family)
+        btn.css                 ← .gd-btn + .gd-btn--ghost
+        card.css                ← .gd-card + slots + --photo/--profile/--file variants
+        filebar.css             ← .gd-filebar + slots
+        form.css                ← .gd-input/.gd-textarea/.gd-select/.gd-label/.gd-field
+        frame.css               ← .gd-frame brackets + meta rows
+        header.css              ← .gd-site-header/.gd-banner/.gd-topnav/.gd-phone/.gd-weather
+        image.css               ← .gd-image + .gd-caption
+        ledger.css              ← .gd-ledger + rows + slots
+        link.css                ← .gd-link + .gd-link--mono
+        list.css                ← .gd-list + .gd-list--ordered
+        mark.css                ← .gd-status/.gd-chip/.gd-divider/.gd-stamp/.gd-warranty/.gd-pm
+        quote.css               ← .gd-quote + mark + cite
+        slider.css              ← .gd-slider + layers/tags/handle/grip/meta
+        trust.css               ← .gd-trust + cells + .gd-bar + --rich variant
       readability.css           ← NOTES/PROSE ABOUT the guide (NOT part of the design)
     _components/                ← Shared React components. Underscore = private folder; never a route.
       ReadNav.tsx               ← floating draggable horizontal nav (client) — anchor-jump links
       ReadSection.tsx           ← yellow read-section header (server)
       ReadPlaceholder.tsx       ← non-yellow design-content placeholder (server)
+      GdClassChip.tsx           ← shared togglable .gd-* class chip used in every read-* table
+      SiteHeader.tsx            ← live .gd-site-header (scroll-collapse) (client)
+      GdPhone.tsx               ← shared .gd-phone render for banner + topnav slots
   public/                       ← Static assets served at /<path>
     photos/                     ← All photos
       brand/
@@ -182,16 +202,29 @@ ra-v2/
 - Imported FIRST in `app/layout.tsx` so the cascade reads: element defaults → design tokens → readability commentary.
 - This is part of the design system, not readability — it sets the foundation everything else builds on. Anything that isn't a raw-element reset does not belong here.
 
-### `app/styles/tokens.css` — the design system
+### `app/styles/tokens.css` — vocabulary + cross-cutting rules
 
-- Single source of truth for every design value: colors, spacing, typography, radii, shadows, z-indices, durations, easings, breakpoints, etc.
-- Defines design tokens as CSS custom properties on `:root`.
-- Class definitions for design components also belong adjacent to or alongside the tokens (in `tokens.css` or in additional design files under `app/styles/` as the system grows — but never in `readability.css`).
+- **Single source of truth for every design value.** All `--gd-*` custom properties live here on `:root`: colors, spacing, typography sizes/weights/line-heights/tracking, radii, shadows, z-indices, durations, easings, container widths, aspect ratios, image cap. Adding or auditing a value is a one-file operation — that's the whole point of keeping `tokens.css` whole. Never split tokens by category into sibling files; that would break the audit-everything-in-a-category-at-a-glance property.
+- **Plus a small set of cross-cutting class rules** that genuinely span multiple components and cannot live in any single component file without splitting their selector list:
+  - `.gd-section` — universal demo wrapper / horizontal gutters.
+  - **Typography roles** — `.gd-display`, `.gd-h1`..`.gd-h4`, `.gd-body*`, `.gd-mono*`, `.gd-eyebrow`, `.gd-pullquote`, `.gd-serif`, `.gd-accent`. Every component composes its typography from these roles rather than redeclaring family/size/weight/line-height on its own slots. Adding a typography role here is a load-bearing decision; do not duplicate type roles inside component files.
+  - **Foundational image vocabulary** — `.gd-ratio` and the five `.gd-ratio--*` modifiers. Consumed by `.gd-image`, `.gd-card--photo`/`--profile`, `.gd-frame`, `.gd-slider`. Lives here because it's vocabulary, not a component.
+  - **Hover-lift selector group** — one comma-grouped rule applied to `.gd-image > .gd-ratio`, `.gd-frame`, `.gd-slider`, `.gd-card`. Any new component that adopts this treatment joins this list; never write a parallel duplicate in a component file.
+  - **Dark-surface selector group** — one comma-grouped rule applied to `.gd-surface--dark`, `.gd-banner`, `.gd-bar--dark`, `.gd-frame`, `.gd-slider`. Same rule: join the list, never duplicate.
+- **Per-component class rules live in `app/styles/components/*.css` (see below) — not here.** A `.gd-foo` class whose rule body is self-contained belongs in the component file. Only rules whose selector list spans components, or whose role is foundational vocabulary, stay in `tokens.css`.
 - **Naming is non-negotiable:**
   - Every design custom property MUST start with `--gd-*` (e.g. `--gd-color-fg`, `--gd-fs-h1`, `--gd-space-4`).
   - Every design class MUST start with `.gd-*` (e.g. `.gd-btn`, `.gd-card`, `.gd-section`).
   - The `--read-*` / `.read-*` prefix is **reserved for readability.css and forbidden here.**
 - The `gd-` prefix exists so anyone scanning a file can tell at a glance which symbols are part of the real design system vs. the readability scaffolding. Never drop the prefix — even on tokens or classes that "feel obvious."
+
+### `app/styles/components/` — one file per component
+
+- Each `.css` file under `components/` owns exactly one component (or one tight family of slot classes). Files are named for the component, not for its appearance: `btn.css`, `card.css`, `filebar.css`, `header.css`, etc.
+- Component files **consume** the vocabulary in `tokens.css` (tokens + role classes + `.gd-ratio` + the cross-cutting selector groups). They do not re-declare tokens, they do not redefine cross-cutting groups, and they do not reach into other component files.
+- A component CSS file is self-contained for **its** component but explicitly delegates anything cross-cutting to `tokens.css`. The header.css file, for example, owns `.gd-site-header`, `.gd-banner` (its layout), `.gd-topnav`, etc., but the dark-surface background + on-dark text vocabulary that `.gd-banner` adopts comes from the shared selector group in `tokens.css` — header.css must never write its own copy of that rule.
+- All component files are imported by `app/layout.tsx` after `tokens.css` and before `readability.css`. Order among the component files themselves does not matter (components compose tokens, never each other). Add new component imports in alphabetical order to keep the list auditable.
+- If a class isn't clearly owned by any one component (e.g. a future shared chip class), surface it before adding — that's usually a sign it should be a token-side rule, a role class, or a refactor of an existing component, not a new file.
 
 ### `app/styles/readability.css` — commentary, never design
 
@@ -235,9 +268,11 @@ Run the site locally with `npm run dev` (port 3000). Type-check with `npm run ty
 
 ### The separation rule (strict)
 
-- A design class or token must **never** be referenced by a `.read-*` rule, and a `.read-*` class must **never** be used to style anything that is part of the design.
-- If a value or pattern is needed in both places, define it twice — once as a design token and once as a `--read-*` variable — and keep them independent. They serve different purposes; coupling them re-introduces drift.
-- Any edit that touches either file is also an audit: confirm every selector and every variable in scope still respects the namespace boundary.
+- A `.read-*` class must **never** be used to style anything that is part of the design.
+- A design class or token must **never** be referenced by a `.read-*` rule **except inside guide-demo elements whose entire purpose is to exhibit a design value** — color swatches, spacing rulers, radius / shadow / border demonstrations, max-width bars, the typography table's `{ styles }` rule-body chrome. In those cases the demo MUST consume the live `--gd-*` token directly (so the demo is always faithful to the current value); duplicating the value into the read namespace would re-introduce drift instead of preventing it. Every such crossing in `readability.css` carries an inline comment documenting it as a sanctioned demo-only reference.
+- `--gd-font-mono-loaded` (next/font runtime resource) is a non-design reference that `readability.css` also consumes for its own typography. That's not a sanctioned design-token crossing — it's a webfont loader handle.
+- For non-demo readability chrome — anything that is itself styling rather than exhibiting a design value — the read namespace defines its own `--read-*` primitive. Do not reach into design tokens for read-namespace background colors, prose typography, nav-flyout geometry, etc.
+- Any edit that touches either file is also an audit: confirm every selector and every variable in scope still respects the namespace boundary, and that every design-token reference in `readability.css` is a sanctioned demo with an inline comment justifying it.
 
 ## Content is out of scope — only design matters
 
@@ -250,9 +285,11 @@ This repository is exclusively about the **design system** right now. Copy, head
 
 ## Quarantined files (do not read unless explicitly directed)
 
-There are currently no quarantined files in this repo. The previous external-reference file (`spec-sheet-family-guide.html`) has been fully extracted and deleted.
+**Current quarantined files:**
 
-If a quarantined file is ever introduced, it lives outside `app/` and follows these hard rules:
+- **`spec-sheet-family-guide.html`** (repo root) — the original external-reference HTML the design system was built against. Kept around as a read-only reference the user may point at for specific extractions. Carries a top-of-file banner with the same rules as below. **Never read past that banner unless the user has, in the current turn, explicitly told you to extract from this specific file.**
+
+Hard rules for any quarantined file (current or future):
 
 - **Do not open or read it** unless the user has, in the current turn, explicitly instructed you to extract from that specific file. Curiosity, "for context," or "to understand the project better" are not valid reasons.
 - Each quarantined file carries a banner at the top warning agents off; that banner is authoritative — respect it.
@@ -264,6 +301,6 @@ If a quarantined file is ever introduced, it lives outside `app/` and follows th
 
 The Next.js site is a **single-page design guide**. The home page (`/`) lists every token category and every component in inline `<ReadSection>` blocks, navigable via the floating draggable / collapsable readability nav with anchor-jump links and hover/focus flyouts on grouped subsections. Yellow `.read-section` headers carry an intro paragraph and a "When to use" note; the click-to-collapse mechanism hides only those notes — the actual demo content below the yellow card stays visible.
 
-`app/styles/tokens.css` is fully populated: the entire color, typography, spacing, border, radius, shadow, motion, and container vocabulary; the role-token cascade for surface-aware foregrounds (`--gd-fg*`, `--gd-rule`) and the shared dark-surface rule grouping `.gd-surface--dark`, `.gd-banner`, `.gd-bar--dark`, `.gd-frame`, `.gd-slider`; every production component (`.gd-btn`, `.gd-link`, `.gd-input`, `.gd-textarea`, `.gd-select`, `.gd-label`, `.gd-field__error`, `.gd-filebar`, `.gd-card` + `--photo`/`--profile`/`--file` variants, `.gd-tag`/`.gd-chip`, `.gd-status`, `.gd-divider`, `.gd-ledger`, `.gd-quote`, `.gd-trust`, `.gd-list`, `.gd-warranty`, `.gd-pm`, `.gd-stamp`, the entire site-header system including banner + topnav + scroll-collapse, etc.). All design values are tokens; no magic numbers.
+`app/styles/tokens.css` carries the full vocabulary plus the cross-cutting class rules: the entire color, typography, spacing, border, radius, shadow, motion, and container `--gd-*` token set; the role-token cascade for surface-aware foregrounds (`--gd-fg*`, `--gd-rule`); the `.gd-section` wrapper; every typography role class (`.gd-display`, `.gd-h1`–`.gd-h5`, `.gd-body-l/-/-s`, `.gd-mono/-s/-xs`, `.gd-mono-data` and its `--l`/`--semibold`/`--bold`/`--uppercase` modifiers, plus `.gd-mono--medium`/`.gd-mono-s--bold`/`.gd-mono-xs--bold` weight modifiers, `.gd-eyebrow`, `.gd-stat`, `.gd-pullquote`, `.gd-serif`, `.gd-accent`); the foundational `.gd-ratio` + `.gd-ratio--*` vocabulary; the hover-lift selector group (`.gd-image > .gd-ratio`, `.gd-frame`, `.gd-slider`, `.gd-card`); the dark-surface selector group (`.gd-surface--dark`, `.gd-banner`, `.gd-bar--dark`, `.gd-frame`, `.gd-slider`). Per-component class rules live in `app/styles/components/*.css` — one file per component, **carrying ONLY non-typography concerns** (layout, padding, borders, transitions, slot-color overrides); every font property is supplied by composing the relevant typography role class onto the slot in JSX. The three documented role-singular outliers that retain inline typography are `.gd-warranty__shape`, `.gd-quote__mark`, and `.gd-pm__name`; the `::before` pseudo-elements on `.gd-list` and `.gd-list--ordered` retain inline typography by necessity (pseudo-elements can't accept class composition). All component files are imported in `app/layout.tsx` between `tokens.css` and `readability.css`. Every production component is shipped: `.gd-btn`, `.gd-link`, `.gd-input`/`.gd-textarea`/`.gd-select`/`.gd-label`/`.gd-field__error`, `.gd-filebar`, `.gd-card` + `--photo`/`--profile`/`--file` variants, `.gd-chip`, `.gd-status`, `.gd-divider`, `.gd-ledger`, `.gd-audit-row` + `--firstpass`/`--total`/`--uplift` variants, `.gd-quote`, `.gd-trust` + `--rich` + `.gd-bar`, `.gd-list`, `.gd-warranty`, `.gd-pm`, `.gd-stamp`, `.gd-image`/`.gd-caption`, `.gd-frame`, `.gd-slider`, the entire site-header system (`.gd-site-header`/`.gd-banner`/`.gd-topnav`/`.gd-phone`/`.gd-weather`) including banner + topnav + scroll-collapse. All design values are tokens; no magic numbers.
 
 `app/styles/readability.css` carries the readability namespace (`--read-*` / `.read-*`) — section/subsection chrome, the floating nav, the swatch/ruler/demo elements, plus its own typography vocabulary (mono family, sizes, tracking) so design tokens never have to be cross-referenced from `.read-*` styling rules.

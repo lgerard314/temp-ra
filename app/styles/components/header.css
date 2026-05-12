@@ -1,0 +1,229 @@
+/* components/header.css
+ *
+ * Site header — the real chrome at the top of every page. Two stacked
+ * strips:
+ *   .gd-banner   — thin dark strip, --gd-color-fg-strong ground, two
+ *                  tiers of on-dark text. Slides away when scrolled.
+ *                  Dark-surface treatment comes from the shared rule
+ *                  in tokens.css.
+ *   .gd-topnav   — main nav: logo + weather widget + tab links + the
+ *                  page's one primary .gd-btn. Vertical padding halves
+ *                  in the scrolled state.
+ *
+ * Plus the .gd-phone link (banner + topnav-on-scroll renders) and the
+ * decorative .gd-weather widget.
+ *
+ * The header is position: sticky so the topnav remains pinned at the
+ * top after the banner collapses; the banner sits inside the same
+ * sticky wrapper so the height of the chrome itself is what scrolls
+ * off — no separate fixed positioning.
+ *
+ * State: .gd-site-header.is-scrolled is written by the React wrapper
+ * when window.scrollY crosses a small threshold. The class swaps which
+ * role-padding token the topnav consumes and reveals the topnav phone
+ * slot (the banner phone slot fades out with the banner).
+ */
+
+.gd-site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--gd-z-header);
+  background: var(--gd-color-bg-page);
+}
+
+/* Embed modifier — used ONLY in the design guide demo, where the
+   header is rendered inside a section instead of as real chrome.
+   Drops sticky + the header z-index so the demo instance can't
+   compete with the real chrome at the viewport top. The cardinality
+   rule (one banner per page, at the very top) still applies to real
+   usage — embeds are guide-only and never ship in production pages. */
+.gd-site-header--embed {
+  position: static;
+  z-index: auto;
+}
+
+/* Banner strip — dark ground, on-dark text. Collapses by animating its
+   max-height + opacity to zero in the scrolled state. The transition
+   targets only properties the system already animates (max-height,
+   opacity); duration + ease come from existing motion tokens. */
+.gd-banner {
+  /* background + text color come from the shared dark-surface rule in
+     tokens.css (.gd-surface--dark, .gd-banner, .gd-bar--dark, .gd-frame,
+     .gd-slider). Only banner-specific layout properties live here. */
+  overflow: hidden;
+  max-height: var(--gd-space-12);              /* generous ceiling — content sets the actual height */
+  transition:
+    max-height var(--gd-d-base) var(--gd-ease),
+    opacity    var(--gd-d-base) var(--gd-ease),
+    border-color var(--gd-d-base) var(--gd-ease);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-dim);
+}
+
+.gd-site-header.is-scrolled > .gd-banner {
+  max-height: 0;
+  opacity: 0;
+  border-bottom-color: transparent;
+}
+
+.gd-banner__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gd-space-6);
+  padding-block: var(--gd-banner-pad-y);
+  padding-inline: var(--gd-pad-x);
+}
+
+/* Typography composed in JSX: .gd-banner__meta + .gd-mono-s .gd-mono-s--bold */
+.gd-banner__meta {
+  /* Cascades from .gd-banner — --gd-fg-muted is re-pointed to
+     --gd-color-fg-on-dark-dim inside the dark-surface rule. */
+  color: var(--gd-fg-muted);
+}
+
+/* Topnav — light ground (page color, so it blends with the page beneath
+   when the banner collapses). Padding role tokens swap on the scroll
+   state. */
+.gd-topnav {
+  background: var(--gd-color-bg-page);
+  border-bottom: var(--gd-bw-hair) solid var(--gd-rule-default);
+  transition: padding-block var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-topnav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-6);
+  padding-block: var(--gd-header-pad-y);
+  padding-inline: var(--gd-pad-x);
+  transition: padding-block var(--gd-d-base) var(--gd-ease);
+}
+
+.gd-site-header.is-scrolled .gd-topnav__inner {
+  padding-block: var(--gd-header-pad-y-compact);
+}
+
+.gd-topnav__brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.gd-topnav__logo {
+  display: block;
+  height: var(--gd-logo-h);
+  width: auto;
+}
+
+.gd-topnav__links {
+  display: flex;
+  flex: 1 1 auto;               /* take the slack between weather widget and CTA group */
+  justify-content: center;      /* center the page tabs in that slack */
+  align-items: center;
+  gap: var(--gd-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Typography composed in JSX: .gd-topnav__link + .gd-mono */
+.gd-topnav__link {
+  color: var(--gd-fg-strong);
+  text-decoration: none;
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-topnav__link:hover {
+  color: var(--gd-color-brand);
+}
+
+.gd-topnav__cta {
+  display: flex;
+  align-items: center;
+  gap: var(--gd-space-4);
+}
+
+/* The topnav-slot phone is hidden by default and revealed on scroll —
+   it duplicates the banner phone visually but only one is on-screen at
+   a time, so the user never sees both. Same .gd-phone class powers
+   both renders; the wrapper controls visibility. */
+.gd-topnav__phone-slot {
+  display: none;
+}
+
+.gd-site-header.is-scrolled .gd-topnav__phone-slot {
+  display: inline-flex;
+}
+
+/* ----- Phone link — a CTA-style mono link for the phone number with an
+   inline icon to the left. No background, no border (per spec). Two
+   tier modifiers select on-dark vs on-light context so the same class
+   powers both the banner render and the topnav render. */
+
+/* Typography composed in JSX: .gd-phone + .gd-mono */
+.gd-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gd-space-2);
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--gd-fg-strong);
+  transition: color var(--gd-d-fast) var(--gd-ease);
+}
+
+.gd-phone:hover {
+  color: var(--gd-color-brand);
+}
+
+/* On-dark variant — used inside .gd-banner. Two-tier on-dark vocab
+   only; primary tier here so the phone reads as a CTA. */
+.gd-phone--on-dark {
+  color: var(--gd-color-fg-on-dark);
+}
+
+.gd-phone--on-dark:hover {
+  color: var(--gd-color-brand);
+}
+
+.gd-phone__icon {
+  width: var(--gd-fs-mono);
+  height: var(--gd-fs-mono);
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+/* ----- Weather widget — small icon + temperature + short label,
+   sitting inside the topnav next to the brand. Decorative chrome,
+   never a feature; uses the existing mono / muted vocabulary and adds
+   no new primitives. */
+
+.gd-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gd-space-2);
+  padding-inline: var(--gd-space-3);
+  border-left: var(--gd-bw-hair) solid var(--gd-rule-default);
+  color: var(--gd-fg-muted);
+}
+
+.gd-weather__icon {
+  width: var(--gd-fs-h4);
+  height: var(--gd-fs-h4);
+  display: inline-block;
+  flex: 0 0 auto;
+  color: var(--gd-color-brand);
+}
+
+/* Typography composed in JSX:
+   .gd-weather__temp  + .gd-h4
+   .gd-weather__label + .gd-mono-s .gd-mono-s--bold */
+.gd-weather__temp {
+  color: var(--gd-fg-strong);
+}
+
+.gd-weather__label {
+  color: var(--gd-fg-muted);
+}
